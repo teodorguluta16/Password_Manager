@@ -1,0 +1,161 @@
+import React, { useState, useEffect } from 'react';
+import Video2 from "../../assets/website/video6.mp4";
+import { useNavigate } from 'react-router-dom';
+
+import { useKeySimetrica } from '../FunctiiDate/ContextKeySimetrice'
+import { criptareDate, generateKey, decodeMainKey, decriptareDate } from "../FunctiiDate/FunctiiDefinite"
+import { saveKeyInIndexedDB } from '../FunctiiDate/ContextKeySimetrice'; // Importăm funcția corect
+import CryptoJS from 'crypto-js';
+
+function hexToString(hex) {
+  let str = '';
+  for (let i = 0; i < hex.length; i += 2) {
+    str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+  }
+  return str;
+}
+
+const LoginPage = () => {
+  const [incorectCredentiale, setincorectCredentiale] = useState(false);
+
+  const [accessToken, setAccessToken] = useState(null);
+
+  const [Parola, setParola] = useState('');
+  const [Email, setEmail] = useState('');
+
+  const navigate = useNavigate();
+
+  const toggleForm = () => { navigate('/signup'); };
+
+  const { setKey } = useKeySimetrica();  // Accesăm setter-ul din context
+
+  const handleLogin = async (e) => {
+    if (e && e.preventDefault) { e.preventDefault(); }
+
+    if (!Email || !Parola) {
+      setincorectCredentiale(true);
+      return;
+    }
+    const date = { Email, Parola };
+
+    try {
+      const response = await fetch('http://localhost:9000/api/auth/login', {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(date),
+      });
+
+      if (response.ok) {
+        const responseFromServer = await response.json();
+        console.log("Access token primit:", responseFromServer);
+
+        // Derivarea cheii simetrice din parola
+        const derivedKey = CryptoJS.PBKDF2(Parola, Email, { keySize: 256 / 32, iterations: 500000 });  // Ajustează numărul de iterații
+        const derivedKeyBase64 = derivedKey.toString(CryptoJS.enc.Base64);
+        console.log('Cheia derivată în Base64:', derivedKeyBase64);
+
+        // Salvăm accessToken în sessionStorage
+        sessionStorage.setItem('accessToken', responseFromServer.accessToken);
+        setAccessToken(responseFromServer.accessToken);
+
+        try {
+          const aesResponse = await fetch('http://localhost:9000/api/getUserSimmetricKey', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${responseFromServer.accessToken}`
+            }
+          });
+
+          if (aesResponse.ok) {
+            const aesResponseData = await aesResponse.json();
+            console.log("Răspunsul de la server pentru cheia AES:", aesResponseData);
+
+            const decriptKey = await decodeMainKey(derivedKeyBase64);
+            // Decriptarea cheii
+
+            const keyfromdata = aesResponseData[0].encryptedsimmetrickey;
+            const decodedString = hexToString(keyfromdata);
+            console.log(decodedString);
+            const dataObject = JSON.parse(decodedString);
+
+            const ivHex = dataObject.encKey.iv;
+            const encDataHex = dataObject.encKey.encData;
+            const tagHex = dataObject.encKey.tag;
+
+            const dec_key = await decriptareDate(encDataHex, ivHex, tagHex, decriptKey);
+
+            const octetiArray = dec_key.split(',').map(item => parseInt(item.trim(), 10));
+            const uint8Array = new Uint8Array(octetiArray);
+            console.log("Am obtinut:", uint8Array);
+
+            // Transformă uint8Array într-un WordArray CryptoJS
+            const wordArray = CryptoJS.lib.WordArray.create(uint8Array);
+
+            // Convertește WordArray în format Base64
+            const base64Key = wordArray.toString(CryptoJS.enc.Base64);
+
+            console.log("Cheia în format Base64:", base64Key);
+
+            // Acum poți să aplici setKey
+            await saveKeyInIndexedDB(base64Key);
+
+            setKey(base64Key);
+
+
+            navigate('/myapp');
+          } else {
+            console.error("Eroare la obținerea cheii AES de la server");
+            setincorectCredentiale(true);
+          }
+
+        } catch (error) {
+          console.error("Eroare la cererea cheii AES", error);
+        }
+
+      } else {
+        setincorectCredentiale(true);
+        return;
+      }
+    } catch (error) {
+      console.error("Eroare la trimiterea formularului", error);
+    }
+
+  };
+
+  return (
+    <>
+      <div className='flex flex-col lg:flex-row h-screen'>
+        {/* Stanga Video */}
+        <div className='relative w-full lg:w-1/2 h-auto'>
+          <video src={Video2} autoPlay loop muted className="w-full h-full object-cover aspect-[16/9] lg:aspect-auto"></video>
+        </div>
+
+        {/* Dreapta formular */}
+        <div className='flex flex-col justify-center items-center w-full lg:w-1/2 bg-gray-100 h-full lg:mt-0'>
+          <h2 className='text-4xl font-bold text-center -mt-10'>Intră în cont</h2>
+          <form className='mt-6 flex flex-col items-left lg:w-96 w-3/4'>
+            <label className='block text-lg font-medium'>E-mail:</label>
+            <input type='email' value={Email} onChange={(e) => { setEmail(e.target.value); setincorectCredentiale(false); }} className='mt-2 p-3 border border-green-400 rounded w-full bg-neutral' placeholder='Introdu adresa ta' />
+            <label className='block text-lg font-medium mt-4'>Parola:</label>
+            <input type='password' value={Parola} onChange={(e) => { setParola(e.target.value); setincorectCredentiale(false); }} className='mt-2 p-3 border border-green-400 rounded w-full bg-neutral' placeholder='Introdu parola' />
+
+            <div className='mt-7 flex flex-col items-center px-6'>
+              <button className='px-6 py-2 w-3/4 bg-green-600 text-white rounded hover:bg-yellow-500 mb-6' onClick={handleLogin}>Log In</button>
+              {incorectCredentiale && (<h3 className="w-full text-red-600 text-semibold text-center"> Eroare ! Credentiale Incorecte !</h3>)}
+              <button type='button' onClick={toggleForm} className='mt-2 text-blue-500 hover:underline inline-block bg-transparent border-none p-0 cursor-pointe mb-3'>
+                Creează un cont nou
+              </button>
+              {accessToken && <p>Token-ul tău: {accessToken}</p>}
+              <a href='#' className='text-blue-500 hover:underline'>Ți-ai uitat parola?</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default LoginPage;

@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes scaleAndRotateAnimation {
+
+  0%,
+  100% {
+    transform: scale(1) rotateY(0deg);
+    /* Începe de la dimensiunea și poziția inițială */
+  }
+
+  50% {
+    transform: scale(1.08) rotateY(90deg);
+    /* Mărire și rotație la 90 de grade la mijloc */
+  }
+}
+
+.animate-scale-rotate {
+  animation: scaleAndRotateAnimation 4s infinite ease-in-out;
+}

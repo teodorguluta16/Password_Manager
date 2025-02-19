@@ -1,0 +1,266 @@
+@media (max-height: 728px) {
+    .hide-on-small-height {
+        display: none !important;
+    }
+}
+
+@media (max-height: 750px) {
+    .aliniere {
+        margin-left: 9% !important;
+    }
+}
+
+@media (min-width:500px) and (max-width:640px) {
+    .custom_grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width:333px) {
+    .aliniere_custom {
+        flex-direction: column !important;
+    }
+}
+
+@media (max-width:489px) {
+    .aliniere_custom2 {
+        flex-direction: column !important;
+    }
+}
+
+@media (min-height: 384px) {
+    .custom-height {
+        height: 21rem !important;
+    }
+
+    .custom-height2 {
+        height: 19rem !important;
+    }
+
+}
+
+@media (min-height: 615px) {
+    .custom-height {
+        height: 22rem !important;
+    }
+
+    .custom-height2 {
+        height: 20rem !important;
+    }
+
+    .custom-height3 {
+        height: 39rem !important;
+    }
+}
+
+@media (min-height: 666px) {
+    .custom-height {
+        height: 23rem !important;
+    }
+
+    .custom-height2 {
+        height: 22rem !important;
+    }
+}
+
+
+@media (min-height: 690px) {
+
+    .custom-height2 {
+        height: 22rem !important;
+    }
+
+    .custom-height {
+        height: 25rem !important;
+    }
+}
+
+@media (min-height: 710px) {
+
+    .custom-height2 {
+        height: 24rem !important;
+    }
+
+    .custom-height {
+        height: 26rem !important;
+    }
+}
+
+@media (min-height: 750px) {
+
+    .custom-height {
+        height: 27rem !important;
+    }
+
+    .custom-height2 {
+        height: 22rem !important;
+    }
+
+}
+
+@media (min-height: 775px) {
+
+    .custom-height {
+        height: 29rem !important;
+    }
+
+    .custom-height2 {
+        height: 25rem !important;
+    }
+}
+
+
+
+@media (min-height: 812px) {
+    .custom-height {
+        height: 30rem !important;
+    }
+
+    .custom-height2 {
+        height: 27rem !important;
+    }
+}
+
+@media (min-height: 844px) {
+    .custom-height {
+        height: 33rem !important;
+    }
+
+    .custom-height2 {
+        height: 30rem !important;
+    }
+}
+
+@media (min-height: 912px) {
+    .custom-height {
+        height: 39rem !important;
+    }
+
+    .custom-height2 {
+        height: 32rem !important;
+    }
+}
+
+@media (min-height: 977px) {
+    .custom-height {
+        height: 39rem !important;
+    }
+
+    .custom-height2 {
+        height: 37rem !important;
+    }
+}
+
+@media (min-height: 1024px) {
+    .custom-height {
+        height: 45rem !important;
+    }
+
+    .custom-height2 {
+        height: 42rem !important;
+    }
+}
+
+@media (min-height: 1040px) {
+    .custom-height {
+        height: 45rem !important;
+    }
+
+    .custom-height2 {
+        height: 50rem !important;
+    }
+}
+
+@media (min-height: 1250px) {
+    .custom-height {
+        height: 55rem !important;
+    }
+
+    .custom-height2 {
+        height: 50rem !important;
+    }
+}
+
+@media (min-height: 1285px) {
+    .custom-height {
+        height: 61rem !important;
+    }
+
+    .custom-height2 {
+        height: 50rem !important;
+    }
+}
+
+@media (min-height: 1360px) {
+
+    .custom-height2 {
+        height: 50rem !important;
+    }
+}
+
+@media (max-width:427px) {
+    .custom_width {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center;
+    }
+
+    .custom_top_istoric {
+        padding-top: 4rem !important;
+    }
+}
+
+@media (min-width:640px) and (max-width:751px) {
+    .custom_width {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center;
+    }
+}
+
+@media (min-width:1026px) and (max-width:1490px) {
+    .custom_width {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center;
+    }
+
+
+}
+
+@media (min-width:1026px) {
+    .custom_top {
+        padding-top: 0rem !important;
+    }
+}
+
+@media (min-width:1500px) {
+    .custom_top {
+        padding-top: -10rem !important;
+    }
+}
+
+@media (max-height: 450px) {
+    .myElement {
+        overflow-y: auto !important;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .myTable td,
+    .myTable th {
+        padding: 3px !important;
+        font-size: 12px !important
+            /* Micșorează padding-ul celulelor */
+    }
+
+    .customsizebutton {
+        padding: 2px !important;
+    }
+
+    .customsize {
+        width: 4.5vw !important;
+        height: 3vh !important;
+    }
+}
