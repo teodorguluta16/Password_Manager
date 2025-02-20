@@ -141,14 +141,20 @@ const PopupNewGrupParola = ({ setShowParolaPopup, accessToken, derivedKey, idgru
                 },
             };
 
+            const requestBody = {
+                id_grup: idgrup,
+                jsonItem: jsonItem
+            };
+
+
             try {
-                const response = await fetch('http://localhost:9000/api/addItem', {
+                const response = await fetch('http://localhost:9000/api/grupuri/addItemGroup', {
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${accessToken}`,
                     },
-                    body: JSON.stringify(jsonItem),
+                    body: JSON.stringify(requestBody),
                 });
 
                 if (!response.ok) {
