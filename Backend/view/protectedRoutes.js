@@ -267,6 +267,36 @@ protectedRouter.post('/grupuri/getGroupOwnerDetails', async (req, res) => {
     }
 });
 
+protectedRouter.post('/grupuri/addItemGroup', async (req, res) => {
+    const { jsonItem, id_grup } = req.body;
+    const userId = req.user.sub;
+
+    if (!jsonItem || !jsonItem.metadata || !jsonItem.data) {
+        console.log("E incomplet");
+        return res.status(400).json({ message: "Structura datelor este incompletă" });
+    }
+
+    try {
+
+        const result = await client.query(`INSERT INTO Itemi (id_owner, continut) VALUES ($1, $2) RETURNING id_item`, [userId, jsonItem]);
+        const iditem = result.rows[0].id_item;
+
+        const result2 = await client.query(`INSERT INTO legGrupuriItemi (id_grup,id_item) VALUES ($1,$2)`, [id_grup, iditem]);
+        if (result2.rowCount > 0) {
+            console.log("Inserare realizată cu succes in LegGrupItemi!");
+        } else {
+            console.log("Nu s-a efectuat nicio inserare.");
+            res.status(400).json({ message: "Inserare nereusita" });
+        }
+
+        console.log("Item inserat cu succes! ID-ul item-ului:", iditem);
+        res.status(200).json({ id_item: iditem });
+    } catch (error) {
+        console.error('Eroare la inserarea item-ului:', error);
+        res.status(500).send();
+    }
+});
+
 protectedRouter.get('/getGrupuri', async (req, res) => {
     const userId = req.user.sub;
     try {
