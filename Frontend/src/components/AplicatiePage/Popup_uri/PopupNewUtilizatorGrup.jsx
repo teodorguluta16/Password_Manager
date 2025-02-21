@@ -147,7 +147,7 @@ const PopupNewUtilizatorGrup = ({ accessToken, setPopupUtilizatorNou, idgrup, de
             console.error('Eroare la trimiterea cererii:', error);
         }
         let publicKeyUtilizatorPem = fixBase64Key(publicKeyUtilizator);
-        console.log("Cheia publica a userului este cu id-ul ", newMemberId, " este: ", publicKeyUtilizatorPem);
+        console.log("Cheia publica a userului este cu id-ul ", newMemberId, "si emailul ", nameItem, " este: ", publicKeyUtilizatorPem);
 
         //4 criptez cheia aia aes cu cheia lui publica
         if (!isValidPem(publicKeyUtilizatorPem)) {
@@ -161,12 +161,13 @@ const PopupNewUtilizatorGrup = ({ accessToken, setPopupUtilizatorNou, idgrup, de
         const publicKey2 = forge.pki.publicKeyFromPem(publicKeyUtilizatorPem);
         //const privateKey2 = forge.pki.privateKeyFromPem(decc_key);
         const message = decryptedMessage;  // mesajul ce urmeaza a fi criptat
+        console.log("cheia aes ce urmeaza a fi criptata: ", message);
         let encryptedMessage2; /// aici criptam efectiv
         let encryptedMessage2Base64; /// aici criptam efectiv
         try {
             encryptedMessage2 = encryptWithPublicKey(message, publicKey2);
             encryptedMessage2Base64 = forge.util.encode64(encryptedMessage2);
-            console.log("Cheia simetrica criptata este (base64):", encryptedMessage2Base64);
+            console.log("Cheia simetrica criptata sharuita pentru noul ut este (base64):", encryptedMessage2Base64);
         } catch (error) {
             console.error("Eroare la criptare:", error.message);
         }
@@ -175,10 +176,11 @@ const PopupNewUtilizatorGrup = ({ accessToken, setPopupUtilizatorNou, idgrup, de
         const jsonItem = {
             idMembru: newMemberId,
             grupId: idgrup,
-            encryptedKey: encryptedMessage2Base64
+            encryptedKey: encryptedMessage2Base64,
         };
 
         try {
+            console.log(jsonItem);
             const response = await fetch('http://localhost:9000/api/addMembruGrup', {
                 method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
                 body: JSON.stringify(jsonItem)

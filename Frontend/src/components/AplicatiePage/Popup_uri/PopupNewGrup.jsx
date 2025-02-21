@@ -70,7 +70,7 @@ const PopupNewGrup = ({ accessToken, setPopupGrupNou, derivedKey }) => {
         // 1.generez o cheie noua AES si criptez cheia privata a  grupului
 
         const key_aes = await generateKey();
-        //console.log("Chiea simetrica cu care criptez cheia privata este: ", key_aes);
+        console.log("Chiea simetrica a grupului este: ", key_aes);
 
         // 2.extrag CHEIA PUBLICA A OWNERULUI si o convertesc in PEM pentru a cripta cheia aes generata
 
@@ -161,7 +161,7 @@ const PopupNewGrup = ({ accessToken, setPopupGrupNou, derivedKey }) => {
         try {
             encryptedMessage = encryptWithPublicKey(message, publicKey2);
             encryptedMessageBase64 = forge.util.encode64(encryptedMessage);
-            console.log("Mesajul criptat (base64):", encryptedMessageBase64);
+            console.log("Cheia AES a grupului criptata (base64):", encryptedMessageBase64);
         } catch (error) {
             console.error("Eroare la criptare:", error.message);
         }

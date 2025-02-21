@@ -40,6 +40,7 @@ const PopupNewGrupParola = ({ setShowParolaPopup, accessToken, derivedKey, idgru
 
             // 1. genere o cheie aes pentru itemul respectiv
             const key_aes = await generateKey();
+            console.log("Cheia generata pentru item: ", key_aes);
 
             // 2. criptez itemul respectiv cu cheia
             const enc_Tip = await criptareDate("password", key_aes);
@@ -99,7 +100,7 @@ const PopupNewGrupParola = ({ setShowParolaPopup, accessToken, derivedKey, idgru
             } catch (error) {
                 console.error('Eroare la trimiterea cererii:', error);
             }
-            console.log("Mesajul criptat (base64):", encryptedgroupAesKey);
+            console.log("Cheia criptata a grupului (base64):", encryptedgroupAesKey);
             const encryptedMessage = forge.util.decode64(encryptedgroupAesKey);
             let decryptedMessage;
             const privateKey2 = forge.pki.privateKeyFromPem(decc_key);
