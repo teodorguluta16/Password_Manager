@@ -148,7 +148,7 @@ protectedRouter.post('/addGrup', async (req, res) => {
         const result2 = await client.query(
             `INSERT INTO legusergrup (id_user, id_grup, encryptedsimmetricgroupkey)
              VALUES ($1, $2, $3)`,
-            [userId, iditem, encryptedAesKeyBuffer]
+            [userId, iditem, encryptedAesKey]
         );
         console.log("Grup adăugat cu succes! ID-ul grupului:", iditem);
         res.status(200).json({ id_item: iditem });
@@ -160,6 +160,14 @@ protectedRouter.post('/addGrup', async (req, res) => {
 
 protectedRouter.post('/addMembruGrup', async (req, res) => {
     const { idMembru, grupId, encryptedKey } = req.body;
+
+    const base64Data = req.body.encryptedKey;
+    const decryptedData = Buffer.from(base64Data, 'base64'); // Decodificare Base64
+    console.log("Cheia criptata: ", encryptedKey);
+
+
+    console.log("Membru:", idMembru);
+    console.log("Grup:", grupId);
 
     try {
         const result2 = await client.query(
@@ -208,7 +216,14 @@ protectedRouter.post('/getGroupSimmetricEncryptedKey', async (req, res) => {
         if (result.rows.length > 0) {
             const encryptedAesKeyBuffer = result.rows[0].encryptedsimmetricgroupkey; // Este deja un Buffer
 
-            const encryptedAesKeyBase64 = encryptedAesKeyBuffer.toString('base64');
+            const encryptedAesKeyHex = encryptedAesKeyBuffer.toString('hex').replace(/\s+/g, '');
+            console.log(encryptedAesKeyHex);
+
+            const encryptedAesKey = Buffer.from(encryptedAesKeyHex, 'hex');
+            console.log("Varianta from: ", encryptedAesKey);
+
+            const encryptedAesKeyBase64 = encryptedAesKey.toString('ascii');
+            console.log("DAAA:", encryptedAesKeyBase64);
             res.status(200).json({ EncryptedAesKeyBase64: encryptedAesKeyBase64 });
 
         } else {
@@ -293,6 +308,28 @@ protectedRouter.post('/grupuri/addItemGroup', async (req, res) => {
         res.status(200).json({ id_item: iditem });
     } catch (error) {
         console.error('Eroare la inserarea item-ului:', error);
+        res.status(500).send();
+    }
+});
+
+protectedRouter.post('/grupuri/getGroupItemi', async (req, res) => {
+    const { idgrup } = req.body;
+    const userId = req.user.sub;
+
+    try {
+        console.log("id-ul grupului cerut este: ", idgrup);
+        const result = await client.query(`SELECT encode(i.keys, 'hex') AS keys_hex, encode(i.continut, 'hex') AS continut_hex, 
+                            lgi.id_item AS id_item, i.id_owner AS id_owner, i.isdeleted AS isdeleted FROM leggrupuriitemi lgi 
+                            JOIN itemi i ON lgi.id_item = i.id_item WHERE lgi.id_grup = $1`, [idgrup]);
+
+        if (result.rowCount > 0) {
+            res.status(200).json(result.rows);
+        } else {
+            console.log("Nu s-a obtinut nimic.");
+            res.status(200).json({ message: "Nu exista itemi" });
+        }
+    } catch (error) {
+        console.error('Eroare la obinerea itemilor:', error);
         res.status(500).send();
     }
 });
