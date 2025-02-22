@@ -27,6 +27,7 @@ import GrupuriPage from './ItemiPages/GrupuriPage';
 import PopupNewItem from './Popup_uri/PopupNewItem';
 import PopupParolaItem from "./Popup_uri/PopupParolaItem";
 import PopupNotitaItem from "./Popup_uri/PopupNotitaItem";
+import ItemiStersi from './ItemiPages/ItemiStersi';
 
 import { getKeyFromIndexedDB } from "../FunctiiDate/ContextKeySimetrice";
 
@@ -369,9 +370,9 @@ const AplicatiePage = () => {
             </div>
 
             {/* Contul meu */}
-            <div className="ml-auto mr-3 flex items-center gap-4 text-white hover:bg-green-700 hover:rounded-full transition-all duration-300">
-              <button onClick={() => setMeniuContulMeu(!showMeniuLContulmeuCascada)} className="flex flex-col md:flex-row items-center md:space-x-2 px-2 md:px-4 py-2 lg:text-2xl md:text-xl">
-                <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-2xl font-bold text-white bg-red-600">
+            <div className="ml-auto mr-3 flex items-center gap-4 text-white transition-all duration-300">
+              <button onClick={() => setMeniuContulMeu(!showMeniuLContulmeuCascada)} className="flex flex-col md:flex-row items-center md:space-x-2 px-2 md:px-4  lg:text-2xl md:text-xl">
+                <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-2xl font-bold text-white bg-red-500 hover:bg-red-700">
                   {initiale}
                 </div>
               </button>
@@ -402,6 +403,7 @@ const AplicatiePage = () => {
         {sectiuneItemi === 'carduri' && accessToken && <CarduriBancarePage accessToken={accessToken} />}
         {sectiuneItemi === 'favorite' && accessToken && <FavoritePage accessToken={accessToken} />}
         {sectiuneItemi === 'grupuri' && accessToken && <GrupuriPage accessToken={accessToken} derivedKey={savedKey} />}
+        {sectiuneItemi === 'itemieliminati' && accessToken && <ItemiStersi accessToken={accessToken} derivedKey={savedKey} />}
 
         {sectiuneItemi === 'Ajutor' && accessToken && <HelpPage accessToken={accessToken} />}
         {sectiuneItemi === "ProfilUtilizator" && <MyAccountPage />}

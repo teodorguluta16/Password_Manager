@@ -11,7 +11,20 @@ const protectedRouter = express.Router();
 protectedRouter.get('/itemi', async (req, res) => {
     const userId = req.user.sub;
     try {
-        const result = await client.query("SELECT encode(i.keys, 'hex') AS keys_hex, encode(i.continut, 'hex') AS continut_hex, li.id_item AS id_item, i.id_owner AS id_owner, i.isdeleted AS isdeleted FROM leguseritemi li JOIN itemi i ON li.id_item = i.id_item WHERE li.id_user = $1", [userId]);
+        const result = await client.query(`
+            SELECT 
+                encode(i.keys, 'hex') AS keys_hex, 
+                encode(i.continut, 'hex') AS continut_hex, 
+                li.id_item AS id_item, 
+                i.id_owner AS id_owner, 
+                i.isdeleted AS isdeleted 
+            FROM leguseritemi li
+            JOIN itemi i ON li.id_item = i.id_item
+            LEFT JOIN leggrupuriitemi lgi ON i.id_item = lgi.id_item 
+            WHERE li.id_user = $1
+            AND lgi.id_item IS NULL
+        `, [userId]);
+
         res.status(200).json(result.rows);
     }
     catch (error) {

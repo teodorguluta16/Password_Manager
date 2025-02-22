@@ -123,7 +123,7 @@ const ItemsAllPage = ({ accessToken }) => {
     return (
         <div className="overflow-y-auto">
             <h2 className="font-bold text-2xl text-center mt-4 ">Toate Câmpurile</h2>
-            <div className="flex flex-row aliniere_custom justify-between items-center mx-6 mt-4">
+            <div className="flex flex-row aliniere_custom justify-between items-center mx-6 mt-2">
                 {/*Sectiunea de vizualizare a datelor*/}
                 <div className="flex space-x-2">
                     <button onClick={() => setTipAfisare("lista")} className="flex items-center px-2 space-x-2 py-2 rounded-lg bg-gray-100 ml-2 hover:bg-yellow-400">
@@ -160,7 +160,7 @@ const ItemsAllPage = ({ accessToken }) => {
                 </div>
             </div>
 
-            <hr className="border-t-4 border-gray-500 my-4 rounded-full mx-12" />
+            <hr className="border-t-2 border-gray-500 my-4 rounded-full mx-6" />
 
             {/* Sectiunea de itemi */}
             {gestioneazaItem === null ? (tipAfisare === "lista" ? (// daca nu e  nicio parola selectata afisez lista de itemi; overflow-y pentru a derula in caz ca se termina ecranul

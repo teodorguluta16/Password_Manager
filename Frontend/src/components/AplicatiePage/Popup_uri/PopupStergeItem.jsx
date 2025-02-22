@@ -1,39 +1,39 @@
 import React from "react";
 
-const PopupStergeItem = ({ setShowPopupStergeItem, accessToken, item, items }) => {
+const PopupStergeItem = ({ setShowPopupStergeItem, accessToken, item, items, fetchItems }) => {
 
     const handleStergeItem = async () => {
         setShowPopupStergeItem(false);  // Închide popup-ul
 
         try {
-            // Trimite cererea PATCH pentru a marca itemul ca șters pe server
             const response = await fetch('http://localhost:9000/api/stergeItem', {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`,  // Token-ul pentru autentificare
+                    'Authorization': `Bearer ${accessToken}`,
                 },
-                body: JSON.stringify({ id_item: item.id_item }),  // Trimite id-ul itemului
+                body: JSON.stringify({ id_item: item.id_item }),
             });
 
             if (response.ok) {
                 console.log('Item marcat ca șters!');
+                await fetchItems();
 
                 // Actualizează lista de itemi din state, marcând itemul ca șters
-                const updatedItems = items.map(i =>
-                    i.id_item === item.id_item ? { ...i, isDeleted: 1 } : i  // Marcam itemul ca șters
-                );
+                //const updatedItems = items.map(i =>
+                //    i.id_item === item.id_item ? { ...i, isDeleted: 1 } : i  // Marcam itemul ca șters
+                //);
 
                 // Filtrăm itemii pentru a include doar cei care nu sunt șterși
-                const filteredItems = updatedItems.filter(i => i.isDeleted === 0);
+                //const filteredItems = updatedItems.filter(i => i.isDeleted === 0);
 
                 // Salvează lista filtrată în sessionStorage imediat
-                sessionStorage.setItem('ParolaItmei', JSON.stringify(filteredItems));
+                //sessionStorage.setItem('ParolaItmei', JSON.stringify(filteredItems));
 
                 // Actualizează state-ul cu lista filtrată pentru a reflecta schimbările instantaneu
-                setItems(filteredItems);
+                //setItems(filteredItems);
 
-                console.log('Lista de itemi actualizată și salvată în sessionStorage.');
+                //console.log('Lista de itemi actualizată și salvată în sessionStorage.');
             } else {
                 console.error('Eroare la ștergerea item-ului:', response.statusText);
             }

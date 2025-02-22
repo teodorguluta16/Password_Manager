@@ -113,7 +113,7 @@
 
 @media (min-height: 812px) {
     .custom-height {
-        height: 30rem !important;
+        height: 33rem !important;
     }
 
     .custom-height2 {
@@ -123,7 +123,7 @@
 
 @media (min-height: 844px) {
     .custom-height {
-        height: 33rem !important;
+        height: 35rem !important;
     }
 
     .custom-height2 {

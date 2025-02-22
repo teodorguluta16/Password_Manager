@@ -7,6 +7,17 @@ import GridAfisItems from "./GridAfisItems";
 import { criptareDate, generateKey, decodeMainKey, decriptareDate } from "../../FunctiiDate/FunctiiDefinite"
 import { useKeySimetrica } from '../../FunctiiDate/ContextKeySimetrice'
 
+import PeopleLogo from "../../../assets/website/people.png";
+import ParolaLogo from "../../../assets/website/password2.png";
+import CardLogo from "../../../assets/website/credit-card2.png";
+import NoteLogo from "../../../assets/website/note2.png";
+
+import LaunchLogo from "../../../assets/website/launch.png"
+import FavoriteLogo from "../../../assets/website/favorite.png"
+import DeleteIcon from "../../../assets/website/delete.png"
+
+import { FaEye, FaEyeSlash, FaCopy, FaEdit, FaSave, FaArrowLeft, FaUndo, FaHistory } from 'react-icons/fa';
+
 
 function hexToString(hex) {
     let str = '';
@@ -16,39 +27,46 @@ function hexToString(hex) {
     return str;
 }
 
-const ItemiStersi = ({ accessToken }) => {
-    const { key } = useKeySimetrica(); // trebuie sa o salvez in session storage neaparatd
+const ItemiStersi = ({ accessToken, derivedKey }) => {
+    const [key, setKey] = useState(derivedKey);
+
+    useEffect(() => {
+        if (derivedKey) {
+            setKey(derivedKey);
+        }
+    }, [derivedKey]);
+
     console.log("Cheia simetrică este: ", key);
     const [loading, setLoading] = useState(true);
     const [items, setItems] = useState([]);
     const [itemId, setitemId] = useState("");
 
-    useEffect(() => {
-        console.log("tokenul:", accessToken);
-        const fetchItems = async () => {
-            try {
-                const savedItems = sessionStorage.getItem('ItemiEliminati');
-                if (savedItems) {
-                    setItems(JSON.parse(savedItems));
-                    setLoading(false);
-                    return;
+
+    const fetchItems = async () => {
+        try {
+            const savedItems = sessionStorage.getItem('ParolaItmei');
+            let savedItemsParsed = savedItems ? JSON.parse(savedItems) : [];
+
+            const response = await fetch('http://localhost:9000/api/itemi', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
                 }
-                const response = await fetch('http://localhost:9000/api/itemi', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`
-                    }
-                });
+            });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log("Datele primite de la server: ", data);
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Datele primite de la server: ", data);
 
-                    const decriptKey = await decodeMainKey(key);
-                    let fetchedItems = [];
+                //console.log("Cheia principala: ", key);
+                const decriptKey = await decodeMainKey(key);
+                //console.log("DecryptKey: ", decriptKey);
 
-                    for (let item of data) {
+                let fetchedItems = [];
+
+                for (let item of data) {
+                    try {
                         const id_owner = item.id_owner;
                         const id_item = item.id_item;
                         const isDeleted = item.isdeleted;
@@ -58,12 +76,12 @@ const ItemiStersi = ({ accessToken }) => {
                         const decodedString = hexToString(keyfromdata);
 
                         const dataObject = JSON.parse(decodedString);
-
-                        const ivHex = dataObject.data.encKey.iv;
-                        const encDataHex = dataObject.data.encKey.encData;
-                        const tagHex = dataObject.data.encKey.tag;
+                        const ivHex = dataObject.encKey.iv;
+                        const encDataHex = dataObject.encKey.encData;
+                        const tagHex = dataObject.encKey.tag;
 
                         const dec_key = await decriptareDate(encDataHex, ivHex, tagHex, decriptKey);
+                        //console.log("Cheia decriptata pentru item este: ", dec_key);
 
                         const octetiArray = dec_key.split(',').map(item => parseInt(item.trim(), 10));
                         const uint8Array = new Uint8Array(octetiArray);
@@ -74,12 +92,13 @@ const ItemiStersi = ({ accessToken }) => {
 
                         // Decriptare continut
                         const continutfromdata = item.continut_hex;
-                        console.log("Continutul primit de la server: ", continutfromdata);
+                        //console.log("Continutul primit de la server: ", continutfromdata);
 
                         const decodedString2 = hexToString(continutfromdata);
                         const dataObject2 = JSON.parse(decodedString2);
 
                         const { created_at, modified_at, version } = dataObject2.metadata;
+                        //console.log("Metadatele obiectului: ", dataObject2);
 
                         const ivHex2 = dataObject2.data.tip.iv;
                         const encDataHex2 = dataObject2.data.tip.encData;
@@ -92,6 +111,7 @@ const ItemiStersi = ({ accessToken }) => {
                         const tagHex3 = dataObject2.data.nume.tag;
 
                         const rez_nume = await decriptareDate(encDataHex3, ivHex3, tagHex3, importedKey);
+
 
                         const ivHex4 = dataObject2.data.username.iv;
                         const encDataHex4 = dataObject2.data.username.encData;
@@ -131,40 +151,96 @@ const ItemiStersi = ({ accessToken }) => {
                             id_item: id_item,
                             isDeleted: isDeleted
                         });
-
-                        const filteredItems = fetchedItems.filter(itemm => itemm.isDeleted === 1);
-                        sessionStorage.setItem('ItemiEliminati', JSON.stringify(filteredItems));
-                        setItems(filteredItems);
+                    } catch (error) {
+                        console.error('Eroare la decriptarea item-ului cu ID-ul:', item.id_item, error);
                     }
-                } else {
-                    console.error('Failed to fetch items', response.statusText);
-                }
-            } catch (error) {
-                console.error('Error fetching items:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
 
+                }
+                const filteredItems = fetchedItems.filter(item => item.isDeleted === 1);
+                setItems(filteredItems);
+            } else {
+                console.error('Failed to fetch items', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error fetching items:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    useEffect(() => {
         fetchItems();
     }, [accessToken]);
 
 
+
     const [gestioneazaParolaItem, setGestioneazaParolaItem] = useState(null);
+
+    const restoreItem = async (itemId) => {
+        try {
+            const response = await fetch(`http://localhost:9000/api/itemi/${itemId}/restore`, {
+                method: 'PATCH', // Folosim PATCH pentru a actualiza un item existent
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`, // Asigură-te că token-ul este transmis
+                },
+            });
+
+            if (response.ok) {
+                console.log('Itemul a fost restaurat cu succes');
+                // După restaurare, poți actualiza lista de itemi
+                fetchItems(); // Sau actualizezi lista locală cu itemii restaurați
+            } else {
+                console.error('Eroare la restaurarea itemului:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Eroare la restaurarea itemului:', error);
+        }
+    };
+
 
     const [itemid, setItemid] = useState("");
     return (
         <>
             <div className="bg-gray-100">
-                <h2 className="font-bold text-2xl text-center mt-4 ">Itemi ELIMINATI</h2>
+                <h2 className="font-bold text-2xl text-center mt-4 ">Eliminate</h2>
                 <div className="flex flex-row aliniere_custom justify-between items-center mx-6 mt-4">
 
                 </div>
 
-                <hr className="border-t-4 border-gray-500 my-4 rounded-full mx-12" />
+                <hr className="border-t-1 border-gray-900 my-1 rounded-full " />
 
                 {/* Sectiunea de itmei Parola */}
-                {gestioneazaParolaItem === null ? <GridAfisItems items={items} setGestioneazaItem={setGestioneazaParolaItem} setStergeItem={null} setItemid={setItemid} />
+                {gestioneazaParolaItem === null ? <div className="space-y-1 mx-12">
+                    {items.map((item, index) => (
+                        <div key={index} className="border border-white-700 border-b-2 rounded-lg shadow-lg bg-white px-2 flex justify-between items-center hover:bg-gray-200 transition-all duration-300 ease-in-out">
+
+                            <div className="flex items-center space-x-4">
+                                <img
+                                    src={item.tipitem === 'password' ? ParolaLogo : item.tipitem === 'note' ? NoteLogo : item.tipitem === 'card' ? CardLogo : PeopleLogo}
+                                    alt="Logo Parola Item"
+                                    className="w-8 h-8"
+                                />
+                                <div>
+                                    <h2 className="font-semibold">{item.nume}</h2>
+                                    <h3 className="text-sm text-gray-500">{item.username}</h3>
+                                    <h3 className="text-sm text-gray-500">Data stergerii: 12.11.2023</h3>
+                                </div>
+                            </div>
+
+                            <div className="flex space-x-4">
+                                <button onClick={(e) => { e.stopPropagation(); setStergeItem(true); setItemid(item) }} className="p-2 bg-white-200 border border-red-200 rounded-lg hover:bg-red-400">
+                                    <img src={DeleteIcon} alt="Delete Logo" className="w-5 h-5" />
+                                </button>
+
+                                {/* Butonul pentru restaurare */}
+                                <button onClick={(e) => { e.stopPropagation(); restoreItem(item.id_item); }} className="flex flex-row p-2 bg-blue-200 border rounded-lg hover:bg-blue-500">
+                                    <FaHistory alt="Restore Icon" className="w-5 h-5" />
+                                    <span className='ml-1'>Restaureaza</span>
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
                     : null
                 }
 
