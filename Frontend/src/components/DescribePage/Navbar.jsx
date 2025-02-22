@@ -20,7 +20,7 @@ const DropdownLinks = [
   {
     id: 1,
     name: "My User",
-    link: "/Login",
+    link: "/login",
     icon: User,
   },
   {

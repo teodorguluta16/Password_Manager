@@ -188,24 +188,30 @@ authRouter.post("/refresh", async (req, res) => {
     }
 });
 
-authRouter.post("/logout", async (req, res) => {
-    const cookies = req.cookies;
+authRouter.post("/logout", (req, res) => {
+    res.clearCookie('jwt', {
+        httpOnly: true,  // Protejează cookie-ul de accesul JavaScript
+        secure: false,   // Doar pentru HTTPS în producție
+        maxAge: 0,       // Setează durata cookie-ului la 0 pentru a-l șterge
+    });
 
-    if (!cookies?.jwt) {
-        return res.status(204).send("Nu există refresh token."); // Logout fara token
-    }
+    // Dacă dorești să elimini și refresh token-ul din baza de date
+    // ar trebui să adaugi logica de actualizare a utilizatorului (opțional)
+    // Aici vom șterge refresh token-ul din BD
+    const { Email } = req.body;
 
-    const refreshToken = cookies.jwt;
+    client.query("UPDATE Utilizatori SET refresh_token = NULL WHERE Email = $1", [Email], (err, result) => {
+        if (err) {
+            console.error("Eroare la delogare:", err);
+            return res.status(500).send("Eroare server");
+        }
 
-    try {
-        await client.query("UPDATE Utilizatori SET RefreshToken = NULL WHERE RefreshToken = $1", [refreshToken]);
-        res.clearCookie('jwt', { httpOnly: true });
-        res.status(200).send("Deconectare reusita.");
-    } catch (error) {
-        console.error("Eroare la logout:", error);
-        res.status(500).send("Eroare server.");
-    }
+        // Răspunde clientului
+        console.log("Delogare reușită");
+        res.status(200).send("Delogare reușită");
+    });
 });
+
 
 
 export default authRouter;

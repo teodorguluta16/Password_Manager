@@ -29,6 +29,16 @@ function App() {
                 <Contact />
               </>
             } />
+            <Route path="/home" element={
+              <>
+                <Navbar />
+                <StartPage />
+                <TestPage />
+                <HowWorks />
+                <QAFrecvente />
+                <Contact />
+              </>
+            } />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/myapp" element={<AplicatiePage />} />

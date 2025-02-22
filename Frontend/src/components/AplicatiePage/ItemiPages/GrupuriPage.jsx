@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 
 import ListIcon from "../../../assets/website/list.png"
 import GridIcon from "../../../assets/website/visualization.png"
-import { FaPlus, FaClipboard } from 'react-icons/fa';
+import { FaPlus, FaClipboard, FaSignOutAlt } from 'react-icons/fa';
 import PopupNewGrup from "../Popup_uri/PopupNewGrup"
 
 import EdiGrupItem from './EditGrupItem';
@@ -86,7 +86,7 @@ const GrupuriPage = ({ accessToken, derivedKey }) => {
     };
     useEffect(() => {
         if (userId === null) {
-            getUserId(); // Încarcă userId dacă nu a fost setat
+            getUserId();
         }
     }, [userId]);
 
@@ -162,7 +162,7 @@ const GrupuriPage = ({ accessToken, derivedKey }) => {
                                                 selecteazaOptiune("itemigrup");
                                                 setGestioneazaGrupItem(group);
                                             }}
-                                            className="border border-white-700 rounded-lg shadow-lg shadow-gray-300 bg-neutral-300 p-4 rounded-lg shadow-md cursor-pointer flex flex-row justify-between hover:bg-yellow-600 cursor-pointer group transition-all duration-300 ease-in-out"
+                                            className="border border-white-700 rounded-lg shadow-lg shadow-gray-300 bg-neutral-300 p-4 rounded-lg shadow-md cursor-pointer flex flex-row justify-between hover:bg-yellow-400 cursor-pointer group transition-all duration-300 ease-in-out"
                                         >
                                             <h3 className="text-xl font-semibold">{group.nume}</h3>
                                             <div className="mt-1 flex justify-end space-x-4">
@@ -205,7 +205,7 @@ const GrupuriPage = ({ accessToken, derivedKey }) => {
                                                 selecteazaOptiune("itemigrup");
                                                 setGestioneazaGrupItem(group);
                                             }}
-                                            className="border border-white-700 rounded-lg shadow-lg shadow-gray-300 bg-neutral-300 p-4 rounded-lg shadow-md cursor-pointer flex flex-row justify-between hover:bg-yellow-600 cursor-pointer group transition-all duration-300 ease-in-out"
+                                            className="border border-white-700 rounded-lg shadow-lg shadow-gray-300 bg-neutral-300 p-4 rounded-lg shadow-md cursor-pointer flex flex-row justify-between hover:bg-yellow-400 cursor-pointer group transition-all duration-300 ease-in-out"
                                         >
                                             <h3 className="text-xl font-semibold">{group.nume}</h3>
                                             <div className="mt-1 flex justify-end space-x-4">
@@ -218,6 +218,14 @@ const GrupuriPage = ({ accessToken, derivedKey }) => {
                                                         setGestioneazaGrupItem(group);
                                                     }}
                                                 />
+                                                <FaSignOutAlt
+                                                    className="w-7 h-7 cursor-pointer hover:text-red-700"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Opriți propagarea evenimentului de click
+                                                        parasesteGrup(group.id_grup); // Apelează funcția pentru a părăsi grupul
+                                                    }}
+                                                />
+
                                             </div>
                                         </div>
                                     ))

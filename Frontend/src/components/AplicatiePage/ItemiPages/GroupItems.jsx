@@ -11,6 +11,14 @@ import PopupNewGrupParola from "../Popup_uri/PopupNewGrupParola.jsx";
 import GridAfisGroupItems from "./GridAfisGroupItems";
 import forge from 'node-forge';
 import EditParolaGroupItem from './EditParolaGroupItem';
+import VizualizareParolaGroupItem from './VizualizareParolaGroupItem.jsx';
+
+function parseJwt(token) {
+    const base64Url = token.split('.')[1]; // Extragem Payload-ul
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/'); // JWT URL-encoded
+    const jsonPayload = decodeURIComponent(escape(window.atob(base64))); // Decodificăm base64 și apoi escape
+    return JSON.parse(jsonPayload); // Obținem obiectul JSON
+}
 
 function hexToString(hex) {
     let str = '';
@@ -30,6 +38,9 @@ function decryptWithPrivateKey(encryptedMessage, privateKey) {
     }
 }
 const GroupItmes = ({ item, setGestioneazaGrupItem, accessToken, derivedKey }) => {
+
+    const tokendecodificat = parseJwt(accessToken);
+    let id_current_user = tokendecodificat.sub;
     let idgrup = item.id_grup;
     const [key, setKey] = useState(derivedKey);
     useEffect(() => {
@@ -359,8 +370,12 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, accessToken, derivedKey }) =
                 ) : tipAfisare === "grid" ? ( // daca nu e  niciun item selectat atunci afisez lista de itemi
                     <GridAfisGroupItems items={items} setGestioneazaItem={setGestioneazaItem} setStergeItem={setStergeItem} />) : null
 
-                ) : (// daca selectez un item atunci dispare lista de itmei si afisez optiunile pentru itemul curent 
-                    <EditParolaGroupItem item={gestioneazaItem} setGestioneazaParolaItem={setGestioneazaItem} accessToken={accessToken} />
+                ) : (
+                    id_current_user === gestioneazaItem.id_owner ? (
+                        <EditParolaGroupItem item={gestioneazaItem} setGestioneazaParolaItem={setGestioneazaItem} accessToken={accessToken} />
+                    ) : (
+                        <VizualizareParolaGroupItem item={gestioneazaItem} setGestioneazaParolaItem={setGestioneazaItem} accessToken={accessToken} />
+                    )
                 )}
 
                 {/* Popup-ul care apare când este apăsat butonul */}

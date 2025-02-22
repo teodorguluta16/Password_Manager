@@ -217,13 +217,13 @@ protectedRouter.post('/getGroupSimmetricEncryptedKey', async (req, res) => {
             const encryptedAesKeyBuffer = result.rows[0].encryptedsimmetricgroupkey; // Este deja un Buffer
 
             const encryptedAesKeyHex = encryptedAesKeyBuffer.toString('hex').replace(/\s+/g, '');
-            console.log(encryptedAesKeyHex);
+            //console.log(encryptedAesKeyHex);
 
             const encryptedAesKey = Buffer.from(encryptedAesKeyHex, 'hex');
-            console.log("Varianta from: ", encryptedAesKey);
+            //console.log("Varianta from: ", encryptedAesKey);
 
             const encryptedAesKeyBase64 = encryptedAesKey.toString('ascii');
-            console.log("DAAA:", encryptedAesKeyBase64);
+            //console.log("DAAA:", encryptedAesKeyBase64);
             res.status(200).json({ EncryptedAesKeyBase64: encryptedAesKeyBase64 });
 
         } else {

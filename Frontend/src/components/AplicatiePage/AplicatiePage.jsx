@@ -30,12 +30,30 @@ import PopupNotitaItem from "./Popup_uri/PopupNotitaItem";
 
 import { getKeyFromIndexedDB } from "../FunctiiDate/ContextKeySimetrice";
 
+function parseJwt(token) {
+  if (!token) {
+    console.error("Token-ul nu este disponibil.");
+    return null; // Returnăm null dacă token-ul nu există
+  }
+
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(escape(window.atob(base64)));
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("Eroare la decodificarea token-ului:", error);
+    return null;
+  }
+}
 const AplicatiePage = () => {
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 640);
   const [meniuExtins, setExtins] = useState(!isSmallScreen); // Extins doar dacă ecranul e mare
   const [meniuExtinsVerticala, setMeniuExtinsVerticala] = useState(false);
 
   const [accessToken, setAccessToken] = useState(null);
+  const [initiale, setInitiale] = useState(null);
+  const [name_user, setNameUser] = useState('');
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -68,6 +86,15 @@ const AplicatiePage = () => {
         } else {
           setAccessToken(storedToken);
           console.log("Tockenul este", storedToken);
+          const tokendecodificat = parseJwt(storedToken);
+          if (tokendecodificat && tokendecodificat.name) {
+            setNameUser(tokendecodificat.name);
+            const [firstName, lastName] = tokendecodificat.name.split(' ');
+            let aux = `${firstName.charAt(0)}${lastName.charAt(0)}`;
+            setInitiale(aux);
+          } else {
+            console.error('Numele utilizatorului nu este disponibil');
+          }
         }
       }
     } else {
@@ -132,6 +159,11 @@ const AplicatiePage = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+
+  const deconectare = () => {
+    sessionStorage.removeItem('accessToken');
+    window.location.href = '/login';
+  };
 
   return (
 
@@ -339,8 +371,9 @@ const AplicatiePage = () => {
             {/* Contul meu */}
             <div className="ml-auto mr-3 flex items-center gap-4 text-white hover:bg-green-700 hover:rounded-full transition-all duration-300">
               <button onClick={() => setMeniuContulMeu(!showMeniuLContulmeuCascada)} className="flex flex-col md:flex-row items-center md:space-x-2 px-2 md:px-4 py-2 lg:text-2xl md:text-xl">
-                <img src={User2} alt='Profile' className='w-8 h-8 rounded-full object-cover filter invert' />
-                <span className='font-semibold whitespace-nowrap'>Contul meu</span>
+                <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-2xl font-bold text-white bg-red-600">
+                  {initiale}
+                </div>
               </button>
             </div>
           </div>
@@ -351,7 +384,7 @@ const AplicatiePage = () => {
             <ul className="py-2 z-20">
               <li className="px-4 py-3 hover:bg-green-600 cursor-pointer z-50" onClick={() => selecteazaSectiune('ProfilUtilizator')}>Profil</li>
               <li className="px-4 py-3 hover:bg-green-600 cursor-pointer z-50">Setări</li>
-              <li className="px-4 py-3 hover:bg-green-600 cursor-pointer z-50">Deconectare</li>
+              <li className="px-4 py-3 hover:bg-green-600 cursor-pointer z-50" onClick={deconectare}>Deconectare</li>
             </ul>
           </div>
           )}
