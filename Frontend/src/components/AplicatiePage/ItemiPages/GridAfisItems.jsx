@@ -10,7 +10,7 @@ import LaunchLogo from "../../../assets/website/launch.png"
 import FavoriteLogo from "../../../assets/website/favorite.png"
 import DeleteIcon from "../../../assets/website/delete.png"
 
-import { FaEye, FaEyeSlash, FaCopy, FaEdit, FaSave, FaArrowLeft, FaUndo, FaNote } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaCopy, FaEdit, FaSave, FaArrowLeft, FaUndo } from 'react-icons/fa';
 // Aici afisez itemii in format pe coloane
 const GridAfisItems = ({ items, setGestioneazaItem, setStergeItem, setItemid }) => {
     return (
