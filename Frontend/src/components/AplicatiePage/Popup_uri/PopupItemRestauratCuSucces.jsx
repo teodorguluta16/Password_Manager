@@ -1,6 +1,5 @@
 import React from "react";
-
-import { FaCheck, FaCheckCircle, FaRegCheckCircle } from 'react-icons/fa';
+import { FaCheckCircle } from 'react-icons/fa';
 
 const PopupItmeRestauratCuSucces = () => {
     return (
@@ -11,10 +10,7 @@ const PopupItmeRestauratCuSucces = () => {
                     <FaCheckCircle className=" ml-2 text-green-400 text-xl" />
                 </div>
             </div>
-
-
         </>
     );
 };
-
 export default PopupItmeRestauratCuSucces;
