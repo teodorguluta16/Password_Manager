@@ -496,7 +496,7 @@ const AplicatiePage = () => {
             {/* Contul meu */}
             <div className="ml-auto mr-3 flex items-center gap-4 text-white transition-all duration-300">
               <button onClick={() => setMeniuContulMeu(!showMeniuLContulmeuCascada)} className="flex flex-col md:flex-row items-center md:space-x-2 px-2 md:px-4  lg:text-2xl md:text-xl">
-                <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-2xl font-bold text-white bg-red-500 hover:bg-red-700">
+                <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-2xl font-bold text-white bg-red-600 hover:bg-red-800">
                   {initiale}
                 </div>
               </button>
@@ -517,7 +517,7 @@ const AplicatiePage = () => {
         {/* Buotnul de creare de itemi noi */}
         <button onClick={() => setMeniuCreeazaItem(true)} className="fixed flex items-center bottom-8 right-3 rounded-full shadow-lg bg-green-600 px-4 py-4 text-white hover:bg-gray-700 transition-all duration-300 aliniere">
           <img src={AddIcon} alt="Add Icon" className='w-7 h-7 filter invert'></img>
-          <span className='hidden md:flex font-semibold whitespace-nowrap ml-2 text-1xl hide-on-small-height'>Creeaza un Item</span>
+          <span className='hidden md:flex font-semibold whitespace-nowrap ml-2 text-1xl hide-on-small-height'>Creează un Item</span>
         </button>
 
         {/* Paginile de lucru*/}

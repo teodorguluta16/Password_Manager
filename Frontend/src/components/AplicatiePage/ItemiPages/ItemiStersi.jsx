@@ -8,6 +8,7 @@ import CardLogo from "../../../assets/website/credit-card2.png";
 import NoteLogo from "../../../assets/website/note2.png";
 import { FaHistory, FaTrash } from 'react-icons/fa';
 import PopupStergeItemDefinitiv from '../Popup_uri/PopupStergeItemDefinitiv';
+import PopupItmeRestauratCuSucces from '../Popup_uri/PopupItemRestauratCuSucces';
 
 function hexToString(hex) {
     let str = '';
@@ -155,31 +156,30 @@ const ItemiStersi = ({ accessToken, derivedKey }) => {
 
     const [gestioneazaParolaItem, setGestioneazaParolaItem] = useState(null);
     const [stergeItem, setStergeItem] = useState(false);
+    const [itemid, setItemid] = useState("");
+    const [restoredItemMessage, setRestoredItemMessage] = useState(false);
 
-    const restoreItem = async (itemId) => {
-        /* try {
-             const response = await fetch(`http://localhost:9000/api/itemi/${itemId}/restore`, {
-                 method: 'PATCH', // Folosim PATCH pentru a actualiza un item existent
-                 headers: {
-                     'Content-Type': 'application/json',
-                     'Authorization': `Bearer ${accessToken}`, // Asigură-te că token-ul este transmis
-                 },
-             });
- 
-             if (response.ok) {
-                 console.log('Itemul a fost restaurat cu succes');
-                 // După restaurare, poți actualiza lista de itemi
-                 fetchItems(); // Sau actualizezi lista locală cu itemii restaurați
-             } else {
-                 console.error('Eroare la restaurarea itemului:', response.statusText);
-             }
-         } catch (error) {
-             console.error('Eroare la restaurarea itemului:', error);
-         }*/
+    const restoreItem = async (iditem) => {
+        try {
+            console.log("Id Item este:", iditem);
+            const response = await fetch('http://localhost:9000/api/utilizator/itemiStersi/restore', {
+                method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+                body: JSON.stringify({ id_item: iditem }),
+            });
+
+            if (response.ok) {
+                await fetchItems();
+                setRestoredItemMessage(true);
+                setTimeout(() => {
+                    setRestoredItemMessage(false);
+                }, 2000); // 2000ms = 2 secunde
+            }
+        } catch (error) {
+            console.error('Eroare:', error);
+            setRestoredItemMessage(false);
+        }
     };
 
-
-    const [itemid, setItemid] = useState("");
     return (
         <>
             <div className="bg-gray-100">
@@ -225,7 +225,7 @@ const ItemiStersi = ({ accessToken, derivedKey }) => {
                         : null
                 }
                 {stergeItem && <PopupStergeItemDefinitiv setShowPopupStergeItem={setStergeItem} accessToken={accessToken} item={itemid} items={items} fetchItems={fetchItems} />}
-
+                {restoredItemMessage && <PopupItmeRestauratCuSucces />}
             </div >
         </>
     );

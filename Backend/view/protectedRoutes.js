@@ -520,5 +520,23 @@ protectedRouter.delete('/utilizator/stergeItemDefinitiv', async (req, res) => {
         return res.status(500).json({ message: 'Eroare stergere item' });
     }
 });
+protectedRouter.patch('/utilizator/itemiStersi/restore', async (req, res) => {
+    const { id_item } = req.body;
+    const userId = req.user.sub;
+
+    console.log("Esteeee", id_item);
+    console.log(userId);
+
+    try {
+        const result = await client.query('UPDATE Itemi SET isDeleted = $1 WHERE id_item = $2 AND id_owner = $3', [0, id_item, userId]);
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: 'Item negasit' });
+        }
+        console.log("Item restored cu succes !");
+        res.status(200).json({ message: 'Succes restored' });
+    } catch (error) {
+        res.status(500).json({ message: 'Eroare' });
+    }
+})
 
 export default protectedRouter;

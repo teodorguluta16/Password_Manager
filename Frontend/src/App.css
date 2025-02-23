@@ -246,6 +246,30 @@
     }
 }
 
+@media (max-width:493px) {
+    .custom-alin {
+        left: -15% !important;
+    }
+}
+
+@media (max-width:408px) {
+    .custom-alin {
+        left: -20% !important;
+    }
+}
+
+@media (max-width:368px) {
+    .custom-alin {
+        left: -25% !important;
+    }
+}
+
+@media (max-width:330px) {
+    .custom-alin {
+        left: -35% !important;
+    }
+}
+
 @media (max-width: 480px) {
 
     .myTable td,
@@ -267,4 +291,5 @@
     .customRestoreButtonText {
         display: none !important;
     }
+
 }
