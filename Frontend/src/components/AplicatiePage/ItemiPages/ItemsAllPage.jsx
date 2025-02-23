@@ -93,7 +93,7 @@ const ItemsAllPage = ({ accessToken }) => {
 
     const fetchData = async () => {
         if (!accessToken) {
-            navigate('/login'); // Dacă tokenul nu există, redirecționează la login
+            navigate('/login');
             return;
         }
 
@@ -117,9 +117,9 @@ const ItemsAllPage = ({ accessToken }) => {
         }
     };
 
-    useEffect(() => {
-        fetchData(); // Apelează funcția pentru a încărca itemii la montarea componentelor
-    }, []);
+    //useEffect(() => {
+    //    fetchData(); // Apelează funcția pentru a încărca itemii la montarea componentelor
+    //}, []);
     return (
         <div className="overflow-y-auto">
             <h2 className="font-bold text-2xl text-center mt-4 ">Toate Câmpurile</h2>

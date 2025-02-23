@@ -6,7 +6,7 @@ import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } f
 import { useKeySimetrica } from '../../FunctiiDate/ContextKeySimetrice'
 
 
-const PopupParolaItem = ({ setShowParolaPopup, accessToken, derivedKey }) => {
+const PopupParolaItem = ({ setShowParolaPopup, accessToken, derivedKey, fetchItems }) => {
     const [numeItem, setNumeItem] = useState('');
     const [urlItem, setUrlItem] = useState('');
     const [usernameItem, setUserNamItem] = useState('');
@@ -130,6 +130,7 @@ const PopupParolaItem = ({ setShowParolaPopup, accessToken, derivedKey }) => {
         } catch (error) {
             console.error("Eroare la criptarea datelor:", error);
         }
+        await fetchItems();
     };
 
     return (

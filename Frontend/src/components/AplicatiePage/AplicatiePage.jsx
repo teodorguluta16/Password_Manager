@@ -31,6 +31,16 @@ import ItemiStersi from './ItemiPages/ItemiStersi';
 
 import { getKeyFromIndexedDB } from "../FunctiiDate/ContextKeySimetrice";
 
+import { criptareDate, generateKey, decodeMainKey, decriptareDate } from "../FunctiiDate/FunctiiDefinite"
+
+function hexToString(hex) {
+  let str = '';
+  for (let i = 0; i < hex.length; i += 2) {
+    str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+  }
+  return str;
+}
+
 function parseJwt(token) {
   if (!token) {
     console.error("Token-ul nu este disponibil.");
@@ -105,11 +115,6 @@ const AplicatiePage = () => {
     setLoading(false);
   }, [navigate]);
 
-  //if (loading) {
-  // return <div>Loading...</div>;
-  // }
-
-
   useEffect(() => {
     const handleResize = () => {
       const isSmall = window.innerWidth < 640;
@@ -165,6 +170,125 @@ const AplicatiePage = () => {
     sessionStorage.removeItem('accessToken');
     window.location.href = '/login';
   };
+
+
+  const [items, setItems] = useState([]);
+  const fetchItems = async () => {
+    try {
+      const response = await fetch('http://localhost:9000/api/utilizator/itemi', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Datele primite de la server: ", data);
+        const decriptKey = await decodeMainKey(savedKey);
+        let fetchedItems = [];
+        for (let item of data) {
+          try {
+            const id_owner = item.id_owner;
+            const id_item = item.id_item;
+            const isDeleted = item.isdeleted;
+
+            // Decriptarea cheii
+            const keyfromdata = item.keys_hex;
+            const decodedString = hexToString(keyfromdata);
+
+            const dataObject = JSON.parse(decodedString);
+            const ivHex = dataObject.encKey.iv;
+            const encDataHex = dataObject.encKey.encData;
+            const tagHex = dataObject.encKey.tag;
+
+            const dec_key = await decriptareDate(encDataHex, ivHex, tagHex, decriptKey);
+
+            const octetiArray = dec_key.split(',').map(item => parseInt(item.trim(), 10));
+            const uint8Array = new Uint8Array(octetiArray);
+
+            const importedKey = await window.crypto.subtle.importKey(
+              "raw", uint8Array, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]
+            );
+
+            // Decriptare continut
+            const continutfromdata = item.continut_hex;
+
+            const decodedString2 = hexToString(continutfromdata);
+            const dataObject2 = JSON.parse(decodedString2);
+
+            const { created_at, modified_at, version } = dataObject2.metadata;
+
+            const ivHex2 = dataObject2.data.tip.iv;
+            const encDataHex2 = dataObject2.data.tip.encData;
+            const tagHex2 = dataObject2.data.tip.tag;
+
+            const rez_tip = await decriptareDate(encDataHex2, ivHex2, tagHex2, importedKey);
+
+            const ivHex3 = dataObject2.data.nume.iv;
+            const encDataHex3 = dataObject2.data.nume.encData;
+            const tagHex3 = dataObject2.data.nume.tag;
+
+            const rez_nume = await decriptareDate(encDataHex3, ivHex3, tagHex3, importedKey);
+
+
+            const ivHex4 = dataObject2.data.username.iv;
+            const encDataHex4 = dataObject2.data.username.encData;
+            const tagHex4 = dataObject2.data.username.tag;
+
+            const rez_username = await decriptareDate(encDataHex4, ivHex4, tagHex4, importedKey);
+
+            const ivHex5 = dataObject2.data.parola.iv;
+            const encDataHex5 = dataObject2.data.parola.encData;
+            const tagHex5 = dataObject2.data.parola.tag;
+            const rez_parola = await decriptareDate(encDataHex5, ivHex5, tagHex5, importedKey);
+
+            const ivHex6 = dataObject2.data.url.iv;
+            const encDataHex6 = dataObject2.data.url.encData;
+            const tagHex6 = dataObject2.data.url.tag;
+            const rez_url = await decriptareDate(encDataHex6, ivHex6, tagHex6, importedKey);
+
+            const ivHex7 = dataObject2.data.comentariu.iv;
+            const encDataHex7 = dataObject2.data.comentariu.encData;
+            const tagHex7 = dataObject2.data.comentariu.tag;
+            const rez_comentariu = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
+
+            console.log("Datele primite de la server aferente parolei: ", rez_tip, rez_nume, rez_url, rez_username, rez_parola, rez_comentariu, isDeleted);
+            fetchedItems.push({
+              nume: rez_nume,
+              tipitem: rez_tip,
+              username: rez_username,
+              parola: rez_parola,
+              url: rez_url,
+              comentariu: rez_comentariu,
+              created_at: created_at,
+              modified_at: modified_at,
+              version: version,
+              id_owner: id_owner,
+              id_item: id_item,
+              isDeleted: isDeleted
+            });
+          } catch (error) {
+            console.error('Eroare la decriptarea item-ului cu ID-ul:', item.id_item, error);
+          }
+
+        }
+        setItems(fetchedItems);
+      } else {
+        console.error('Failed to fetch items', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching items:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (accessToken && savedKey) {
+      fetchItems();
+    }
+  }, [accessToken]);
 
   return (
 
@@ -398,7 +522,7 @@ const AplicatiePage = () => {
 
         {/* Paginile de lucru*/}
         {sectiuneItemi === 'toate' && accessToken && (<div className="overflow-y-auto"><ItemsAllPage accessToken={accessToken} /></div>)}
-        {sectiuneItemi === 'parole' && accessToken && savedKey && <ParolePage accessToken={accessToken} derivedKey={savedKey} />}
+        {sectiuneItemi === 'parole' && accessToken && savedKey && <ParolePage accessToken={accessToken} derivedKey={savedKey} items={items} fetchItems={fetchItems} />}
         {sectiuneItemi === 'notite' && accessToken && <NotitePage accessToken={accessToken} />}
         {sectiuneItemi === 'carduri' && accessToken && <CarduriBancarePage accessToken={accessToken} />}
         {sectiuneItemi === 'favorite' && accessToken && <FavoritePage accessToken={accessToken} />}
@@ -411,7 +535,7 @@ const AplicatiePage = () => {
         {/*Popup-ul de la creeaza item Nou */}
         {shoMeniuCreeazaItem && (<PopupNewItem setShoMeniuCreeazaItem={setMeniuCreeazaItem} setShowParolaPopup={setShowParolaPopup} setShowNotitaPopup={setShowNotitaPopup} />)}
         {/*Popup-ul de la Parola */}
-        {ShowParolaPopup && (<PopupParolaItem setShowParolaPopup={setShowParolaPopup} accessToken={accessToken} derivedKey={savedKey} />)}
+        {ShowParolaPopup && (<PopupParolaItem setShowParolaPopup={setShowParolaPopup} accessToken={accessToken} derivedKey={savedKey} fetchItems={fetchItems} />)}
         {ShowNotitaPopup && (<PopupNotitaItem setShowNotitaPopup={setShowNotitaPopup} />)}
       </div>
     </div>
