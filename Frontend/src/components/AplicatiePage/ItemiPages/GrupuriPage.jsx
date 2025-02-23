@@ -93,8 +93,8 @@ const GrupuriPage = ({ accessToken, derivedKey }) => {
     return (
         <>
             {gestioneazaGrupItem === null && <div>
-                <h2 className="font-bold text-2xl text-center mt-6">Grupuri</h2>
-                <div className="flex flex-row aliniere_custom2 justify-between items-center mx-6 mt-4">
+                <h2 className="font-bold text-2xl text-center mt-2">Grupuri</h2>
+                <div className="flex flex-row aliniere_custom2 justify-between items-center mx-6 mt-2">
                     {/*Sectiunea de vizualizare a datelor */}
                     <div className="flex space-x-2">
                         <div onClick={openPopup} className="relative flex justify-center">
@@ -138,7 +138,7 @@ const GrupuriPage = ({ accessToken, derivedKey }) => {
                     </div>
 
                 </div>
-                <hr className="border-t-4 border-gray-500 my-4 rounded-full mx-8" />
+                <hr className="border-t-2 border-gray-500 my-4 rounded-full mx-6" />
 
                 {tipAfisare === "lista" ? (
                     // Lista de grupuri de care utilizatorul este membru
@@ -146,8 +146,8 @@ const GrupuriPage = ({ accessToken, derivedKey }) => {
                 ) : (
                     // Grupurile în care utilizatorul este membru
                     <div className="ml-8 mr-8">
-                        <h3 className="text-xl font-semibold mt-6 mb-4">Grupurile mele</h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <h3 className="text-medium font-semibold mt-3 mb-4">Grupurile mele</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {groups.filter(group => group.id_owner === userId).length === 0 ? (
                                 <div className="col-span-full text-center text-gray-500">
                                     Nu există grupuri.
@@ -189,8 +189,8 @@ const GrupuriPage = ({ accessToken, derivedKey }) => {
                 ) : (
                     // Grupurile în care utilizatorul este membru
                     <div className="ml-8 mr-8">
-                        <h3 className="text-xl font-semibold mt-6 mb-4">Alte grupuri</h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <h3 className="text-medium font-semibold mt-4 mb-4">Alte grupuri</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {groups.filter(group => group.id_owner !== userId).length === 0 ? (
                                 <div className="col-span-full text-center text-gray-500">
                                     Nu există grupuri.

@@ -263,4 +263,8 @@
         width: 4.5vw !important;
         height: 3vh !important;
     }
+
+    .customRestoreButtonText {
+        display: none !important;
+    }
 }

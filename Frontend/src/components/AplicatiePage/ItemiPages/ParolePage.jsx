@@ -39,7 +39,7 @@ const ParolePage = ({ accessToken, derivedKey }) => {
             const savedItems = sessionStorage.getItem('ParolaItmei');
             let savedItemsParsed = savedItems ? JSON.parse(savedItems) : [];
 
-            const response = await fetch('http://localhost:9000/api/itemi', {
+            const response = await fetch('http://localhost:9000/api/utilizator/itemi', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -148,8 +148,8 @@ const ParolePage = ({ accessToken, derivedKey }) => {
                     }
 
                 }
-                const filteredItems = fetchedItems.filter(item => item.isDeleted === 0);
-                setItems(filteredItems);
+                //const filteredItems = fetchedItems.filter(item => item.isDeleted === 0);
+                setItems(fetchedItems);
             } else {
                 console.error('Failed to fetch items', response.statusText);
             }
@@ -226,7 +226,7 @@ const ParolePage = ({ accessToken, derivedKey }) => {
                     </div>
                 </div>
 
-                <hr className="border-t-2 border-gray-900 my-1 mx-4 rounded-full " />
+                <hr className="border-t-2 border-gray-500 my-4 rounded-full mx-6" />
 
                 {/* Sectiunea de itemi Parola */}
                 {gestioneazaParolaItem === null ? (tipAfisare === "lista" ? (// daca nu e  nicio parola selectata afisez lista de itemi; overflow-y pentru a derula in caz ca se termina ecranul

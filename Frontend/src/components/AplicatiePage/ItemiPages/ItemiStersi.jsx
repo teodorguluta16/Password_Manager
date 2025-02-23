@@ -1,23 +1,13 @@
 import React from 'react'
 import { useState, useEffect } from 'react';
-
-
 import "../../../App.css"
-import GridAfisItems from "./GridAfisItems";
-import { criptareDate, generateKey, decodeMainKey, decriptareDate } from "../../FunctiiDate/FunctiiDefinite"
-import { useKeySimetrica } from '../../FunctiiDate/ContextKeySimetrice'
-
+import { decodeMainKey, decriptareDate } from "../../FunctiiDate/FunctiiDefinite"
 import PeopleLogo from "../../../assets/website/people.png";
 import ParolaLogo from "../../../assets/website/password2.png";
 import CardLogo from "../../../assets/website/credit-card2.png";
 import NoteLogo from "../../../assets/website/note2.png";
-
-import LaunchLogo from "../../../assets/website/launch.png"
-import FavoriteLogo from "../../../assets/website/favorite.png"
-import DeleteIcon from "../../../assets/website/delete.png"
-
-import { FaEye, FaEyeSlash, FaCopy, FaEdit, FaSave, FaArrowLeft, FaUndo, FaHistory } from 'react-icons/fa';
-
+import { FaHistory, FaTrash } from 'react-icons/fa';
+import PopupStergeItemDefinitiv from '../Popup_uri/PopupStergeItemDefinitiv';
 
 function hexToString(hex) {
     let str = '';
@@ -26,7 +16,6 @@ function hexToString(hex) {
     }
     return str;
 }
-
 const ItemiStersi = ({ accessToken, derivedKey }) => {
     const [key, setKey] = useState(derivedKey);
 
@@ -44,10 +33,7 @@ const ItemiStersi = ({ accessToken, derivedKey }) => {
 
     const fetchItems = async () => {
         try {
-            const savedItems = sessionStorage.getItem('ParolaItmei');
-            let savedItemsParsed = savedItems ? JSON.parse(savedItems) : [];
-
-            const response = await fetch('http://localhost:9000/api/itemi', {
+            const response = await fetch('http://localhost:9000/api/utilizator/itemiStersi', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -59,12 +45,8 @@ const ItemiStersi = ({ accessToken, derivedKey }) => {
                 const data = await response.json();
                 console.log("Datele primite de la server: ", data);
 
-                //console.log("Cheia principala: ", key);
                 const decriptKey = await decodeMainKey(key);
-                //console.log("DecryptKey: ", decriptKey);
-
                 let fetchedItems = [];
-
                 for (let item of data) {
                     try {
                         const id_owner = item.id_owner;
@@ -136,7 +118,6 @@ const ItemiStersi = ({ accessToken, derivedKey }) => {
 
                         console.log("Datele primite de la server aferente parolei: ", rez_tip, rez_nume, rez_url, rez_username, rez_parola, rez_comentariu, isDeleted);
 
-                        // Adăugăm itemul decriptat în vectorul ParolaItemi
                         fetchedItems.push({
                             nume: rez_nume,
                             tipitem: rez_tip,
@@ -156,8 +137,7 @@ const ItemiStersi = ({ accessToken, derivedKey }) => {
                     }
 
                 }
-                const filteredItems = fetchedItems.filter(item => item.isDeleted === 1);
-                setItems(filteredItems);
+                setItems(fetchedItems);
             } else {
                 console.error('Failed to fetch items', response.statusText);
             }
@@ -174,27 +154,28 @@ const ItemiStersi = ({ accessToken, derivedKey }) => {
 
 
     const [gestioneazaParolaItem, setGestioneazaParolaItem] = useState(null);
+    const [stergeItem, setStergeItem] = useState(false);
 
     const restoreItem = async (itemId) => {
-        try {
-            const response = await fetch(`http://localhost:9000/api/itemi/${itemId}/restore`, {
-                method: 'PATCH', // Folosim PATCH pentru a actualiza un item existent
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`, // Asigură-te că token-ul este transmis
-                },
-            });
-
-            if (response.ok) {
-                console.log('Itemul a fost restaurat cu succes');
-                // După restaurare, poți actualiza lista de itemi
-                fetchItems(); // Sau actualizezi lista locală cu itemii restaurați
-            } else {
-                console.error('Eroare la restaurarea itemului:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Eroare la restaurarea itemului:', error);
-        }
+        /* try {
+             const response = await fetch(`http://localhost:9000/api/itemi/${itemId}/restore`, {
+                 method: 'PATCH', // Folosim PATCH pentru a actualiza un item existent
+                 headers: {
+                     'Content-Type': 'application/json',
+                     'Authorization': `Bearer ${accessToken}`, // Asigură-te că token-ul este transmis
+                 },
+             });
+ 
+             if (response.ok) {
+                 console.log('Itemul a fost restaurat cu succes');
+                 // După restaurare, poți actualiza lista de itemi
+                 fetchItems(); // Sau actualizezi lista locală cu itemii restaurați
+             } else {
+                 console.error('Eroare la restaurarea itemului:', response.statusText);
+             }
+         } catch (error) {
+             console.error('Eroare la restaurarea itemului:', error);
+         }*/
     };
 
 
@@ -207,43 +188,43 @@ const ItemiStersi = ({ accessToken, derivedKey }) => {
 
                 </div>
 
-                <hr className="border-t-1 border-gray-900 my-1 rounded-full " />
+                <hr className="border-t-2 border-gray-500 my-4 rounded-full mx-6" />
 
-                {/* Sectiunea de itmei Parola */}
-                {gestioneazaParolaItem === null ? <div className="space-y-1 mx-12">
-                    {items.map((item, index) => (
-                        <div key={index} className="border border-white-700 border-b-2 rounded-lg shadow-lg bg-white px-2 flex justify-between items-center hover:bg-gray-200 transition-all duration-300 ease-in-out">
+                {/* Itemii ce urmeaza sa fie stersi */}
+                {
+                    gestioneazaParolaItem === null ? <div className="space-y-1  mx-8 w-4/7 sm:w-6/7">
+                        {items.map((item, index) => (
+                            <div key={index} className="border border-white-700 border-b-2 rounded-lg shadow-lg bg-white px-2 flex justify-between items-center hover:bg-gray-200 transition-all duration-300 ease-in-out">
+                                <div className="flex items-center space-x-4">
+                                    <img
+                                        src={item.tipitem === 'password' ? ParolaLogo : item.tipitem === 'note' ? NoteLogo : item.tipitem === 'card' ? CardLogo : PeopleLogo}
+                                        alt="Logo Parola Item"
+                                        className="w-8 h-8"
+                                    />
+                                    <div>
+                                        <h2 className="font-semibold">{item.nume}</h2>
+                                        <h3 className="text-sm text-gray-500">{item.username}</h3>
+                                        <h3 className="text-sm text-gray-500">Data stergerii: 12.11.2023</h3>
+                                    </div>
+                                </div>
 
-                            <div className="flex items-center space-x-4">
-                                <img
-                                    src={item.tipitem === 'password' ? ParolaLogo : item.tipitem === 'note' ? NoteLogo : item.tipitem === 'card' ? CardLogo : PeopleLogo}
-                                    alt="Logo Parola Item"
-                                    className="w-8 h-8"
-                                />
-                                <div>
-                                    <h2 className="font-semibold">{item.nume}</h2>
-                                    <h3 className="text-sm text-gray-500">{item.username}</h3>
-                                    <h3 className="text-sm text-gray-500">Data stergerii: 12.11.2023</h3>
+                                <div className="flex space-x-4">
+                                    <button onClick={(e) => { e.stopPropagation(); setStergeItem(true); setItemid(item) }} className="p-2 bg-white-200 border border-red-200 rounded-lg hover:bg-red-400">
+                                        <FaTrash alt="Delete Logo" className="w-5 h-5" />
+                                    </button>
+
+                                    {/* Butonul pentru restaurare */}
+                                    <button onClick={(e) => { e.stopPropagation(); restoreItem(item.id_item); }} className="flex flex-row p-2 bg-blue-200 border rounded-lg hover:bg-blue-500">
+                                        <FaHistory alt="Restore Icon" className="w-5 h-5" />
+                                        <span className='ml-1 customRestoreButtonText'>Restaurează</span>
+                                    </button>
                                 </div>
                             </div>
-
-                            <div className="flex space-x-4">
-                                <button onClick={(e) => { e.stopPropagation(); setStergeItem(true); setItemid(item) }} className="p-2 bg-white-200 border border-red-200 rounded-lg hover:bg-red-400">
-                                    <img src={DeleteIcon} alt="Delete Logo" className="w-5 h-5" />
-                                </button>
-
-                                {/* Butonul pentru restaurare */}
-                                <button onClick={(e) => { e.stopPropagation(); restoreItem(item.id_item); }} className="flex flex-row p-2 bg-blue-200 border rounded-lg hover:bg-blue-500">
-                                    <FaHistory alt="Restore Icon" className="w-5 h-5" />
-                                    <span className='ml-1'>Restaureaza</span>
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-                    : null
+                        ))}
+                    </div>
+                        : null
                 }
-
+                {stergeItem && <PopupStergeItemDefinitiv setShowPopupStergeItem={setStergeItem} accessToken={accessToken} item={itemid} items={items} fetchItems={fetchItems} />}
 
             </div >
         </>

@@ -8,30 +8,7 @@ const protectedRouter = express.Router();
 //rute protejate 
 
 // rute pentru itemi 
-protectedRouter.get('/itemi', async (req, res) => {
-    const userId = req.user.sub;
-    try {
-        const result = await client.query(`
-            SELECT 
-                encode(i.keys, 'hex') AS keys_hex, 
-                encode(i.continut, 'hex') AS continut_hex, 
-                li.id_item AS id_item, 
-                i.id_owner AS id_owner, 
-                i.isdeleted AS isdeleted 
-            FROM leguseritemi li
-            JOIN itemi i ON li.id_item = i.id_item
-            LEFT JOIN leggrupuriitemi lgi ON i.id_item = lgi.id_item 
-            WHERE li.id_user = $1
-            AND lgi.id_item IS NULL
-        `, [userId]);
 
-        res.status(200).json(result.rows);
-    }
-    catch (error) {
-        console.error('Eroare:', error);
-        res.status(401).send();
-    }
-});
 
 protectedRouter.get('/itemistersi', async (req, res) => {
     const userId = req.user.sub;
@@ -447,6 +424,57 @@ protectedRouter.get('/getUserEncryptedPrivateKey', async (req, res) => {
         res.status(500).send('Eroare la preluarea cheii private.');
     }
 });
+
+protectedRouter.get('/utilizator/itemi', async (req, res) => {
+    const userId = req.user.sub;
+    try {
+        const result = await client.query(`
+            SELECT 
+                encode(i.keys, 'hex') AS keys_hex, 
+                encode(i.continut, 'hex') AS continut_hex, 
+                li.id_item AS id_item, 
+                i.id_owner AS id_owner, 
+                i.isdeleted AS isdeleted 
+            FROM leguseritemi li
+            JOIN itemi i ON li.id_item = i.id_item
+            LEFT JOIN leggrupuriitemi lgi ON i.id_item = lgi.id_item 
+            WHERE li.id_user = $1
+            AND lgi.id_item IS NULL
+            AND i.isdeleted = 0;
+        `, [userId]);
+
+        res.status(200).json(result.rows);
+    }
+    catch (error) {
+        console.error('Eroare:', error);
+        res.status(401).send();
+    }
+});
+protectedRouter.get('/utilizator/itemiStersi', async (req, res) => {
+    const userId = req.user.sub;
+    try {
+        const result = await client.query(`
+            SELECT 
+                encode(i.keys, 'hex') AS keys_hex, 
+                encode(i.continut, 'hex') AS continut_hex, 
+                li.id_item AS id_item, 
+                i.id_owner AS id_owner, 
+                i.isdeleted AS isdeleted 
+            FROM leguseritemi li
+            JOIN itemi i ON li.id_item = i.id_item
+            LEFT JOIN leggrupuriitemi lgi ON i.id_item = lgi.id_item 
+            WHERE li.id_user = $1
+            AND lgi.id_item IS NULL
+            AND i.isdeleted = 1;
+        `, [userId]);
+
+        res.status(200).json(result.rows);
+    }
+    catch (error) {
+        console.error('Eroare:', error);
+        res.status(401).send();
+    }
+});
 protectedRouter.post('/getNewMemberId', async (req, res) => {
     const { nameItem } = req.body;
     try {
@@ -480,6 +508,17 @@ protectedRouter.post('/getNewUserGroupPublicKey', async (req, res) => {
         res.status(500).send('Eroare la preluarea cheii publice.');
     }
 });
-
+protectedRouter.delete('/utilizator/stergeItemDefinitiv', async (req, res) => {
+    const { id_item } = req.body;
+    try {
+        console.log("id-ul itemului de sters este: ", id_item);
+        await client.query(`DELETE FROM leguseritemi WHERE id_item = $1`, [id_item]);
+        await client.query(`DELETE FROM itemi WHERE id_item = $1`, [id_item]);
+        return res.status(200).json({ message: 'Item sters!' });
+    } catch (error) {
+        console.error('Eroare:', error);
+        return res.status(500).json({ message: 'Eroare stergere item' });
+    }
+});
 
 export default protectedRouter;
