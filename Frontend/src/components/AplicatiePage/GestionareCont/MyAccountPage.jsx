@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import PopupAskRecoveryPasswod from "../Popup_uri/PopupAskRecoveryPasswod.jsx"
+import PopupRecoveryPassword from "../Popup_uri/PopupRecoveryPassword.jsx";
 
-const MyAccountPage = ({ accessToken }) => {
-    // Datele utilizatorului (poți să le obții de la un API)
+const MyAccountPage = ({ setMeniuContulMeu, accessToken }) => {
+    useEffect(() => {
+        setMeniuContulMeu(false);
+    }, []);
+
     const [userData, setUserData] = useState({
         firstName: 'Ion',
         lastName: 'Popescu',
@@ -12,10 +17,7 @@ const MyAccountPage = ({ accessToken }) => {
         status: "active"
     });
 
-    // Variabila de stare pentru a gestiona editarea informațiilor
     const [isEditing, setIsEditing] = useState(false);
-
-    // Funcție de actualizare a datelor utilizatorului
     const handleChange = (e) => {
         setUserData({
             ...userData,
@@ -23,15 +25,13 @@ const MyAccountPage = ({ accessToken }) => {
         });
     };
 
-    // Funcție de activare a recuperării cheii
+    const [popupActiveazaRcovery, setpopupActiveazaRcovery] = useState(false);
+    const [openPopupRecovery, setOpenPopupRecovery] = useState(false);
+
     const handleActivateKeyRecovery = () => {
-        console.log("Recuperare cheie activată");
-        // Adaugă logica pentru activarea recuperării cheii
+        setpopupActiveazaRcovery(true);
     };
-
-    // Inițialele utilizatorului
     const initials = `${userData.firstName.charAt(0)}${userData.lastName.charAt(0)}`;
-
     return (
         <div className="mx-auto p-4 overflow-y-auto custom-height3">
             <div className="flex items-center space-x-4">
@@ -157,17 +157,12 @@ const MyAccountPage = ({ accessToken }) => {
                         </div>
 
                     </div>
-
-
-
-
-
                 </div>
 
                 <div className="mt-6 flex space-x-4">
                     <button
                         onClick={() => setIsEditing(!isEditing)}
-                        className="px-4 py-2 bg-blue-500 text-white rounded"
+                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
                     >
                         {isEditing ? 'Salvează' : 'Editează'}
                     </button>
@@ -175,12 +170,14 @@ const MyAccountPage = ({ accessToken }) => {
                     {/* Buton activare recuperare cheie */}
                     <button
                         onClick={handleActivateKeyRecovery}
-                        className="px-4 py-2 bg-green-500 text-white rounded"
+                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700"
                     >
                         Activează recuperare cheie
                     </button>
                 </div>
             </div>
+            {popupActiveazaRcovery && <PopupAskRecoveryPasswod setpopupActiveazaRcovery={setpopupActiveazaRcovery} accessToken={accessToken} setOpenPopupRecovery={setOpenPopupRecovery} />}
+            {openPopupRecovery && <PopupRecoveryPassword accessToken={accessToken} setOpenPopupRecovery={setOpenPopupRecovery} />}
         </div>
     );
 };

@@ -5,6 +5,7 @@ import PeopleLogo from "../../../assets/website/people.png";
 import ParolaLogo from "../../../assets/website/password2.png";
 import CardLogo from "../../../assets/website/credit-card2.png";
 import NoteLogo from "../../../assets/website/note2.png";
+import Address from '../../../assets/website/address.png'
 
 
 const PopupNewItem = ({ setShoMeniuCreeazaItem, setShowParolaPopup, setShowNotitaPopup }) => {
@@ -45,8 +46,8 @@ const PopupNewItem = ({ setShoMeniuCreeazaItem, setShowParolaPopup, setShowNotit
               <span>Card</span>
             </li>
             <li className="hover:bg-green-500 cursor-pointer p-4 hover:rounded-lg flex flex-col items-center">
-              <img src={PeopleLogo} alt="Grup Logo" className="w-10 h-10 mb-2" />
-              <span>Grup</span>
+              <img src={Address} alt="Grup Logo" className="w-10 h-10 mb-2" />
+              <span>Adresă</span>
             </li>
           </ul>
         </div>

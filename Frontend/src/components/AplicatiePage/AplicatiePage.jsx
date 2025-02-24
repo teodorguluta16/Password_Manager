@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Logo from "../../assets/website/access-control.png";
@@ -13,6 +13,7 @@ import ShareLogo from "../../assets/website/share.png"
 import DeletedIcon from "../../assets/website/garbage.png"
 import AddIcon from "../../assets/website/add.png"
 import FavoriteIcon from '../../assets/website/star.png'
+import Address from '../../assets/website/address.png'
 import '../../App.css';
 
 import ItemsAllPage from './ItemiPages/ItemsAllPage';
@@ -23,6 +24,7 @@ import MyAccountPage from './GestionareCont/MyAccountPage';
 import HelpPage from './GestionareCont/HelpPage';
 import FavoritePage from './ItemiPages/FavoritePage';
 import GrupuriPage from './ItemiPages/GrupuriPage';
+import AdresePage from './ItemiPages/AdresePage';
 
 import PopupNewItem from './Popup_uri/PopupNewItem';
 import PopupParolaItem from "./Popup_uri/PopupParolaItem";
@@ -159,6 +161,22 @@ const AplicatiePage = () => {
   }
 
   const [showMeniuLContulmeuCascada, setMeniuContulMeu] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setTimeout(() => {
+          setMeniuContulMeu(false);
+        }, 150);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   const [shoMeniuCreeazaItem, setMeniuCreeazaItem] = useState(false);
   const [ShowParolaPopup, setShowParolaPopup] = useState(false);
   const [ShowNotitaPopup, setShowNotitaPopup] = useState(false);
@@ -298,7 +316,7 @@ const AplicatiePage = () => {
         {/* Container flex pentru butonul de burger și logo */}
         <div className="relative flex items-center justify-between mb-4">
           {/* Butonul de toggle */}
-          <button onClick={handleToggle} className="text-white focus:outline-none absolute left-0 sm:mt-8 hover:bg-green-700 hover:opacity-100 p-1 -ml-2 rounded-lg">
+          <button onClick={handleToggle} className="text-white focus:outline-none absolute left-0 sm:mt-8 hover:text-gray-300 hover:opacity-100 p-1 -ml-2 rounded-lg">
             <svg
               className="w-8 h-8"
               fill="none"
@@ -361,6 +379,12 @@ const AplicatiePage = () => {
               flex items-center transition-all duration-300 ${sectiuneItemi == "carduri" ? 'bg-green-700 rounded px-4' : ''}`}>
               <img src={CreditCard} alt="Grupuri Icon" className="w-6 h-6 mr-2 filter invert"></img>
               <span>Carduri bancare</span>
+            </li>
+
+            <li onClick={() => selecteazaSectiune('adrese')} className={`mb-2 hover:bg-green-700 hover:rounded hover:px-4 cursor-pointer 
+              flex items-center transition-all duration-300 ${sectiuneItemi == "adrese" ? 'bg-green-700 rounded px-4' : ''}`}>
+              <img src={Address} alt="Grupuri Icon" className="w-6 h-6 mr-2 filter invert"></img>
+              <span>Adrese</span>
             </li>
 
             <hr className="border-t border-green-600 my-2" />
@@ -430,6 +454,11 @@ const AplicatiePage = () => {
                 <span>Carduri bancare</span>
               </li>
 
+              <li onClick={() => selecteazaSectiune('adrese')} className="mb-2 hover:bg-green-700 hover:rounded hover:px-4 cursor-pointer flex items-center transition-all duration-300">
+                <img src={Address} alt="User Icon" className="w-6 h-6 mr-2 filter invert" />
+                <span>Adrese</span>
+              </li>
+
               <hr className="border-t border-green-600 my-2 mr-6" />
 
               <li className="mb-2 hover:bg-green-700 hover:rounded hover:px-4 cursor-pointer flex items-center transtion-all duration-300">
@@ -471,7 +500,7 @@ const AplicatiePage = () => {
       {/* Sectiunea de lucru */}
       <div className={`flex-1 p-0 bg-gray-100 overflow-y-auto`}>
         {/* Bara orizontala */}
-        <div className="shadow-lg bg-green-600 w-full sm:flex items-center sm:py-2">
+        < div className="shadow-lg bg-green-600 w-full sm:flex items-center sm:py-2" >
           {/* Logo-ul si titlul vizibile doar pe ecrane mari */}
           <div className="hidden sm:flex items-center w-full">
             {/*Logo-ul si titlul */}
@@ -494,18 +523,16 @@ const AplicatiePage = () => {
             </div>
 
             {/* Contul meu */}
-            <div className="ml-auto mr-3 flex items-center gap-4 text-white transition-all duration-300">
-              <button onClick={() => setMeniuContulMeu(!showMeniuLContulmeuCascada)} className="flex flex-col md:flex-row items-center md:space-x-2 px-2 md:px-4  lg:text-2xl md:text-xl">
-                <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-2xl font-bold text-white bg-red-600 hover:bg-red-800">
-                  {initiale}
-                </div>
+            <div className="ml-auto mr-6 flex items-center gap-4 text-white transition-all duration-300">
+              <button onClick={() => setMeniuContulMeu(!showMeniuLContulmeuCascada)} className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-2xl font-bold text-white bg-red-600 hover:bg-red-800">
+                {initiale}
               </button>
             </div>
           </div>
 
         </div>
         {showMeniuLContulmeuCascada &&
-          (<div className="absolute right-0 bg-gray-700 text-white border rounded-lg shadow-lg w-48 z-[1000] transition-all duration-600 ease-in-out mr-3">
+          (<div className="absolute right-0 bg-gray-700 text-white border rounded-lg shadow-lg w-48 z-[1000] transition-all duration-600 ease-in-out mr-3" ref={menuRef}>
             <ul className="py-2 z-20">
               <li className="px-4 py-3 hover:bg-green-600 cursor-pointer z-50" onClick={() => selecteazaSectiune('ProfilUtilizator')}>Profil</li>
               <li className="px-4 py-3 hover:bg-green-600 cursor-pointer z-50">Setări</li>
@@ -525,12 +552,13 @@ const AplicatiePage = () => {
         {sectiuneItemi === 'parole' && accessToken && savedKey && <ParolePage accessToken={accessToken} derivedKey={savedKey} items={items} fetchItems={fetchItems} />}
         {sectiuneItemi === 'notite' && accessToken && <NotitePage accessToken={accessToken} />}
         {sectiuneItemi === 'carduri' && accessToken && <CarduriBancarePage accessToken={accessToken} />}
+        {sectiuneItemi === 'adrese' && accessToken && <AdresePage accessToken={accessToken} />}
         {sectiuneItemi === 'favorite' && accessToken && <FavoritePage accessToken={accessToken} />}
         {sectiuneItemi === 'grupuri' && accessToken && <GrupuriPage accessToken={accessToken} derivedKey={savedKey} />}
         {sectiuneItemi === 'itemieliminati' && accessToken && <ItemiStersi accessToken={accessToken} derivedKey={savedKey} />}
 
         {sectiuneItemi === 'Ajutor' && accessToken && <HelpPage accessToken={accessToken} />}
-        {sectiuneItemi === "ProfilUtilizator" && <MyAccountPage />}
+        {sectiuneItemi === "ProfilUtilizator" && <MyAccountPage setMeniuContulMeu={setMeniuContulMeu} accessToken={accessToken} />}
 
         {/*Popup-ul de la creeaza item Nou */}
         {shoMeniuCreeazaItem && (<PopupNewItem setShoMeniuCreeazaItem={setMeniuCreeazaItem} setShowParolaPopup={setShowParolaPopup} setShowNotitaPopup={setShowNotitaPopup} />)}
@@ -538,7 +566,7 @@ const AplicatiePage = () => {
         {ShowParolaPopup && (<PopupParolaItem setShowParolaPopup={setShowParolaPopup} accessToken={accessToken} derivedKey={savedKey} fetchItems={fetchItems} />)}
         {ShowNotitaPopup && (<PopupNotitaItem setShowNotitaPopup={setShowNotitaPopup} />)}
       </div>
-    </div>
+    </div >
   );
 };
 
