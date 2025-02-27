@@ -81,9 +81,12 @@ protectedRouter.post('/utilizator/addRecoveryKey', async (req, res) => {
     }
     try {
         console.log("Cheia ce urmeaza a fi criptata: ", jsonItemKey);
-        //await client.query(`INSERT INTO Utilizatori (Nume, Prenume, Email, Parola, Tip_ut, Status,Salt, PublicKey, 
-        //    EncryptedPrivateKey,Encryptedsimmetrickey) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-        //    [publicKeyBytes, EncryptedPrivateKey, EncryptedAesKey]);
+        await client.query(`UPDATE Utilizatori SET copyencryptedsimmetrickey = $1 WHERE id = $2`, [jsonItemKey, userId]);
+        if (result.rowCount > 0) {
+            res.status(200).json({ success: true, message: 'Cheia de recuperare a fost actualziata.' });
+        } else {
+            res.status(400).json({ success: false, message: 'Cheia nu a fost actualizata.' });
+        }
     } catch (error) {
         console.error("Eroare la adaugare copiei cheii: ", error);
         res.status(500).send();
