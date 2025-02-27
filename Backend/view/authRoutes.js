@@ -9,9 +9,9 @@ dotenv.config();
 const authRouter = express.Router();
 
 authRouter.post("/addUser", async (req, res) => {
-    const { Nume, Prenume, Email, Parola, PublicKey, EncryptedPrivateKey, EncryptedAesKey, SaltB64 } = req.body;
+    const { Nume, Prenume, Email, Parola, SaltB64, PublicKey, EncryptedPrivateKey, EncryptedAesKey } = req.body;
 
-    if (!Nume || !Prenume || !Email || !Parola || !PublicKey || !EncryptedPrivateKey || !EncryptedAesKey || SaltB64) {
+    if (!Nume || !Prenume || !Email || !Parola || !PublicKey || !EncryptedPrivateKey || !EncryptedAesKey || !SaltB64) {
         return res.status(400).send('Toate campurile sunt necesare!');
     }
 

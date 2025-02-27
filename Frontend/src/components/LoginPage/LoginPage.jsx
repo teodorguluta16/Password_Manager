@@ -6,7 +6,6 @@ import { useKeySimetrica } from '../FunctiiDate/ContextKeySimetrice'
 import { criptareDate, generateKey, decodeMainKey, decriptareDate } from "../FunctiiDate/FunctiiDefinite"
 import { saveKeyInIndexedDB } from '../FunctiiDate/ContextKeySimetrice'; // Importăm funcția corect
 import CryptoJS from 'crypto-js';
-import { errorMonitor } from 'events';
 
 function hexToString(hex) {
   let str = '';
@@ -64,8 +63,7 @@ const LoginPage = () => {
           });
           if (response.ok) {
             const data = await response.json();
-            console.log("Datele primite de la server: ", data);
-            salt = data.salt;
+            salt = CryptoJS.enc.Base64.parse(data.salt);;
           }
 
         } catch (error) {

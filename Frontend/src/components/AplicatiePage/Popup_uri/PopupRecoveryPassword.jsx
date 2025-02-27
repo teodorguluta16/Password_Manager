@@ -51,7 +51,26 @@ const PopupRecoveryPassword = ({ accessToken, setOpenPopupRecovery, derivedkey }
     const cripteazaCopieCheie = async () => {
         console.log("cuvantul de recovery este: ", recoveryKey);
         try {
-            const salt = CryptoJS.enc.Utf8.parse("salt1234"); // tre sa ajustez si saltul
+            let salt = null;
+            try {
+                const response = await fetch('http://localhost:9000/api/utilizator/getSalt', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    salt = CryptoJS.enc.Base64.parse(data.salt);;
+                }
+
+            } catch (error) {
+                console.log("Eroare luare salt: ", error);
+            }
+            if (salt === null) {
+                console.erro("Saltul e null");
+            }
 
             const derivedKey = CryptoJS.PBKDF2(recoveryKey, salt, { keySize: 256 / 32, iterations: 500000 });// tre sa ajustez nr de iteratii
             const derivedKeyBase64 = derivedKey.toString(CryptoJS.enc.Base64);

@@ -99,14 +99,14 @@ const SignUpPage = () => {
             const uint8Array = pemToUint8Array(publicKeyPem);
             const publicKeyBase64 = btoa(String.fromCharCode.apply(null, uint8Array));
             const userData = {
-                ...date, PublicKey: publicKeyBase64,
+                ...date, SaltB64: saltBase64, PublicKey: publicKeyBase64,
                 EncryptedPrivateKey: {
                     encKey: { iv: encryptedPrivateKey.iv, encData: encryptedPrivateKey.encData, tag: encryptedPrivateKey.tag }
                 },
                 EncryptedAesKey: {
                     encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag },
                 },
-                SaltB64: saltBase64,
+
             };
 
             const response = await fetch('http://localhost:9000/api/auth/addUser', {
