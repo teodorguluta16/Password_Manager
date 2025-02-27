@@ -9,6 +9,7 @@ import QAFrecvente from './components/DescribePage/QAFrecevnte'
 import TestPage from './components/DescribePage/TestPage'
 import LoginPage from './components/LoginPage/LoginPage'
 import SignUpPage from './components/LoginPage/SignUpPage'
+import RecoveryPasswordPage from './components/LoginPage/RecoveryPasswordPage';
 import AplicatiePage from './components/AplicatiePage/AplicatiePage'
 
 import { ProviderSimetricKey } from './components/FunctiiDate/ContextKeySimetrice'
@@ -42,6 +43,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/myapp" element={<AplicatiePage />} />
+            <Route path="/recoverypassword" element={<RecoveryPasswordPage />} />
           </Routes>
         </div>
       </Router>

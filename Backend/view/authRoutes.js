@@ -127,6 +127,94 @@ authRouter.post("/login", async (req, res) => {
     }
 });
 
+/*authRouter.post("/loginRecuperare", async (req, res) => {
+    const { Email } = req.body;
+
+    if (!Email) {
+        console.log("Eroare primire date\n");
+        return res.status(400).send("Date netrimise\n");
+    }
+
+    try {
+        const result = await client.query("SELECT  parola,id, CONCAT(nume, ' ', prenume) AS nume,tip_ut FROM Utilizatori WHERE Email=$1", [Email]);
+        if (result.rows.length === 0) {
+            return res.status(404).send("Utilizatorul nu există\n");
+        }
+        const hashStocat = result.rows[0].parola;
+        const potrivire = await bcrypt.compare(Parola, hashStocat);
+
+        if (potrivire) {
+            let TipUser;
+            if (result.rows[0].tip_ut === 1) {
+                TipUser = "Client";
+            }
+            else {
+                TipUser = "Admin";
+            }
+
+            //access token
+            const accessToken = jwt.sign(
+                {
+                    username: Email,
+                    sub: result.rows[0].id,
+                    name: result.rows[0].nume,
+                    role: TipUser
+                },
+                process.env.ACCESS_TOKEN_SECRET,
+                { expiresIn: '1h' }
+            );
+
+            // refresh token
+            const refreshToken = jwt.sign(
+                {
+                    username: Email,
+                    sub: result.rows[0].id,
+                    name: result.rows[0].nume,
+                    role: TipUser
+                },
+                process.env.REFRESH_TOKEN_SECRET,
+                { expiresIn: '1m' }
+            );
+
+            // Validarea token-ului
+            jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+                if (err) {
+                    console.log('Invalid token:', err);
+                } else {
+                    //console.log('Decoded token:', decoded);
+                    console.log("Token decodificat");
+                }
+            });
+
+            await client.query("UPDATE Utilizatori SET refresh_token = $1 WHERE Email = $2", [refreshToken, Email]);
+
+            // Setăm refresh token-ul în cookie (httpOnly pentru securitate)
+            res.cookie('jwt', refreshToken, {
+                httpOnly: true,
+                secure: false, // doar pe HTTPS în producție
+                maxAge: 24 * 60 * 60 * 1000, // 1 zi
+            });
+
+            // Setăm access token-ul în cookie (httpOnly și secure pe HTTPS)
+            //res.cookie("accessToken", accessToken, {
+            //    httpOnly: true,
+            //    secure: false, // doar pe HTTPS în producție
+            //    maxAge: 3600000 // 1 oră
+            //});
+
+            console.log("Autentificare reusita");
+            res.json({ accessToken }); /// daca stochez acces Token in memory voi fi vulnerabil sau cv de genul
+        }
+        else {
+            console.log("Parola incorectă");
+            return res.status(401).send("Parola incorectă");
+        }
+    } catch (error) {
+        console.error("Eroare in procesul de login", error);
+        return res.status(500).send("Eroare server");
+    }
+});*/
+
 
 authRouter.post("/refresh", async (req, res) => {
     const cookies = req.cookies;

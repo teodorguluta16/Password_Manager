@@ -23,6 +23,7 @@ const LoginPage = () => {
 
   const navigate = useNavigate();
   const toggleForm = () => { navigate('/signup'); };
+  const navigareForgetPassword = () => { navigate('/recoverypassword') };
   const { setKey } = useKeySimetrica();
   const handleLogin = async (e) => {
     if (e && e.preventDefault) { e.preventDefault(); }
@@ -150,8 +151,7 @@ const LoginPage = () => {
               <button type='button' onClick={toggleForm} className='mt-2 text-blue-500 hover:underline inline-block bg-transparent border-none p-0 cursor-pointe mb-3'>
                 Creează un cont nou
               </button>
-              {accessToken && <p>Token-ul tău: {accessToken}</p>}
-              <a href='#' className='text-blue-500 hover:underline'>Ți-ai uitat parola?</a>
+              <button onClick={navigareForgetPassword} className='text-blue-500 hover:underline'>Ți-ai uitat parola?</button>
             </div>
           </form>
         </div>
