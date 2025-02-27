@@ -17,18 +17,13 @@ function hexToString(hex) {
 
 const LoginPage = () => {
   const [incorectCredentiale, setincorectCredentiale] = useState(false);
-
   const [accessToken, setAccessToken] = useState(null);
-
   const [Parola, setParola] = useState('');
   const [Email, setEmail] = useState('');
 
   const navigate = useNavigate();
-
   const toggleForm = () => { navigate('/signup'); };
-
-  const { setKey } = useKeySimetrica();  // Accesăm setter-ul din context
-
+  const { setKey } = useKeySimetrica();
   const handleLogin = async (e) => {
     if (e && e.preventDefault) { e.preventDefault(); }
 
@@ -69,13 +64,10 @@ const LoginPage = () => {
         } catch (error) {
           console.log("Eroare luare salt: ", error);
         }
-
-        // Derivarea cheii simetrice din parola
         const derivedKey = CryptoJS.PBKDF2(Parola, salt, { keySize: 256 / 32, iterations: 500000 });  // Ajustează numărul de iterații
         const derivedKeyBase64 = derivedKey.toString(CryptoJS.enc.Base64);
         console.log('Cheia derivată în Base64:', derivedKeyBase64);
 
-        // Salvăm accessToken în sessionStorage
         sessionStorage.setItem('accessToken', responseFromServer.accessToken);
         setAccessToken(responseFromServer.accessToken);
 
@@ -109,20 +101,11 @@ const LoginPage = () => {
             const octetiArray = dec_key.split(',').map(item => parseInt(item.trim(), 10));
             const uint8Array = new Uint8Array(octetiArray);
             console.log("Am obtinut:", uint8Array);
-
-            // Transformă uint8Array într-un WordArray CryptoJS
             const wordArray = CryptoJS.lib.WordArray.create(uint8Array);
-
-            // Convertește WordArray în format Base64
             const base64Key = wordArray.toString(CryptoJS.enc.Base64);
-
             console.log("Cheia în format Base64:", base64Key);
-
-            // Acum poți să aplici setKey
             await saveKeyInIndexedDB(base64Key);
-
             setKey(base64Key);
-
 
             navigate('/myapp');
           } else {
