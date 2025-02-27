@@ -9,9 +9,9 @@ dotenv.config();
 const authRouter = express.Router();
 
 authRouter.post("/addUser", async (req, res) => {
-    const { Nume, Prenume, Email, Parola, PublicKey, EncryptedPrivateKey, EncryptedAesKey } = req.body;
+    const { Nume, Prenume, Email, Parola, PublicKey, EncryptedPrivateKey, EncryptedAesKey, SaltB64 } = req.body;
 
-    if (!Nume || !Prenume || !Email || !Parola || !PublicKey || !EncryptedPrivateKey || !EncryptedAesKey) {
+    if (!Nume || !Prenume || !Email || !Parola || !PublicKey || !EncryptedPrivateKey || !EncryptedAesKey || SaltB64) {
         return res.status(400).send('Toate campurile sunt necesare!');
     }
 
@@ -24,15 +24,11 @@ authRouter.post("/addUser", async (req, res) => {
     const hashedPassword = await bcrypt.hash(Parola, salt);
     try {
 
-        const saltParola = crypto.randomBytes(32).toString('hex');// asta trebuie pus in client
         const publicKeyBytes = Buffer.from(PublicKey, 'base64');
-
-        //const encryptedPrivateKeyJson = JSON.stringify(EncryptedPrivateKey);
-        //const encryptedAesKeyJson = JSON.stringify(EncryptedAesKey);
 
         await client.query(`INSERT INTO Utilizatori (Nume, Prenume, Email, Parola, Tip_ut, Status,Salt, PublicKey, 
             EncryptedPrivateKey,Encryptedsimmetrickey) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-            [Nume, Prenume, Email, hashedPassword, 1, 'active', saltParola, publicKeyBytes, EncryptedPrivateKey, EncryptedAesKey]);
+            [Nume, Prenume, Email, hashedPassword, 1, 'active', SaltB64, publicKeyBytes, EncryptedPrivateKey, EncryptedAesKey]);
 
         console.log("Cont creat cu succes !");
         res.status(200).send('Contul a fost creat cu succes!');

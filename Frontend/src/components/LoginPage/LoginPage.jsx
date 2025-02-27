@@ -6,6 +6,7 @@ import { useKeySimetrica } from '../FunctiiDate/ContextKeySimetrice'
 import { criptareDate, generateKey, decodeMainKey, decriptareDate } from "../FunctiiDate/FunctiiDefinite"
 import { saveKeyInIndexedDB } from '../FunctiiDate/ContextKeySimetrice'; // Importăm funcția corect
 import CryptoJS from 'crypto-js';
+import { errorMonitor } from 'events';
 
 function hexToString(hex) {
   let str = '';
@@ -51,8 +52,28 @@ const LoginPage = () => {
         const responseFromServer = await response.json();
         console.log("Access token primit:", responseFromServer);
 
+        let salt = null;
+
+        try {
+          const response = await fetch('http://localhost:9000/api/utilizator/getSalt', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${responseFromServer.accessToken}`
+            }
+          });
+          if (response.ok) {
+            const data = await response.json();
+            console.log("Datele primite de la server: ", data);
+            salt = data.salt;
+          }
+
+        } catch (error) {
+          console.log("Eroare luare salt: ", error);
+        }
+
         // Derivarea cheii simetrice din parola
-        const derivedKey = CryptoJS.PBKDF2(Parola, Email, { keySize: 256 / 32, iterations: 500000 });  // Ajustează numărul de iterații
+        const derivedKey = CryptoJS.PBKDF2(Parola, salt, { keySize: 256 / 32, iterations: 500000 });  // Ajustează numărul de iterații
         const derivedKeyBase64 = derivedKey.toString(CryptoJS.enc.Base64);
         console.log('Cheia derivată în Base64:', derivedKeyBase64);
 

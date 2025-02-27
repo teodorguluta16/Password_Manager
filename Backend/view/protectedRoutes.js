@@ -58,6 +58,18 @@ protectedRouter.post('/addKey', async (req, res) => {
         res.status(500).send();
     }
 });
+protectedRouter.get('/utilizator/getSalt', async (req, res) => {
+    const userId = req.user.sub;
+    try {
+        const result = await client.query("Select u.salt as salt from utilizatori u where u.id=$1;", [userId])
+        res.status(200).json(result.rows[0]);
+
+    } catch (error) {
+        console.error("Eroare la adaugare copiei cheii: ", error);
+        res.status(500).send();
+    }
+
+});
 
 protectedRouter.post('/utilizator/addRecoveryKey', async (req, res) => {
     const jsonItemKey = req.body;

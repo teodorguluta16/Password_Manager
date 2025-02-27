@@ -57,8 +57,17 @@ const SignUpPage = () => {
         const date = { Nume, Prenume, Email, Parola };
 
         try {
-            const derivedKey = CryptoJS.PBKDF2(Parola, Email, { keySize: 256 / 32, iterations: 500000 }); // Ai grijă la numărul de iterații
+
+            // generam salt
+            const salt = new Uint8Array(32); // 32 de octeți pentru un salt de 256 biți
+            window.crypto.getRandomValues(salt);
+            const saltBase64 = btoa(String.fromCharCode.apply(null, salt));
+            const saltWordArray = CryptoJS.enc.Base64.parse(saltBase64);
+
+            // Derivarea cheii folosind PBKDF2
+            const derivedKey = CryptoJS.PBKDF2(Parola, saltWordArray, { keySize: 256 / 32, iterations: 500000 });
             const derivedKeyBase64 = derivedKey.toString(CryptoJS.enc.Base64);
+
 
             // 1. generam cheia aes principala 
             const key_aes = await generateKey();
@@ -97,6 +106,7 @@ const SignUpPage = () => {
                 EncryptedAesKey: {
                     encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag },
                 },
+                SaltB64: saltBase64,
             };
 
             const response = await fetch('http://localhost:9000/api/auth/addUser', {
