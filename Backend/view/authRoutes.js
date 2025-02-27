@@ -15,7 +15,6 @@ authRouter.post("/addUser", async (req, res) => {
         return res.status(400).send('Toate campurile sunt necesare!');
     }
 
-    // Verificam daca Userul exista deja
     const result = await client.query('SELECT * FROM Utilizatori WHERE Email = $1', [Email]);
     if (result.rows.length > 0) {
         return res.status(400).send('Email deja folosit!');
@@ -25,7 +24,7 @@ authRouter.post("/addUser", async (req, res) => {
     const hashedPassword = await bcrypt.hash(Parola, salt);
     try {
 
-        const saltParola = crypto.randomBytes(32).toString('hex');
+        const saltParola = crypto.randomBytes(32).toString('hex');// asta trebuie pus in client
         const publicKeyBytes = Buffer.from(PublicKey, 'base64');
 
         //const encryptedPrivateKeyJson = JSON.stringify(EncryptedPrivateKey);
@@ -194,10 +193,6 @@ authRouter.post("/logout", (req, res) => {
         secure: false,   // Doar pentru HTTPS în producție
         maxAge: 0,       // Setează durata cookie-ului la 0 pentru a-l șterge
     });
-
-    // Dacă dorești să elimini și refresh token-ul din baza de date
-    // ar trebui să adaugi logica de actualizare a utilizatorului (opțional)
-    // Aici vom șterge refresh token-ul din BD
     const { Email } = req.body;
 
     client.query("UPDATE Utilizatori SET refresh_token = NULL WHERE Email = $1", [Email], (err, result) => {

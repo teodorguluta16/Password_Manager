@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PopupAskRecoveryPasswod from "../Popup_uri/PopupAskRecoveryPasswod.jsx"
 import PopupRecoveryPassword from "../Popup_uri/PopupRecoveryPassword.jsx";
 
-const MyAccountPage = ({ setMeniuContulMeu, accessToken }) => {
+const MyAccountPage = ({ setMeniuContulMeu, accessToken, derivedkey }) => {
     useEffect(() => {
         setMeniuContulMeu(false);
     }, []);
@@ -177,7 +177,7 @@ const MyAccountPage = ({ setMeniuContulMeu, accessToken }) => {
                 </div>
             </div>
             {popupActiveazaRcovery && <PopupAskRecoveryPasswod setpopupActiveazaRcovery={setpopupActiveazaRcovery} accessToken={accessToken} setOpenPopupRecovery={setOpenPopupRecovery} />}
-            {openPopupRecovery && <PopupRecoveryPassword accessToken={accessToken} setOpenPopupRecovery={setOpenPopupRecovery} />}
+            {openPopupRecovery && <PopupRecoveryPassword accessToken={accessToken} setOpenPopupRecovery={setOpenPopupRecovery} derivedkey={derivedkey} />}
         </div>
     );
 };

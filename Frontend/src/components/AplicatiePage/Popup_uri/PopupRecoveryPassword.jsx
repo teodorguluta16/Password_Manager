@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FaCheckCircle, FaCopy, FaExclamationTriangle } from "react-icons/fa";
+import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } from "../../FunctiiDate/FunctiiDefinite"
 import * as bip39 from 'bip39';
-
+import CryptoJS from 'crypto-js';
 import { Buffer } from 'buffer';
 if (!window.Buffer) {
     window.Buffer = Buffer;
@@ -10,8 +11,25 @@ const generateRecoveryKey = () => {
     const mnemonic = bip39.generateMnemonic(256);
     return mnemonic;
 };
-const PopupRecoveryPassword = ({ accessToken, setOpenPopupRecovery }) => {
+function base64ToArrayBuffer(base64) {
+    const binaryString = atob(base64);
+    const length = binaryString.length;
+    const bytes = new Uint8Array(length);
+    for (let i = 0; i < length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
+}
+
+async function convertToCryptoKey(base64Key) {
+    const keyArrayBuffer = base64ToArrayBuffer(base64Key);
+    const cryptoKey = await crypto.subtle.importKey("raw", keyArrayBuffer, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
+    return cryptoKey;
+}
+const PopupRecoveryPassword = ({ accessToken, setOpenPopupRecovery, derivedkey }) => {
     const recoveryKey = generateRecoveryKey();
+    const [key, setKey] = useState(derivedkey);
+    console.log("cheia derivata ce urmeaza a fi criptata este: ", key);
     const handleCopy = () => {
         navigator.clipboard.writeText(recoveryKey)
             .then(() => {
@@ -23,34 +41,64 @@ const PopupRecoveryPassword = ({ accessToken, setOpenPopupRecovery }) => {
     };
 
     const handleDownloadPDF = () => {
-        console.log("S-a apăsat butonul de descărcare ca PDF");
+        console.log("S-a apăsat butonul de PDF");
     };
     const handleDeschidePopupRecuperare = async () => {
         setpopupActiveazaRcovery(false);
         setOpenPopupRecovery(false);
-
-        /*try {
-            const response = await fetch('http://localhost:9000/api/stergeItem', {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`,
-                },
-                body: JSON.stringify({ id_item: item.id_item }),
-            });
-
-            if (response.ok) {
-                console.log('Item marcat ca șters!');
-                await fetchItems();
-            } else {
-                console.error('Eroare la ștergerea item-ului:', response.statusText);
-            }
-        } catch (error) {
-            console.error('Eroare:', error);
-        }*/
     };
 
+    const cripteazaCopieCheie = async () => {
+        console.log("cuvantul de recovery este: ", recoveryKey);
+        try {
+            const salt = CryptoJS.enc.Utf8.parse("salt1234"); // tre sa ajustez si saltul
 
+            const derivedKey = CryptoJS.PBKDF2(recoveryKey, salt, { keySize: 256 / 32, iterations: 500000 });// tre sa ajustez nr de iteratii
+            const derivedKeyBase64 = derivedKey.toString(CryptoJS.enc.Base64);
+
+            // criptare cheie
+            const criptKey = await decodeMainKey(derivedKeyBase64);
+            console.log("cheia derivata ce urmeaza a fi criptata este: ", key);
+            const key_aes_raw = Buffer.from(key, 'base64');
+            const enc_key_raw = await criptareDate(key_aes_raw, criptKey);
+            console.log("Cheia criptata este: ", enc_key_raw);
+
+            // trimitere la server
+
+            const jsonItemKey = {
+                data: {
+                    encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag },
+                },
+            };
+
+            try {
+                const response = await fetch('http://localhost:9000/api/utilizator/addRecoveryKey', {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify(jsonItemKey),
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Eroare la server:", errorText);
+                    return;
+                }
+            } catch (error) {
+                console.error("Eroare la trimitere", error);
+            };
+
+        } catch (error) {
+            console.error("Eroare la criptarea datelor:", error);
+        }
+    };
+
+    useEffect(() => {
+        cripteazaCopieCheie();
+
+    }, []);
     return (
         <>
             <div className="fixed inset-0 bg-opacity-50 bg-gray-400 flex items-center justify-center">

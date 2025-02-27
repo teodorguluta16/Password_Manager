@@ -28,7 +28,7 @@ protectedRouter.post('/addKey', async (req, res) => {
 
     if (!jsonItemKey || !jsonItemKey.data) {
         console.log("E incomplet");
-        return res.status(400).json({ message: "Structura datelor este incompletă" });
+        return res.status(400).json({ message: "Structura datelor este incompleta" });
     }
 
     try {
@@ -59,6 +59,25 @@ protectedRouter.post('/addKey', async (req, res) => {
     }
 });
 
+protectedRouter.post('/utilizator/addRecoveryKey', async (req, res) => {
+    const jsonItemKey = req.body;
+    const userId = req.user.sub;
+
+    if (!jsonItemKey || !jsonItemKey.data) {
+        console.log("E incomplet");
+        return res.status(400).json({ message: "Structura datelor este incompleta" });
+    }
+    try {
+        console.log("Cheia ce urmeaza a fi criptata: ", jsonItemKey);
+        //await client.query(`INSERT INTO Utilizatori (Nume, Prenume, Email, Parola, Tip_ut, Status,Salt, PublicKey, 
+        //    EncryptedPrivateKey,Encryptedsimmetrickey) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+        //    [publicKeyBytes, EncryptedPrivateKey, EncryptedAesKey]);
+    } catch (error) {
+        console.error("Eroare la adaugare copiei cheii: ", error);
+        res.status(500).send();
+    }
+
+});
 protectedRouter.post('/addItem', async (req, res) => {
     const jsonItem = req.body;
     const userId = req.user.sub;

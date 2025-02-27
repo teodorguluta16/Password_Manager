@@ -124,10 +124,10 @@ const AplicatiePage = () => {
 
       if (!isSmall) {
         setMeniuExtinsVerticala(false);
-        setExtins(true); // Extins pe ecrane mari
+        setExtins(true);
       }
       else {
-        setExtins(false); // Inchis pe ecrane mici
+        setExtins(false);
       }
     };
 
@@ -558,7 +558,7 @@ const AplicatiePage = () => {
         {sectiuneItemi === 'itemieliminati' && accessToken && <ItemiStersi accessToken={accessToken} derivedKey={savedKey} />}
 
         {sectiuneItemi === 'Ajutor' && accessToken && <HelpPage accessToken={accessToken} />}
-        {sectiuneItemi === "ProfilUtilizator" && <MyAccountPage setMeniuContulMeu={setMeniuContulMeu} accessToken={accessToken} />}
+        {sectiuneItemi === "ProfilUtilizator" && <MyAccountPage setMeniuContulMeu={setMeniuContulMeu} accessToken={accessToken} derivedkey={savedKey} />}
 
         {/*Popup-ul de la creeaza item Nou */}
         {shoMeniuCreeazaItem && (<PopupNewItem setShoMeniuCreeazaItem={setMeniuCreeazaItem} setShowParolaPopup={setShowParolaPopup} setShowNotitaPopup={setShowNotitaPopup} />)}
