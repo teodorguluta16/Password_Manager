@@ -27,7 +27,8 @@ async function convertToCryptoKey(base64Key) {
     return cryptoKey;
 }
 const PopupRecoveryPassword = ({ accessToken, setOpenPopupRecovery, derivedkey }) => {
-    const recoveryKey = generateRecoveryKey();
+    const [hasRun, setHasRun] = useState(false);
+    const [recoveryKey, setRecoveryKey] = useState(null);
     const [key, setKey] = useState(derivedkey);
     console.log("cheia derivata ce urmeaza a fi criptata este: ", key);
     const handleCopy = () => {
@@ -49,7 +50,10 @@ const PopupRecoveryPassword = ({ accessToken, setOpenPopupRecovery, derivedkey }
     };
 
     const cripteazaCopieCheie = async () => {
-        console.log("cuvantul de recovery este: ", recoveryKey);
+        console.log("start criptare: ");
+        let recKey = generateRecoveryKey();
+        setRecoveryKey(recKey);
+
         try {
             let salt = null;
             try {
@@ -69,17 +73,24 @@ const PopupRecoveryPassword = ({ accessToken, setOpenPopupRecovery, derivedkey }
                 console.log("Eroare luare salt: ", error);
             }
             if (salt === null) {
-                console.erro("Saltul e null");
+                console.error("Saltul e null");
             }
 
-            const derivedKey = CryptoJS.PBKDF2(recoveryKey, salt, { keySize: 256 / 32, iterations: 500000 });// tre sa ajustez nr de iteratii
+            console.log("saltul este: ", salt);
+            if (!recKey) {
+                console.error("Recovery Key e null");
+                return;
+            }
+
+            console.log("cuvantul de recovery este: ", recKey);
+            const derivedKey = CryptoJS.PBKDF2(recKey, salt, { keySize: 256 / 32, iterations: 500000 });// tre sa ajustez nr de iteratii
             const derivedKeyBase64 = derivedKey.toString(CryptoJS.enc.Base64);
+            console.log("Cheia folosita la criptare este: ", derivedKeyBase64);
 
             // criptare cheie
             const criptKey = await decodeMainKey(derivedKeyBase64);
             console.log("cheia derivata ce urmeaza a fi criptata este: ", key);
-            const key_aes_raw = Buffer.from(key, 'base64');
-            const enc_key_raw = await criptareDate(key_aes_raw, criptKey);
+            const enc_key_raw = await criptareDate(key, criptKey);
             console.log("Cheia criptata este: ", enc_key_raw);
 
             // trimitere la server
@@ -112,12 +123,15 @@ const PopupRecoveryPassword = ({ accessToken, setOpenPopupRecovery, derivedkey }
         } catch (error) {
             console.error("Eroare la criptarea datelor:", error);
         }
+        console.log("finalizare criptare: ");
     };
 
     useEffect(() => {
-        cripteazaCopieCheie();
-
-    }, []);
+        if (!hasRun) {
+            cripteazaCopieCheie();
+            setHasRun(true);
+        }
+    }, [hasRun]);
     return (
         <>
             <div className="fixed inset-0 bg-opacity-50 bg-gray-400 flex items-center justify-center">

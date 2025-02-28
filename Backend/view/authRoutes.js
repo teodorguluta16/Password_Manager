@@ -136,7 +136,7 @@ authRouter.post("/getCopyEncryptedSimmetricKey", async (req, res) => {
     }
 
     try {
-        const result = await client.query("SELECT encode(copyencryptedsimmetrickey,'hex') copyencryptedsimmetrickey as FROM Utilizatori WHERE Email=$1", [Email]);
+        const result = await client.query("SELECT encode(copyencryptedsimmetrickey,'hex') as copyencryptedsimmetrickey  FROM Utilizatori WHERE Email=$1", [Email]);
         if (result.rows.length === 0) {
             return res.status(404).send("Nu s-a gasit cheia\n");
         }
@@ -146,6 +146,42 @@ authRouter.post("/getCopyEncryptedSimmetricKey", async (req, res) => {
     } catch (error) {
         console.error("Eroare in procesul de login", error);
         return res.status(500).send("Eroare server");
+    }
+});
+
+authRouter.post('/getSalt', async (req, res) => {
+    const { Email } = req.body;
+
+    if (!Email) {
+        console.log("Eroare primire date\n");
+        return res.status(400).send("Date netrimise\n");
+    }
+    try {
+        const result = await client.query("Select u.salt as salt from utilizatori u where u.email=$1;", [Email])
+        res.status(200).json(result.rows[0]);
+
+    } catch (error) {
+        console.error("Eroare la adaugare copiei cheii: ", error);
+        res.status(500).send();
+    }
+
+});
+
+authRouter.post("/changePassword", async (req, res) => {
+    const { Email, SaltB64, HashParola } = req.body;
+
+    if (!Email || !SaltB64 || !HashParola) {
+        return res.status(400).send('Toate campurile sunt necesare!');
+    }
+
+    try {
+        await client.query(`UPDATE Utilizatori SET parola=$1, salt=$2 WHERE Email=$3`, [HashParola, SaltB64, Email]);
+
+        console.log("Parola Actualizata cu succes !");
+        return res.status(200).send({ message: 'Parola Actualizata cu succes' });
+    } catch (error) {
+        console.error('Eroare la crearea contului:', error);
+        res.status(401).send('Eroare la crearea contului.');
     }
 });
 

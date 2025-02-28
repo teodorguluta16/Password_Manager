@@ -81,7 +81,7 @@ protectedRouter.post('/utilizator/addRecoveryKey', async (req, res) => {
     }
     try {
         console.log("Cheia ce urmeaza a fi criptata: ", jsonItemKey);
-        await client.query(`UPDATE Utilizatori SET copyencryptedsimmetrickey = $1 WHERE id = $2`, [jsonItemKey, userId]);
+        const result = await client.query(`UPDATE Utilizatori SET copyencryptedsimmetrickey = $1 WHERE id = $2`, [jsonItemKey, userId]);
         if (result.rowCount > 0) {
             res.status(200).json({ success: true, message: 'Cheia de recuperare a fost actualziata.' });
         } else {
