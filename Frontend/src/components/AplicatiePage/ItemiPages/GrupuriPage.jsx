@@ -233,7 +233,7 @@ const GrupuriPage = ({ accessToken, derivedKey }) => {
                         </div>
                     </div>
                 )}
-                {popupGrupNou && <PopupNewGrup accessToken={accessToken} setPopupGrupNou={setPopupGrupNou} derivedKey={key} />}
+                {popupGrupNou && <PopupNewGrup accessToken={accessToken} setPopupGrupNou={setPopupGrupNou} derivedKey={key} fetchGroups={fetchGroups} />}
             </div >
             }
             {gestioneazaGrupItem && optiuneGrup === "detalii" && <EdiGrupItem item={gestioneazaGrupItem} setGestioneazaGrupItem={setGestioneazaGrupItem} accessToken={accessToken} derivedKey={key} />}

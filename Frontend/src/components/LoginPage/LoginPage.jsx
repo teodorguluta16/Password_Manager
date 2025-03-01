@@ -25,6 +25,18 @@ const LoginPage = () => {
   const toggleForm = () => { navigate('/signup'); };
   const navigareForgetPassword = () => { navigate('/recoverypassword') };
   const { setKey } = useKeySimetrica();
+
+  const hashPassword = async (password) => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+
+    return hashHex;
+  };
+
   const handleLogin = async (e) => {
     if (e && e.preventDefault) { e.preventDefault(); }
 
@@ -32,7 +44,12 @@ const LoginPage = () => {
       setincorectCredentiale(true);
       return;
     }
-    const date = { Email, Parola };
+
+    //hash parola
+    const hashedPassword = await hashPassword(Parola);
+    console.log("Hashed password: ", hashedPassword);
+
+    const date = { Email, hashedPassword };
 
     try {
       const response = await fetch('http://localhost:9000/api/auth/login', {

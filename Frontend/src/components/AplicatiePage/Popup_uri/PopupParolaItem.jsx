@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } from "../../FunctiiDate/FunctiiDefinite"
 import { useKeySimetrica } from '../../FunctiiDate/ContextKeySimetrice'
 
-
 const PopupParolaItem = ({ setShowParolaPopup, accessToken, derivedKey, fetchItems }) => {
     const [numeItem, setNumeItem] = useState('');
     const [urlItem, setUrlItem] = useState('');

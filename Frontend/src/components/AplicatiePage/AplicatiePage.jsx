@@ -101,7 +101,7 @@ const AplicatiePage = () => {
           console.log("Tockenul este", storedToken);
           const tokendecodificat = parseJwt(storedToken);
           if (tokendecodificat && tokendecodificat.name) {
-            setNameUser(tokendecodificat.name);
+            //setNameUser(tokendecodificat.name);
             const [firstName, lastName] = tokendecodificat.name.split(' ');
             let aux = `${firstName.charAt(0)}${lastName.charAt(0)}`;
             setInitiale(aux);

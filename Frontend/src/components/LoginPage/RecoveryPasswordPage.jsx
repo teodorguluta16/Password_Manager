@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { criptareDate, generateKey, decodeMainKey, decriptareDate } from "../FunctiiDate/FunctiiDefinite"
+import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } from "../FunctiiDate/FunctiiDefinite"
+import { useNavigate } from 'react-router-dom';
 import CryptoJS from 'crypto-js';
 
 function hexToString(hex) {
@@ -10,7 +11,7 @@ function hexToString(hex) {
     return str;
 }
 const RecoveryPasswordPage = () => {
-
+    const navigate = useNavigate();
     const [casetaTrimiteCod, setCasetaTrimiteCod] = useState(true);
     const [casetaCod, setCasetaCod] = useState(false);
     const [casetaCheieRecuperare, setCasetaCheieRecuperare] = useState(false);
@@ -171,18 +172,20 @@ const RecoveryPasswordPage = () => {
             const key_aes = importantKey;
 
             // 2.criptare cheie aes cu cheia derivata din parola
-
             const criptKey = await decodeMainKey(derivedKeyBase64);
-            const key_aes_raw = await exportKey(key_aes);
+
+            const key_aes_cryptobject = await decodeMainKey(key_aes);
+            const key_aes_raw = await exportKey(key_aes_cryptobject);
             console.log("Cheia intreaga inainte de criptare este: ", key_aes_raw);
             const enc_key_raw = await criptareDate(key_aes_raw, criptKey);
 
             // trnsforamm cheia in b64
-            const exportedKey = await window.crypto.subtle.exportKey("raw", key_aes);
-            const base64Key = btoa(String.fromCharCode(...new Uint8Array(exportedKey)));
-            console.log("Cheia în format Base64 la recuperarea contului:", base64Key);
+            // const exportedKey = await window.crypto.subtle.exportKey("raw", key_aes);
+            //const base64Key = btoa(String.fromCharCode(...new Uint8Array(exportedKey)));
+            //console.log("Cheia în format Base64 la recuperarea contului:", base64Key);
 
             const userData = {
+                Email: email,
                 SaltB64: saltBase64,
                 EncryptedAesKey: {
                     encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag },
@@ -271,14 +274,18 @@ const RecoveryPasswordPage = () => {
                             <h2>Confirmă parola</h2>
                             <input type="password" id="password2" onChange={handleConfirmaParolaNouaChange} className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="" />
                         </div>
-                        {errorMessage && (
-                            <p className="text-red-500 text-sm flex justify-center items-center">{errorMessage}</p>
-                        )}
+
                         <div className="flex justify-center items-center">
                             <button onClick={recuperareSection4} type="submit" className="w-3/4 py-2 bg-green-500 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400">
                                 Resetează Parola
                             </button>
                         </div>
+                        {errorMessage && (
+                            <p className="text-red-500 text-sm flex justify-center items-center">{errorMessage}</p>
+                        )}
+                        {successMessage && (
+                            <p className="text-green-500 text-sm flex justify-center items-center">{errorMessage}</p>
+                        )}
                     </form>
                 </>
                 )}

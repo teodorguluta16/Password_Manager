@@ -1,31 +1,11 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
 
 import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } from '../../FunctiiDate/FunctiiDefinite'
-import { useKeySimetrica } from '../../FunctiiDate/ContextKeySimetrice'
 import forge from 'node-forge';
-import CryptoJS from 'crypto-js';
-import { Buffer } from 'buffer';
 
-// Generare pereche de chei RSA
-function generateRSAKeyPair() {
-    const { publicKey, privateKey } = forge.pki.rsa.generateKeyPair(2048);
-    const publicKeyPem2 = forge.pki.publicKeyToPem(publicKey);
-    const privateKeyPem2 = forge.pki.privateKeyToPem(privateKey);
-    return { publicKeyPem2, privateKeyPem2 };
-}
-
-// Criptare cu cheia publică
 function encryptWithPublicKey(message, publicKey) {
     return publicKey.encrypt(message, 'RSA-OAEP', {
-        md: forge.md.sha256.create()
-    });
-}
-
-// Decriptare cu cheia privată
-function decryptWithPrivateKey(encryptedMessage, privateKey) {
-    return privateKey.decrypt(encryptedMessage, 'RSA-OAEP', {
         md: forge.md.sha256.create()
     });
 }
@@ -39,14 +19,7 @@ function fixBase64Key(base64Key) {
     const formattedKey = cleanedKey.match(/.{1,64}/g).join("\n");
     return "-----BEGIN PUBLIC KEY-----\n" + formattedKey + "\n-----END PUBLIC KEY-----";
 }
-function hexToString(hex) {
-    let str = '';
-    for (let i = 0; i < hex.length; i += 2) {
-        str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-    }
-    return str;
-}
-const PopupNewGrup = ({ accessToken, setPopupGrupNou, derivedKey }) => {
+const PopupNewGrup = ({ accessToken, setPopupGrupNou, derivedKey, fetchGroups }) => {
     const [key, setKey] = useState(derivedKey);
 
     useEffect(() => {
@@ -66,14 +39,10 @@ const PopupNewGrup = ({ accessToken, setPopupGrupNou, derivedKey }) => {
             alert("Completează toate câmpurile!");
             return;
         }
-
         // 1.generez o cheie noua AES si criptez cheia privata a  grupului
-
         const key_aes = await generateKey();
         console.log("Chiea simetrica a grupului este: ", key_aes);
-
         // 2.extrag CHEIA PUBLICA A OWNERULUI si o convertesc in PEM pentru a cripta cheia aes generata
-
         let publicKeyUtilizator = null;
         // extrag cheia publica
         try {
@@ -90,7 +59,6 @@ const PopupNewGrup = ({ accessToken, setPopupGrupNou, derivedKey }) => {
         } catch (error) {
             console.error('Eroare la trimiterea cererii:', error);
         }
-
         //convertesc in PEM
         let publicKeyUtilizatorPem = fixBase64Key(publicKeyUtilizator);
 
@@ -204,6 +172,7 @@ const PopupNewGrup = ({ accessToken, setPopupGrupNou, derivedKey }) => {
             console.error('Eroare la trimiterea cererii:', error);
         }
 
+        await fetchGroups();
     };
 
     return (
