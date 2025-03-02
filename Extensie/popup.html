@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <div id="containertitlu">
+        <img src="assets/icons/access-control.png" alt="EnginePassword Icon" id="passwordicon">
+        <h2 id="titlu1">EnginePassword</h2>
+    </div>
+
+    <div id="login-container">
+        <form id="login-form">
+            <div class="input-group">
+                <label for="email" id="emailtitlu1">E-mail:</label>
+                <input type="email" id="email" name="email" placeholder="Introduceti email-ul" required
+                    id="casutaEmail1">
+            </div>
+            <div class="input-group">
+                <label for="password">Parola:</label>
+                <input type="password" id="password" name="password" placeholder="Introduceti parola" required>
+            </div>
+            <button type="submit" id="login-btn">Autentificare</button>
+            <h3 id="creeazaContMesaj">Creează cont</h3>
+        </form>
+    </div>
+
+    <!-- Sectiune de dupa autentificare -->
+    <div id="sectiuneNoua" style="display: none;">
+        <div id="containertitlu2">
+            <img src="assets/icons/access-control.png" alt="EnginePassword Icon" id="passwordicon">
+            <h2 id="titlu2">EnginePassword</h2>
+            <div id="avatar" class="avatar"></div>
+        </div>
+        <hr class="linieorinzontala">
+        <div id="control-container" style="display: flex; align-items: center; gap:7px; margin-top: 15px;">
+            <button id="plus-button" style="width: 30px; height: 30px; padding: 0; border: none; background-color: #7c7ec4; color: white;
+                 border-radius: 50%; font-size: 24px; display: flex; align-items: center; justify-content: center; 
+                 margin-left:15px;transition: background-color 0.3s, transform 0.3s">
+                +
+            </button>
+            <input type="text" id="search-box" placeholder="Căutare..."
+                style="padding: 8px; border: 3.5px solid #0d5a03; border-radius: 5px; width: 70%;background-color:rgba(239, 239, 239, 0.811)">
+        </div>
+        <div>
+            <h3 style="font-size: medium; color: white; margin-left: 1rem;">Favorite</h3>
+            <ul id="favorite-list" style="list-style-type: none; padding: 0;margin-left:12px;margin-right:12px">
+                <!-- Item 1 -->
+                <li class="item">
+                    <span style="color: white;font-size:medium">Item 1</span>
+                    <div style="display: flex;gap:10px">
+                        <img src="assets/icons/launch.png" alt="Launch" class="launch">
+                        <img src="assets/icons/garbage.png" alt="Garbage" class="garbage">
+                    </div>
+
+                </li>
+                <!-- Item 2 -->
+                <li class="item">
+                    <span style="color: white;font-size:medium">Item 2</span>
+                    <div style="display: flex;gap:10px">
+                        <img src="assets/icons/launch.png" alt="Launch" class="launch">
+                        <img src="assets/icons/garbage.png" alt="Garbage" class="garbage">
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Secțiune cu detalii despre item -->
+    <div id="sectiuneDetalii" style="display: none;">
+        <h3 id="item-title" style="color: white;"></h3>
+        <p id="item-details" style="color: white;"></p>
+        <button id="back-btn"
+            style="padding: 10px 20px; background-color: #7c7ec4; color: white; border: none; border-radius: 5px;">
+            Înapoi
+        </button>
+    </div>
+
+    </div>
+    <script src="popup.js"></script>
+</body>
+
+</html>

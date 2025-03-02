@@ -9,9 +9,9 @@ dotenv.config();
 const authRouter = express.Router();
 
 authRouter.post("/addUser", async (req, res) => {
-    const { Nume, Prenume, Email, Parola, SaltB64, PublicKey, EncryptedPrivateKey, EncryptedAesKey } = req.body;
+    const { Nume, Prenume, Email, hashedPassword, SaltB64, PublicKey, EncryptedPrivateKey, EncryptedAesKey } = req.body;
 
-    if (!Nume || !Prenume || !Email || !Parola || !PublicKey || !EncryptedPrivateKey || !EncryptedAesKey || !SaltB64) {
+    if (!Nume || !Prenume || !Email || !hashedPassword || !PublicKey || !EncryptedPrivateKey || !EncryptedAesKey || !SaltB64) {
         return res.status(400).send('Toate campurile sunt necesare!');
     }
 
@@ -20,12 +20,8 @@ authRouter.post("/addUser", async (req, res) => {
         return res.status(400).send('Email deja folosit!');
     }
 
-    const salt = await bcrypt.genSalt(12);
-    const hashedPassword = await bcrypt.hash(Parola, salt);
     try {
-
         const publicKeyBytes = Buffer.from(PublicKey, 'base64');
-
         await client.query(`INSERT INTO Utilizatori (Nume, Prenume, Email, Parola, Tip_ut, Status,Salt, PublicKey, 
             EncryptedPrivateKey,Encryptedsimmetrickey) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
             [Nume, Prenume, Email, hashedPassword, 1, 'active', SaltB64, publicKeyBytes, EncryptedPrivateKey, EncryptedAesKey]);
@@ -40,20 +36,21 @@ authRouter.post("/addUser", async (req, res) => {
 
 
 authRouter.post("/login", async (req, res) => {
-    const { Email, Parola } = req.body;
+    const { Email, hashedPassword } = req.body;
 
-    if (!Email || !Parola) {
+    if (!Email || !hashedPassword) {
         console.log("Eroare primire date\n");
         return res.status(400).send("Date netrimise\n");
     }
 
     try {
-        const result = await client.query("SELECT  parola,id, CONCAT(nume, ' ', prenume) AS nume,tip_ut FROM Utilizatori WHERE Email=$1", [Email]);
+        const result = await client.query("SELECT parola,id, CONCAT(nume, ' ', prenume) AS nume,tip_ut FROM Utilizatori WHERE Email=$1", [Email]);
         if (result.rows.length === 0) {
             return res.status(404).send("Utilizatorul nu există\n");
         }
         const hashStocat = result.rows[0].parola;
-        const potrivire = await bcrypt.compare(Parola, hashStocat);
+        const potrivire = hashedPassword === hashStocat;
+
 
         if (potrivire) {
             let TipUser;
@@ -168,14 +165,14 @@ authRouter.post('/getSalt', async (req, res) => {
 });
 
 authRouter.post("/changePassword", async (req, res) => {
-    const { Email, SaltB64, HashParola } = req.body;
+    const { Email, SaltB64, HashParola, EncryptedAesKey } = req.body;
 
-    if (!Email || !SaltB64 || !HashParola) {
+    if (!Email || !SaltB64 || !HashParola || !EncryptedAesKey) {
         return res.status(400).send('Toate campurile sunt necesare!');
     }
 
     try {
-        await client.query(`UPDATE Utilizatori SET parola=$1, salt=$2 WHERE Email=$3`, [HashParola, SaltB64, Email]);
+        await client.query(`UPDATE Utilizatori SET parola=$1, salt=$2,encryptedsimmetrickey=$3 WHERE Email=$4`, [HashParola, SaltB64, EncryptedAesKey, Email]);
 
         console.log("Parola Actualizata cu succes !");
         return res.status(200).send({ message: 'Parola Actualizata cu succes' });
