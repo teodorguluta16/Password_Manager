@@ -28,8 +28,61 @@ document.querySelectorAll('.item').forEach(item => {
         showItemDetails('Item 1');
     });
 });
+document.addEventListener('DOMContentLoaded', function () {
+    // Exemplu de apel API pentru a obține datele (poți înlocui cu URL-ul real al serverului)
+    fetch('https://api.example.com/items')  // Înlocuiește cu adresa reală a serverului
+        .then(response => response.json())  // Parseați răspunsul ca JSON
+        .then(data => {
+            // Selectăm lista
+            const favoriteList = document.getElementById('favorite-list');
+
+            // Iterăm prin datele primite de la server și construim fiecare item
+            data.forEach(item => {
+                const li = document.createElement('li');
+                li.classList.add('item');
+
+                const span = document.createElement('span');
+                span.style.color = 'white';
+                span.style.fontSize = 'medium';
+                span.textContent = item.name;  // Setăm numele itemului
+
+                const div = document.createElement('div');
+                div.style.display = 'flex';
+                div.style.gap = '10px';
+
+                const launchIcon = document.createElement('img');
+                launchIcon.src = item.launchIcon;  // Setăm sursa iconiței Launch
+                launchIcon.alt = 'Launch';
+                launchIcon.classList.add('launch');
+
+                const garbageIcon = document.createElement('img');
+                garbageIcon.src = item.garbageIcon;  // Setăm sursa iconiței Garbage
+                garbageIcon.alt = 'Garbage';
+                garbageIcon.classList.add('garbage');
+
+                // Adăugăm imagini în div
+                div.appendChild(launchIcon);
+                div.appendChild(garbageIcon);
+
+                // Adăugăm span și div în li
+                li.appendChild(span);
+                li.appendChild(div);
+
+                // Adăugăm itemul la lista de favorite
+                favoriteList.appendChild(li);
+
+                // Adăugăm eveniment de click pentru fiecare item
+                li.addEventListener('click', function () {
+                    showItemDetails(item.name);
+                });
+            });
+        })
+        .catch(error => console.error('Error fetching data:', error));
+});
+
+// Funcția care afișează detaliile despre item
 function showItemDetails(itemName) {
-    console.log('Item selectat:', itemName); // Verifică dacă se face click
+    console.log('Item selectat:', itemName);
 
     // Ascunde secțiunea curentă
     document.getElementById('sectiuneNoua').style.display = 'none';

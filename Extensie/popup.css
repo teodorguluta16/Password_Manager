@@ -66,7 +66,7 @@ body {
 
 #login-btn {
     margin-top: 5px;
-    margin-left: 11%;
+    margin-left: 16%;
     width: 80%;
     padding: 10px;
     font-size: 16px;
@@ -84,6 +84,7 @@ body {
 }
 
 #creeazaContMesaj {
+    margin-left: 14%;
     text-align: center;
     color: white;
 }

@@ -11,7 +11,7 @@ const PopupParolaItem = ({ setShowParolaPopup, accessToken, derivedKey, fetchIte
     const [usernameItem, setUserNamItem] = useState('');
     const [parolaItem, setParolaItem] = useState('');
     const [comentariuItem, setComentariuItem] = useState('');
-    const [key, setKey] = useState(derivedKey);  // Folosim useState pentru a stoca cheia
+    const [key, setKey] = useState(derivedKey);
 
     useEffect(() => {
         if (derivedKey) {

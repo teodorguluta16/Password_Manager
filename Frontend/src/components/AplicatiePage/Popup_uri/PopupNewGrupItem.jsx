@@ -1,13 +1,8 @@
 import React from "react";
 import { useState } from "react";
-
-import PeopleLogo from "../../../assets/website/people.png";
 import ParolaLogo from "../../../assets/website/password2.png";
 import CardLogo from "../../../assets/website/credit-card2.png";
 import NoteLogo from "../../../assets/website/note2.png";
-
-
-
 
 const PopupNewGrupItem = ({ setShowParolaPopup, setShowNotitaPopup, setPopupVisible }) => {
 

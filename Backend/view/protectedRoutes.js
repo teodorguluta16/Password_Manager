@@ -134,7 +134,47 @@ protectedRouter.patch('/stergeItem', async (req, res) => {
     }
 });
 
+protectedRouter.post('utilizatori/addFavoriteItem', async (req, res) => {
+    const { id_item } = req.body;
+    const userId = req.user.sub;
+
+    console.log(id_item);
+    console.log(userId);
+
+    try {
+        const result = await client.query('UPDATE Leguseritemi SET isfavorite = $1 WHERE id_item = $2 AND id_user = $3', [1, id_item, userId]);
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: 'Itemul negasit' });
+        }
+        console.log("Item marcat ca favorit cu succes!");
+        res.status(200).json({ message: 'Itemul adaugat la favorite.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Eroare internă' });
+    }
+});
+
+
 // ruta user
+protectedRouter.post('utilizatori/addFavoriteItem', async (req, res) => {
+    const { id_item } = req.body;
+    const userId = req.user.sub;
+
+    console.log(id_item);
+    console.log(userId);
+
+    try {
+        const result = await client.query('UPDATE Leguseritemi SET isfavorite = $1 WHERE id_item = $2 AND id_user = $3', [1, id_item, userId]);
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: 'Itemul negasit' });
+        }
+        console.log("Item marcat ca favorit cu succes!");
+        res.status(200).json({ message: 'Itemul adaugat la favorite.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Eroare internă' });
+    }
+});
 protectedRouter.get('/getOwner', async (req, res) => {
     const userId = req.user.sub;
     try {
@@ -468,7 +508,8 @@ protectedRouter.get('/utilizator/itemi', async (req, res) => {
                 encode(i.continut, 'hex') AS continut_hex, 
                 li.id_item AS id_item, 
                 i.id_owner AS id_owner, 
-                i.isdeleted AS isdeleted 
+                i.isdeleted AS isdeleted,
+                li.isfavorite AS isFavorite
             FROM leguseritemi li
             JOIN itemi i ON li.id_item = i.id_item
             LEFT JOIN leggrupuriitemi lgi ON i.id_item = lgi.id_item 
@@ -571,6 +612,33 @@ protectedRouter.patch('/utilizator/itemiStersi/restore', async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Eroare' });
     }
-})
+});
+
+protectedRouter.post('/utilizator/markeazaItemFavorit', async (req, res) => {
+    const { id_item, isFavorite } = req.body;
+    const userId = req.user.sub;
+
+    try {
+        console.log(`ID-ul itemului: ${id_item}, noua stare favorite: ${isFavorite} si id user este: ${userId}`);
+
+        const result = await client.query(
+            'UPDATE leguseritemi SET isfavorite = $1 WHERE id_item = $2 AND id_user = $3 RETURNING isfavorite',
+            [isFavorite, id_item, userId]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: 'Itemul nu a fost găsit.' });
+        }
+
+        return res.status(200).json({
+            message: 'Stare favorită schimbată!',
+            isFavorite: result.rows[0].isfavorite
+        });
+    } catch (error) {
+        console.error('Eroare:', error);
+        return res.status(500).json({ message: 'Eroare la schimbarea stării favorite' });
+    }
+});
+
 
 export default protectedRouter;

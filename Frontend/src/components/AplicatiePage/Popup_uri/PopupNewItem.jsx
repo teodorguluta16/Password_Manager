@@ -32,8 +32,8 @@ const PopupNewItem = ({ setShoMeniuCreeazaItem, setShowParolaPopup, setShowNotit
       <div onClick={handleCursorAfara} className="fixed inset-0 bg-gray-700 bg-opacity-50 flex items-center justify-center">
         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-4 md:w-96">
           <h3 className="text-xl font-semibold text-center mb-6">Alege un item nou</h3>
-          <ul className="grid grid-cols-2 gap-4 md:flex md:space-x-4 justify-center">
-            <li onClick={handleMeniuParolaItem} className="hover:bg-green-500 cursor-pointer p-4 hover:rounded-lg flex flex-col items-center">
+          <ul className="grid grid-cols-2 gap-4 md:flex md:space-x-2 justify-center ">
+            <li onClick={handleMeniuParolaItem} className="hover:bg-green-500 cursor-pointer p-4 hover:rounded-lg flex flex-col items-center ml-1">
               <img src={ParolaLogo} alt="Parola Logo" className="w-10 h-10 mb-2" />
               <span>Parolă</span>
             </li>

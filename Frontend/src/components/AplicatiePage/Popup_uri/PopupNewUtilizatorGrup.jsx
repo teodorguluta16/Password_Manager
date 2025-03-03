@@ -3,9 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 
 import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey, importAESKey } from "../../FunctiiDate/FunctiiDefinite"
-import { useKeySimetrica } from '../../FunctiiDate/ContextKeySimetrice'
 import forge from 'node-forge';
-import CryptoJS from 'crypto-js';
 
 function hexToString(hex) {
     let str = '';

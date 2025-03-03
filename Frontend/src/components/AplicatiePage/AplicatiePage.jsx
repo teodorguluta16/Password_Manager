@@ -46,7 +46,7 @@ function hexToString(hex) {
 function parseJwt(token) {
   if (!token) {
     console.error("Token-ul nu este disponibil.");
-    return null; // Returnăm null dacă token-ul nu există
+    return null;
   }
 
   try {
@@ -61,7 +61,7 @@ function parseJwt(token) {
 }
 const AplicatiePage = () => {
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 640);
-  const [meniuExtins, setExtins] = useState(!isSmallScreen); // Extins doar dacă ecranul e mare
+  const [meniuExtins, setExtins] = useState(!isSmallScreen);
   const [meniuExtinsVerticala, setMeniuExtinsVerticala] = useState(false);
 
   const [accessToken, setAccessToken] = useState(null);
@@ -101,7 +101,6 @@ const AplicatiePage = () => {
           console.log("Tockenul este", storedToken);
           const tokendecodificat = parseJwt(storedToken);
           if (tokendecodificat && tokendecodificat.name) {
-            //setNameUser(tokendecodificat.name);
             const [firstName, lastName] = tokendecodificat.name.split(' ');
             let aux = `${firstName.charAt(0)}${lastName.charAt(0)}`;
             setInitiale(aux);
@@ -191,6 +190,9 @@ const AplicatiePage = () => {
 
 
   const [items, setItems] = useState([]);
+  const [favoriteItemsAll, setFavoriteItems] = useState([]);
+  const [paroleItemsAll, setParoleItems] = useState([]);
+
   const fetchItems = async () => {
     try {
       const response = await fetch('http://localhost:9000/api/utilizator/itemi', {
@@ -206,8 +208,12 @@ const AplicatiePage = () => {
         console.log("Datele primite de la server: ", data);
         const decriptKey = await decodeMainKey(savedKey);
         let fetchedItems = [];
+        let favoriteItems = [];
+        let paroleItems = [];
         for (let item of data) {
           try {
+            const isFavorite = item.isfavorite;
+
             const id_owner = item.id_owner;
             const id_item = item.id_item;
             const isDeleted = item.isdeleted;
@@ -272,7 +278,7 @@ const AplicatiePage = () => {
             const tagHex7 = dataObject2.data.comentariu.tag;
             const rez_comentariu = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
 
-            console.log("Datele primite de la server aferente parolei: ", rez_tip, rez_nume, rez_url, rez_username, rez_parola, rez_comentariu, isDeleted);
+            console.log("Datele primite de la server aferente parolei:", rez_tip, rez_nume, rez_url, rez_username, rez_parola, rez_comentariu, isDeleted, isFavorite);
             fetchedItems.push({
               nume: rez_nume,
               tipitem: rez_tip,
@@ -285,14 +291,52 @@ const AplicatiePage = () => {
               version: version,
               id_owner: id_owner,
               id_item: id_item,
-              isDeleted: isDeleted
+              isDeleted: isDeleted,
+              isFavorite: isFavorite
             });
+
+            if (isFavorite) {
+              favoriteItems.push({
+                nume: rez_nume,
+                tipitem: rez_tip,
+                username: rez_username,
+                parola: rez_parola,
+                url: rez_url,
+                comentariu: rez_comentariu,
+                created_at: created_at,
+                modified_at: modified_at,
+                version: version,
+                id_owner: id_owner,
+                id_item: id_item,
+                isDeleted: isDeleted,
+                isFavorite: isFavorite
+              });
+            }
+            if (rez_tip === "password") {
+              paroleItems.push({
+                nume: rez_nume,
+                tipitem: rez_tip,
+                username: rez_username,
+                parola: rez_parola,
+                url: rez_url,
+                comentariu: rez_comentariu,
+                created_at: created_at,
+                modified_at: modified_at,
+                version: version,
+                id_owner: id_owner,
+                id_item: id_item,
+                isDeleted: isDeleted,
+                isFavorite: isFavorite
+              });
+            }
           } catch (error) {
             console.error('Eroare la decriptarea item-ului cu ID-ul:', item.id_item, error);
           }
 
         }
         setItems(fetchedItems);
+        setFavoriteItems(favoriteItems);
+        setParoleItems(paroleItems);
       } else {
         console.error('Failed to fetch items', response.statusText);
       }
@@ -498,7 +542,7 @@ const AplicatiePage = () => {
       {<div className="hidden sm:block w-[5px] bg-green-600"></div>}
 
       {/* Sectiunea de lucru */}
-      <div className={`flex-1 p-0 bg-gray-100 overflow-y-auto`}>
+      <div className={`flex-1 p-0 bg-gray-100 overflow-y-auto sm:overflow-visible`}>
         {/* Bara orizontala */}
         < div className="shadow-lg bg-green-600 w-full sm:flex items-center sm:py-2" >
           {/* Logo-ul si titlul vizibile doar pe ecrane mari */}
@@ -548,12 +592,12 @@ const AplicatiePage = () => {
         </button>
 
         {/* Paginile de lucru*/}
-        {sectiuneItemi === 'toate' && accessToken && (<div className="overflow-y-auto"><ItemsAllPage accessToken={accessToken} /></div>)}
-        {sectiuneItemi === 'parole' && accessToken && savedKey && <ParolePage accessToken={accessToken} derivedKey={savedKey} items={items} fetchItems={fetchItems} />}
+        {sectiuneItemi === 'toate' && accessToken && savedKey && (<ItemsAllPage accessToken={accessToken} derivedKey={savedKey} items={items} fetchItems={fetchItems} />)}
+        {sectiuneItemi === 'parole' && accessToken && savedKey && <ParolePage accessToken={accessToken} derivedKey={savedKey} items={paroleItemsAll} fetchItems={fetchItems} />}
         {sectiuneItemi === 'notite' && accessToken && <NotitePage accessToken={accessToken} />}
         {sectiuneItemi === 'carduri' && accessToken && <CarduriBancarePage accessToken={accessToken} />}
         {sectiuneItemi === 'adrese' && accessToken && <AdresePage accessToken={accessToken} />}
-        {sectiuneItemi === 'favorite' && accessToken && <FavoritePage accessToken={accessToken} />}
+        {sectiuneItemi === 'favorite' && accessToken && <FavoritePage accessToken={accessToken} derivedKey={savedKey} items={favoriteItemsAll} fetchItems={fetchItems} />}
         {sectiuneItemi === 'grupuri' && accessToken && <GrupuriPage accessToken={accessToken} derivedKey={savedKey} />}
         {sectiuneItemi === 'itemieliminati' && accessToken && <ItemiStersi accessToken={accessToken} derivedKey={savedKey} />}
 
