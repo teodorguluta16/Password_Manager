@@ -7,24 +7,30 @@ async function hashPassword(password) {
     return hashHex;
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
     const loginForm = document.getElementById("login-form");
     const loginContainer = document.getElementById("login-container");
     const containerLoginTitlu = document.getElementById("containertitlu");
     const sectiuneNoua = document.getElementById("sectiuneNoua");
-    const logoutBtn = document.getElementById("logout-btn");
 
-    chrome.storage.local.get(["accessToken"], function (result) {
-        if (result.accessToken) {
+    try {
+        const response = await fetch("http://localhost:9000/api/auth/me", {
+            method: "GET",
+            credentials: "include",
+        });
+
+        if (response.ok) {
             console.log("Utilizatorul este deja autentificat.");
             loginContainer.style.display = "none";
             containerLoginTitlu.style.display = "none";
             sectiuneNoua.style.display = "block";
+            return;
         }
-    });
-
+    } catch (error) {
+        console.error("Eroare la verificarea autentificării:", error);
+    }
     loginForm.addEventListener("submit", async function (event) {
-        event.preventDefault(); // Previne reîncărcarea paginii
+        event.preventDefault();
 
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
@@ -38,22 +44,19 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("Hashed password:", hashedPassword);
 
         const credentials = { Email: email, hashedPassword };
+
         try {
             const response = await fetch("http://localhost:9000/api/auth/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
+                credentials: "include",
                 body: JSON.stringify(credentials),
             });
 
             if (response.ok) {
-                const responseFromServer = await response.json();
-                const accessToken = responseFromServer.accessToken;
-                chrome.storage.session.set({ accessToken }, () => {
-                    console.log("Token salvat în chrome.storage");
-                });
-
+                console.log("Autentificare reușită!");
                 loginContainer.style.display = "none";
                 containerLoginTitlu.style.display = "none";
                 sectiuneNoua.style.display = "block";
@@ -65,14 +68,8 @@ document.addEventListener("DOMContentLoaded", function () {
             alert("A apărut o eroare la conectare. Verifică rețeaua și încearcă din nou.");
         }
     });
-
-    logoutBtn.addEventListener("click", function () {
-        chrome.storage.local.remove(["accessToken"], function () {
-            console.log("Utilizator delogat");
-            location.reload();
-        });
-    });
 });
+
 
 function setAvatarInitials(firstName, lastName) {
     const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
@@ -90,27 +87,29 @@ document.addEventListener("DOMContentLoaded", function () {
     const dropdownMenu = document.getElementById("dropdown-menu");
     const logoutBtn = document.getElementById("logout-btn");
 
-    // ✅ Afișează/ascunde meniul dropdown când avatarul este apăsat
     avatar.addEventListener("click", function () {
         dropdownMenu.classList.toggle("hidden");
     });
 
-    // ✅ Logout - șterge token-ul și reîncarcă pagina
-    logoutBtn.addEventListener("click", function () {
-        chrome.storage.local.remove(["accessToken"], function () {
+    logoutBtn.addEventListener("click", async function () {
+        try {
+            await fetch("http://localhost:9000/api/auth/logout", {
+                method: "POST",
+                credentials: "include",
+            });
+
             console.log("Utilizator delogat");
             location.reload();
-        });
+        } catch (error) {
+            console.error("Eroare la delogare:", error);
+        }
     });
-
-    // ✅ Închide meniul când dăm click în afara lui
     document.addEventListener("click", function (event) {
         if (!avatar.contains(event.target) && !dropdownMenu.contains(event.target)) {
             dropdownMenu.classList.add("hidden");
         }
     });
 });
-// Funcție care afișează detaliile despre item
 
 document.querySelectorAll('.item').forEach(item => {
     item.addEventListener('click', function () {

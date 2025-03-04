@@ -468,7 +468,7 @@ const AplicatiePage = () => {
             <li onClick={() => setsectiuneItemi('itemieliminati')} className={`mb-2 hover:bg-green-700 hover:rounded hover:px-4 cursor-pointer 
               flex items-center transition-all duration-300 ${sectiuneItemi == "itemieliminati" ? 'bg-green-700 rounded px-4' : ''}`}>
               <img src={DeletedIcon} alt="Deleted Icon" className="w-6 h-6 mr-2 filter invert" />
-              <span>Itemi Eliminati</span>
+              <span>Itemi Eliminați</span>
             </li>
 
             <li onClick={() => setsectiuneItemi('Ajutor')} className={`mb-2 hover:bg-green-700 hover:rounded hover:px-4 cursor-pointer 

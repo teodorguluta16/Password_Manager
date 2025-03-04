@@ -94,7 +94,7 @@ authRouter.post("/login", async (req, res) => {
 });
 
 authRouter.get('/validateToken', (req, res) => {
-    const token = req.cookies?.accessToken; // ✅ Citim token-ul din cookies
+    const token = req.cookies?.accessToken;
 
     if (!token) {
         return res.status(401).json({ message: "Nu ești autentificat" });
@@ -105,7 +105,7 @@ authRouter.get('/validateToken', (req, res) => {
             return res.status(403).json({ message: "Token invalid sau expirat" });
         }
 
-        res.status(200).json({ name: user.name }); // ✅ Trimitem numele utilizatorului către frontend
+        res.status(200).json({ name: user.name });
     });
 });
 
@@ -167,11 +167,36 @@ authRouter.post("/changePassword", async (req, res) => {
     }
 });
 
+authRouter.post('/logout', (req, res) => {
+    res.clearCookie('accessToken', { path: '/', httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "Lax" });
+    res.clearCookie('jwt', { path: '/', httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "Lax" });
+    return res.status(200).json({ message: 'Deconectat cu succes' });
+});
+
+authRouter.get("/me", (req, res) => {
+    // Verificam cookie
+    const token = req.cookies?.accessToken;
+    if (!token) {
+        return res.status(401).json({ message: "Nu ești autentificat" });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+        res.status(200).json({
+            id: decoded.sub,
+            email: decoded.username,
+            name: decoded.name,
+            role: decoded.role
+        });
+    } catch (error) {
+        console.error("Eroare la verificarea tokenului:", error);
+        res.status(403).json({ message: "Token invalid" });
+    }
+});
 
 authRouter.post("/refresh", async (req, res) => {
     const cookies = req.cookies;
 
-    // Verificăm dacă există un cookie "jwt"
     if (!cookies?.jwt) {
         return res.status(401).send("Nu există refresh token.");
     }
@@ -223,11 +248,7 @@ authRouter.post("/refresh", async (req, res) => {
     }
 });
 
-authRouter.post('/logout', (req, res) => {
-    res.clearCookie('accessToken', { path: '/', httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "Lax" });
-    res.clearCookie('jwt', { path: '/', httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "Lax" });
-    return res.status(200).json({ message: 'Deconectat cu succes' });
-});
+
 
 
 export default authRouter;
