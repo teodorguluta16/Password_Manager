@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (response.ok) {
                 const responseFromServer = await response.json();
                 const accessToken = responseFromServer.accessToken;
-                chrome.storage.local.set({ accessToken }, () => {
+                chrome.storage.session.set({ accessToken }, () => {
                     console.log("Token salvat în chrome.storage");
                 });
 
@@ -84,6 +84,32 @@ const firstName = "Ion";
 const lastName = "Popescu";
 setAvatarInitials(firstName, lastName);
 
+
+document.addEventListener("DOMContentLoaded", function () {
+    const avatar = document.getElementById("avatar");
+    const dropdownMenu = document.getElementById("dropdown-menu");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    // ✅ Afișează/ascunde meniul dropdown când avatarul este apăsat
+    avatar.addEventListener("click", function () {
+        dropdownMenu.classList.toggle("hidden");
+    });
+
+    // ✅ Logout - șterge token-ul și reîncarcă pagina
+    logoutBtn.addEventListener("click", function () {
+        chrome.storage.local.remove(["accessToken"], function () {
+            console.log("Utilizator delogat");
+            location.reload();
+        });
+    });
+
+    // ✅ Închide meniul când dăm click în afara lui
+    document.addEventListener("click", function (event) {
+        if (!avatar.contains(event.target) && !dropdownMenu.contains(event.target)) {
+            dropdownMenu.classList.add("hidden");
+        }
+    });
+});
 // Funcție care afișează detaliile despre item
 
 document.querySelectorAll('.item').forEach(item => {
