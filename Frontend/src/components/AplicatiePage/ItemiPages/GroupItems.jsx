@@ -284,109 +284,115 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
     const [gestioneazaParolaItem, setGestioneazaParolaItem] = useState(null);
     return (
         <>
-            <div className=" py-4 px-12 mb-2">
-                <div className="flex flex-row">
-                    <button onClick={() => setGestioneazaGrupItem(null)} className="px-1 cursor-pointer rounded-lg -ml-4  mt-2 mr-2">
-                        <FaArrowLeft className="w-8 h-8 hover:text-blue-600 transition-all duration-300 ease-in-out" />
-                    </button>
-                    {/* Butonul pentru deschiderea popup-ului */}
-                    <button
-                        onClick={openPopup}
-                        className="flex flex-row px-2 py-2 bg-purple-500 text-white rounded-lg hover:bg-yellow-700 transition-all duration-300 mt-2 ml-4"
-                    >
-                        <FaPlus className="w-6 h-6 mr-2 mt-1" />
-                        <span className="text-xl font-semibold">Item Nou</span>
-                    </button>
-                </div>
-
-                <h2 className="text-center text-3xl font-bold  text-gray-700 mt-6 md:-mt-12">{item.nume}</h2>
-                <div className="flex flex-col sm:flex-row space-y-4 sm:space-x-4 mt-2">
-
-                </div>
-                <div className="flex sm:flex-row mt-3 sm:ml-0 -ml-10">
-                    {/* Secțiunea de sortare */}
-                    <div className="relative">
-
-                        {/*Buton de deschidere meniu select*/}
-                        <button className="flex items-center px-4 space-x-2 py-2 rounded-lg bg-gray-100 md:mr-2" onClick={() => handleDropdownToggle()}>
-                            {/* Model iconita sagetuta al meniului de select*/}
-                            <span className="text-1xl font-semibold">{OptiuneSelectata}</span>
-                            <svg
-                                className={`w-4 h-4 transform transition-transform ${isDeschisMeniuSortare ? 'rotate-180' : 'rotate-0'}`}  /* Pentru rotatie*/
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
+            <div className=" py-4 px-6 mb-2">
+                {gestioneazaItem === null && (
+                    <>
+                        <div className="flex flex-row">
+                            <button onClick={() => setGestioneazaGrupItem(null)} className="px-1 cursor-pointer rounded-lg -ml-4  mt-2 mr-2">
+                                <FaArrowLeft className="w-8 h-8 hover:text-blue-600 transition-all duration-300 ease-in-out" />
+                            </button>
+                            {/* Butonul pentru deschiderea popup-ului */}
+                            <button
+                                onClick={openPopup}
+                                className="flex flex-row px-2 py-2 bg-purple-500 text-white rounded-lg hover:bg-yellow-700 transition-all duration-300 mt-2 ml-4"
                             >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                        {isDeschisMeniuSortare && <div className="absolute border rounded-lg bg-white shadow-lg w-full mt-2 ">
-                            <ul className="py-2">
-                                <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400" onClick={() => handleOptionSelect("Sortează după: Nume ")}>Nume</li>
-                                <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400" onClick={() => handleOptionSelect("Sortează după: Data ")}>Data Adaugarii</li>
-                            </ul>
+                                <FaPlus className="w-6 h-6 mr-2 mt-1" />
+                                <span className="text-xl font-semibold">Item Nou</span>
+                            </button>
                         </div>
-                        }
-                    </div>
-                    {/* Secțiunea de sortare */}
-                    <div className="relative">
+                        <h2 className="text-center text-3xl font-bold  text-gray-700 mt-6 md:-mt-12">{item.nume}</h2>
+                        <div className="flex sm:flex-row mt-3 sm:ml-0 -ml-10">
+                            {/* Secțiunea de sortare */}
+                            <div className="relative">
 
-                        {/*Buton de deschidere meniu select*/}
-                        <button className="flex items-center px-4 space-x-2 py-2 rounded-lg bg-gray-100 md:mr-2" onClick={() => handleDropdownToggle()}>
-                            {/* Model iconita sagetuta al meniului de select*/}
-                            <span className="text-1xl font-semibold">{OptiuneSelectata2}</span>
-                            <svg
-                                className={`w-4 h-4 transform transition-transform ${isDeschisMeniuSortare ? 'rotate-180' : 'rotate-0'}`}  /* Pentru rotatie*/
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                        {isDeschisMeniuSortare && <div className="absolute border rounded-lg bg-white shadow-lg w-full mt-2">
-                            <ul className="py-2">
-                                <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400" onClick={() => handleOptionSelect("Filtreaza după: Toate")}>Toate</li>
-                                <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400" onClick={() => handleOptionSelect("Filtreaza după: Parola ")}>Parola</li>
-                                <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400" onClick={() => handleOptionSelect("Filtreaza după: Notita ")}>Notita</li>
-                                <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400" onClick={() => handleOptionSelect("Filtreaza după: Card Bancar ")}>Card Bancar</li>
-                            </ul>
+                                {/*Buton de deschidere meniu select*/}
+                                <button className="flex items-center px-4 space-x-2 py-2 rounded-lg bg-gray-100 md:mr-2" onClick={() => handleDropdownToggle()}>
+                                    {/* Model iconita sagetuta al meniului de select*/}
+                                    <span className="text-1xl font-semibold">{OptiuneSelectata}</span>
+                                    <svg
+                                        className={`w-4 h-4 transform transition-transform ${isDeschisMeniuSortare ? 'rotate-180' : 'rotate-0'}`}  /* Pentru rotatie*/
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                {isDeschisMeniuSortare && <div className="absolute border rounded-lg bg-white shadow-lg w-full mt-2 ">
+                                    <ul className="py-2">
+                                        <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400" onClick={() => handleOptionSelect("Sortează după: Nume ")}>Nume</li>
+                                        <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400" onClick={() => handleOptionSelect("Sortează după: Data ")}>Data Adaugarii</li>
+                                    </ul>
+                                </div>
+                                }
+                            </div>
+                            {/* Secțiunea de sortare */}
+                            <div className="relative">
+
+                                {/*Buton de deschidere meniu select*/}
+                                <button className="flex items-center px-4 space-x-2 py-2 rounded-lg bg-gray-100 md:mr-2" onClick={() => handleDropdownToggle()}>
+                                    {/* Model iconita sagetuta al meniului de select*/}
+                                    <span className="text-1xl font-semibold">{OptiuneSelectata2}</span>
+                                    <svg
+                                        className={`w-4 h-4 transform transition-transform ${isDeschisMeniuSortare ? 'rotate-180' : 'rotate-0'}`}  /* Pentru rotatie*/
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                {isDeschisMeniuSortare && <div className="absolute border rounded-lg bg-white shadow-lg w-full mt-2">
+                                    <ul className="py-2">
+                                        <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400" onClick={() => handleOptionSelect("Filtreaza după: Toate")}>Toate</li>
+                                        <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400" onClick={() => handleOptionSelect("Filtreaza după: Parola ")}>Parola</li>
+                                        <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400" onClick={() => handleOptionSelect("Filtreaza după: Notita ")}>Notita</li>
+                                        <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400" onClick={() => handleOptionSelect("Filtreaza după: Card Bancar ")}>Card Bancar</li>
+                                    </ul>
+                                </div>
+                                }
+                            </div>
+                            {/* Secțiunea de sortare */}
+                            <div className="relative">
+
+                                {/*Buton de deschidere meniu select*/}
+                                <button className="flex items-center px-4 space-x-2 py-2 rounded-lg bg-gray-100 md:mr-2" onClick={() => handleDropdownToggle()}>
+                                    {/* Model iconita sagetuta al meniului de select*/}
+                                    <span className="text-1xl font-semibold">{OptiuneSelectata3}</span>
+                                    <svg
+                                        className={`w-4 h-4 transform transition-transform ${isDeschisMeniuSortare ? 'rotate-180' : 'rotate-0'}`}  /* Pentru rotatie*/
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                {isDeschisMeniuSortare && <div className="absolute border rounded-lg bg-white shadow-lg w-[200px] mt-2 overflow-hidden">
+
+                                    <ul className="py-2 px-4">
+                                        <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400 text-sm sm:text-md truncate" onClick={() => handleOptionSelect("Owner: Toti")}>Toti</li>
+                                        <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400 text-sm sm:text-md truncate" onClick={() => handleOptionSelect("Owner: ionescu ionescu ")}>ionescu ionescu</li>
+                                        <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400 text-sm sm:text-md truncate" onClick={() => handleOptionSelect("Owner: popescu popescu ")}>popescu popescu</li>
+                                    </ul>
+                                </div>
+                                }
+                            </div>
+
+
                         </div>
-                        }
-                    </div>
-                    {/* Secțiunea de sortare */}
-                    <div className="relative">
-
-                        {/*Buton de deschidere meniu select*/}
-                        <button className="flex items-center px-4 space-x-2 py-2 rounded-lg bg-gray-100 md:mr-2" onClick={() => handleDropdownToggle()}>
-                            {/* Model iconita sagetuta al meniului de select*/}
-                            <span className="text-1xl font-semibold">{OptiuneSelectata3}</span>
-                            <svg
-                                className={`w-4 h-4 transform transition-transform ${isDeschisMeniuSortare ? 'rotate-180' : 'rotate-0'}`}  /* Pentru rotatie*/
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                        {isDeschisMeniuSortare && <div className="absolute border rounded-lg bg-white shadow-lg w-[200px] mt-2 overflow-hidden">
-
-                            <ul className="py-2 px-4">
-                                <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400 text-sm sm:text-md truncate" onClick={() => handleOptionSelect("Owner: Toti")}>Toti</li>
-                                <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400 text-sm sm:text-md truncate" onClick={() => handleOptionSelect("Owner: ionescu ionescu ")}>ionescu ionescu</li>
-                                <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400 text-sm sm:text-md truncate" onClick={() => handleOptionSelect("Owner: popescu popescu ")}>popescu popescu</li>
-                            </ul>
-                        </div>
-                        }
-                    </div>
+                        <hr className="border-t-2 border-gray-500 my-4 rounded-full -mx-4 sm:mx-2" />
+                    </>
+                )
+                }
 
 
-                </div>
-                <hr className="border-t-2 border-gray-500 my-4 rounded-full -mx-4 sm:mx-2" />
+
+
+
                 {/* Sectiunea de itemi */}
                 {gestioneazaItem === null ? (tipAfisare === "lista" ? (// daca nu e  nicio parola selectata afisez lista de itemi; overflow-y pentru a derula in caz ca se termina ecranul
                     <div>

@@ -106,7 +106,6 @@ const ParolePage = ({ derivedKey, items, fetchItems }) => {
                         />
                     ) : null
                 ) : (
-                    // ✅ Când un item este selectat, afișează doar `EditParolaItem` (fără secțiunea de sus)
                     <EditParolaItem
                         item={gestioneazaParolaItem}
                         setGestioneazaParolaItem={setGestioneazaParolaItem}
