@@ -1,7 +1,7 @@
 import React from "react";
 
 
-const PopupAskRecoveryPasswod = ({ setpopupActiveazaRcovery, accessToken, setOpenPopupRecovery }) => {
+const PopupAskRecoveryPasswod = ({ setpopupActiveazaRcovery, setOpenPopupRecovery }) => {
     const handleDeschidePopupRecuperare = async () => {
         setOpenPopupRecovery(true);
 

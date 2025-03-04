@@ -1,6 +1,6 @@
 import React from "react";
 
-const HelpPage = ({ accessToken }) => {
+const HelpPage = ({ }) => {
     return (
         <>
             <div>

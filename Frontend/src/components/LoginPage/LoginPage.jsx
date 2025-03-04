@@ -17,7 +17,6 @@ function hexToString(hex) {
 
 const LoginPage = () => {
   const [incorectCredentiale, setincorectCredentiale] = useState(false);
-  const [accessToken, setAccessToken] = useState(null);
   const [Parola, setParola] = useState('');
   const [Email, setEmail] = useState('');
 
@@ -57,12 +56,15 @@ const LoginPage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: "include",
         body: JSON.stringify(date),
       });
 
       if (response.ok) {
-        const responseFromServer = await response.json();
-        console.log("Access token primit:", responseFromServer);
+        console.log("Autentificare reusita !");
+
+        //const responseFromServer = await response.json();
+        //console.log("Access token primit:", responseFromServer);
 
         let salt = null;
 
@@ -71,11 +73,12 @@ const LoginPage = () => {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${responseFromServer.accessToken}`
-            }
+            },
+            credentials: "include"
           });
           if (response.ok) {
             const data = await response.json();
+            console.log("Datele primite saltul de la server: ", data);
             salt = CryptoJS.enc.Base64.parse(data.salt);;
           }
 
@@ -86,16 +89,14 @@ const LoginPage = () => {
         const derivedKeyBase64 = derivedKey.toString(CryptoJS.enc.Base64);
         console.log('Cheia derivată în Base64:', derivedKeyBase64);
 
-        sessionStorage.setItem('accessToken', responseFromServer.accessToken);
-        setAccessToken(responseFromServer.accessToken);
 
         try {
           const aesResponse = await fetch('http://localhost:9000/api/getUserSimmetricKey', {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${responseFromServer.accessToken}`
-            }
+            },
+            credentials: "include"
           });
 
           if (aesResponse.ok) {

@@ -34,7 +34,7 @@ function decryptWithPrivateKey(encryptedMessage, privateKey) {
     });
 }
 
-const PopupNewUtilizatorGrup = ({ accessToken, setPopupUtilizatorNou, idgrup, derivedKey }) => {
+const PopupNewUtilizatorGrup = ({ setPopupUtilizatorNou, idgrup, derivedKey }) => {
     const [key, setKey] = useState(derivedKey);
 
     useEffect(() => {
@@ -58,7 +58,7 @@ const PopupNewUtilizatorGrup = ({ accessToken, setPopupUtilizatorNou, idgrup, de
         let encryptedPrivateKeyUtilizator = null;
         try {
             const response = await fetch('http://localhost:9000/api/getUserEncryptedPrivateKey', {
-                method: 'GET', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+                method: 'GET', headers: { 'Content-Type': 'application/json' }, credentials: "include"
             });
 
             if (response.ok) {
@@ -88,7 +88,7 @@ const PopupNewUtilizatorGrup = ({ accessToken, setPopupUtilizatorNou, idgrup, de
         let encryptedgroupAesKey = null;
         try {
             const response = await fetch('http://localhost:9000/api/getGroupSimmetricEncryptedKey', {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }, body: JSON.stringify({ idgrup })
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idgrup }), credentials: "include"
             });
 
             if (response.ok) {
@@ -115,7 +115,7 @@ const PopupNewUtilizatorGrup = ({ accessToken, setPopupUtilizatorNou, idgrup, de
         let newMemberId = null;
         try {
             const response = await fetch('http://localhost:9000/api/getNewMemberId', {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }, body: JSON.stringify({ nameItem })
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nameItem }), credentials: "include"
             });
 
             if (response.ok) {
@@ -132,7 +132,7 @@ const PopupNewUtilizatorGrup = ({ accessToken, setPopupUtilizatorNou, idgrup, de
         let publicKeyUtilizator = null;
         try {
             const response = await fetch('http://localhost:9000/api/getNewUserGroupPublicKey', {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }, body: JSON.stringify({ newMemberId })
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ newMemberId }), credentials: "include"
             });
 
             if (response.ok) {
@@ -180,7 +180,7 @@ const PopupNewUtilizatorGrup = ({ accessToken, setPopupUtilizatorNou, idgrup, de
         try {
             console.log(jsonItem);
             const response = await fetch('http://localhost:9000/api/addMembruGrup', {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: "include",
                 body: JSON.stringify(jsonItem)
             });
 

@@ -19,13 +19,13 @@ function decryptWithPrivateKey(encryptedMessage, privateKey) {
     });
 }
 
-const PopupNewGrupParola = ({ setShowParolaPopup, accessToken, derivedKey, idgrup }) => {
+const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup }) => {
     const [numeItem, setNumeItem] = useState('');
     const [urlItem, setUrlItem] = useState('');
     const [usernameItem, setUserNamItem] = useState('');
     const [parolaItem, setParolaItem] = useState('');
     const [comentariuItem, setComentariuItem] = useState('');
-    const [key, setKey] = useState(derivedKey);  // Folosim useState pentru a stoca cheia
+    const [key, setKey] = useState(derivedKey);
 
     useEffect(() => {
         if (derivedKey) {
@@ -57,7 +57,7 @@ const PopupNewGrupParola = ({ setShowParolaPopup, accessToken, derivedKey, idgru
             let encryptedPrivateKeyUtilizator = null;
             try {
                 const response = await fetch('http://localhost:9000/api/getUserEncryptedPrivateKey', {
-                    method: 'GET', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+                    method: 'GET', headers: { 'Content-Type': 'application/json' }, credentials: "include"
                 });
 
                 if (response.ok) {
@@ -88,7 +88,8 @@ const PopupNewGrupParola = ({ setShowParolaPopup, accessToken, derivedKey, idgru
             let encryptedgroupAesKey = null;
             try {
                 const response = await fetch('http://localhost:9000/api/getGroupSimmetricEncryptedKey', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }, body: JSON.stringify({ idgrup })
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idgrup }),
+                    credentials: "include"
                 });
 
                 if (response.ok) {
@@ -153,9 +154,9 @@ const PopupNewGrupParola = ({ setShowParolaPopup, accessToken, derivedKey, idgru
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify(requestBody),
+                    credentials: "include"
                 });
 
                 if (!response.ok) {
@@ -171,9 +172,9 @@ const PopupNewGrupParola = ({ setShowParolaPopup, accessToken, derivedKey, idgru
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify(jsonItemKey),
+                    credentials: "include"
                 });
 
                 if (!response.ok) {

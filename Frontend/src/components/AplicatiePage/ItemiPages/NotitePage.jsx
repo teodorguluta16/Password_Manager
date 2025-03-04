@@ -5,7 +5,7 @@ import GridIcon from "../../../assets/website/visualization.png"
 
 
 
-const NotitePage = ({ accessToken }) => {
+const NotitePage = ({ }) => {
     const [isDeschisMeniuSortare, setIsDropdownOpen] = useState(false);
     const [OptiuneSelectata, setSelectedOption] = useState("Sortează după: Nume");
 

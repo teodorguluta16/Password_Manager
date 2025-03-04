@@ -10,7 +10,7 @@ import PopupStergeItem from "../Popup_uri/PopupStergeItem";
 import EditParolaItem from './EditParolaItem';
 import { FaEye, FaEyeSlash, FaCopy, FaEdit, FaSave } from 'react-icons/fa';
 
-const ItemsAllPage = ({ accessToken, derivedKey, items, fetchItems }) => {
+const ItemsAllPage = ({ derivedKey, items, fetchItems }) => {
     const [key, setKey] = useState(derivedKey);
 
     useEffect(() => {
@@ -18,7 +18,7 @@ const ItemsAllPage = ({ accessToken, derivedKey, items, fetchItems }) => {
             setKey(derivedKey);
         }
     }, [derivedKey]);
-
+    console.log("Am ajuns Aici !");
     console.log("Cheia simetrică este: ", key);
 
     const [isDeschisMeniuSortare, setIsDropdownOpen] = useState(false);
@@ -39,10 +39,10 @@ const ItemsAllPage = ({ accessToken, derivedKey, items, fetchItems }) => {
     const [itemid, setItemid] = useState("");
 
     useEffect(() => {
-        if (accessToken && derivedKey) {
+        if (derivedKey) {
             fetchItems();
         }
-    }, [accessToken]);
+    }, []);
     return (
         <>
             <div className="bg-gray-100">
@@ -95,15 +95,15 @@ const ItemsAllPage = ({ accessToken, derivedKey, items, fetchItems }) => {
                     tipAfisare === "lista" ? (
                         <ListAfisItems items={items} setGestioneazaItem={setGestioneazaParolaItem} setStergeItem={setStergeItem} setItemid={setItemid} />
                     ) : tipAfisare === "grid" ? (
-                        <GridAfisItems items={items} setGestioneazaItem={setGestioneazaParolaItem} setStergeItem={setStergeItem} setItemid={setItemid} accessToken={accessToken} />
+                        <GridAfisItems items={items} setGestioneazaItem={setGestioneazaParolaItem} setStergeItem={setStergeItem} setItemid={setItemid} />
                     ) : null
                 ) : (
                     // ✅ Când un item este selectat, afișează EditParolaItem
-                    <EditParolaItem item={gestioneazaParolaItem} setGestioneazaParolaItem={setGestioneazaParolaItem} accessToken={accessToken} />
+                    <EditParolaItem item={gestioneazaParolaItem} setGestioneazaParolaItem={setGestioneazaParolaItem} />
                 )}
 
                 {/*Popup de Stergere item */}
-                {stergeItem && <PopupStergeItem setShowPopupStergeItem={setStergeItem} accessToken={accessToken} item={itemid} items={items} fetchItems={fetchItems} />}
+                {stergeItem && <PopupStergeItem setShowPopupStergeItem={setStergeItem} item={itemid} items={items} fetchItems={fetchItems} />}
             </div>
         </>
     );

@@ -12,7 +12,7 @@ const Istoric = [
     { operatie: "Actualizare Notita", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
 ]
 
-const EditParolaGroupItem = ({ item, setGestioneazaParolaItem, accessToken }) => {
+const EditParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
     console.log("Itemul este: ", item);
     const [itemNume, setItemNume] = useState(item.nume);
     const [userName, setItemUsername] = useState(item.username);
@@ -56,15 +56,14 @@ const EditParolaGroupItem = ({ item, setGestioneazaParolaItem, accessToken }) =>
         }
     }
     useEffect(() => {
-        console.log("tokenul:", accessToken);
         const fetchItems = async () => {
             try {
                 const response = await fetch('http://localhost:9000/api/getOwner', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`
-                    }
+                    },
+                    credentials: "include"
                 });
 
                 if (response.ok) {
@@ -83,7 +82,7 @@ const EditParolaGroupItem = ({ item, setGestioneazaParolaItem, accessToken }) =>
 
 
         fetchItems();
-    }, [accessToken]);
+    }, []);
 
     const salveazaToateModificarile = async () => {
         try {

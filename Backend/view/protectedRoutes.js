@@ -1,15 +1,13 @@
 import express from 'express'
-
-import jwt from 'jsonwebtoken';
 import { client } from '../postgres/postgres.js';
+import verifyJWT from '../verifyJWT.js';
 
 const protectedRouter = express.Router();
-
+// ✅ Aplică `verifyJWT` la toate rutele protejate
+protectedRouter.use(verifyJWT);
 //rute protejate 
 
 // rute pentru itemi 
-
-
 protectedRouter.get('/itemistersi', async (req, res) => {
     const userId = req.user.sub;
     try {
@@ -59,16 +57,23 @@ protectedRouter.post('/addKey', async (req, res) => {
     }
 });
 protectedRouter.get('/utilizator/getSalt', async (req, res) => {
-    const userId = req.user.sub;
+    const userId = req.user.sub; // ✅ Acum `userId` este extras automat din `accessToken`
+
     try {
-        const result = await client.query("Select u.salt as salt from utilizatori u where u.id=$1;", [userId])
-        res.status(200).json(result.rows[0]);
+        const result = await client.query(
+            "SELECT u.salt AS salt FROM utilizatori u WHERE u.id = $1;",
+            [userId]
+        );
 
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: "Utilizator negăsit" });
+        }
+
+        res.status(200).json(result.rows[0]); // ✅ Trimitem salt-ul
     } catch (error) {
-        console.error("Eroare la adaugare copiei cheii: ", error);
-        res.status(500).send();
+        console.error("Eroare la obținerea salt-ului: ", error);
+        res.status(500).json({ message: "Eroare server" });
     }
-
 });
 
 protectedRouter.post('/utilizator/addRecoveryKey', async (req, res) => {
@@ -441,7 +446,7 @@ protectedRouter.get('/utilizator/getUserId', async (req, res) => {
 })
 
 protectedRouter.get('/getUserSimmetricKey', async (req, res) => {
-    const userId = req.user.sub;
+    const userId = req.user.sub; // ✅ Acum `userId` este extras automat din `accessToken`
     try {
         const result = await client.query(`SELECT encode(encryptedsimmetrickey, 'hex') AS encryptedsimmetrickey
             FROM Utilizatori WHERE id = $1`, [userId]);
@@ -473,6 +478,15 @@ protectedRouter.get('/getUserPublicKey', async (req, res) => {
     } catch (error) {
         console.error('Eroare:', error);
         res.status(500).send('Eroare la preluarea cheii publice.');
+    }
+});
+protectedRouter.get('/utilizator/getMyId', async (req, res) => {
+    const userId = req.user.sub;
+    try {
+        res.status(200).json({ Id: userId });
+    } catch (error) {
+        console.error('Eroare:', error);
+        res.status(500).send('Eroare la preluarea id-ului.');
     }
 });
 

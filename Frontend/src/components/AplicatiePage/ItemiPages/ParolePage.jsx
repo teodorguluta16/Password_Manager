@@ -9,7 +9,7 @@ import ListAfisItems from "./ListAfisItems";
 import PopupStergeItem from "../Popup_uri/PopupStergeItem";
 import EditParolaItem from './EditParolaItem';
 
-const ParolePage = ({ accessToken, derivedKey, items, fetchItems }) => {
+const ParolePage = ({ derivedKey, items, fetchItems }) => {
     const [key, setKey] = useState(derivedKey);
 
     useEffect(() => {
@@ -39,7 +39,7 @@ const ParolePage = ({ accessToken, derivedKey, items, fetchItems }) => {
 
     useEffect(() => {
         fetchItems();
-    }, [accessToken]);
+    }, []);
     return (
         <>
             <div className="bg-gray-100">
@@ -102,7 +102,6 @@ const ParolePage = ({ accessToken, derivedKey, items, fetchItems }) => {
                             setGestioneazaItem={setGestioneazaParolaItem}
                             setStergeItem={setStergeItem}
                             setItemid={setItemid}
-                            accessToken={accessToken}
                             fetchItems={fetchItems}
                         />
                     ) : null
@@ -111,7 +110,6 @@ const ParolePage = ({ accessToken, derivedKey, items, fetchItems }) => {
                     <EditParolaItem
                         item={gestioneazaParolaItem}
                         setGestioneazaParolaItem={setGestioneazaParolaItem}
-                        accessToken={accessToken}
                     />
                 )}
 
@@ -119,7 +117,6 @@ const ParolePage = ({ accessToken, derivedKey, items, fetchItems }) => {
                 {stergeItem && (
                     <PopupStergeItem
                         setShowPopupStergeItem={setStergeItem}
-                        accessToken={accessToken}
                         item={itemid}
                         items={items}
                         fetchItems={fetchItems}

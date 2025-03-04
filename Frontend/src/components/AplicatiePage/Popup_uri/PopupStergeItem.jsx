@@ -1,6 +1,6 @@
 import React from "react";
 
-const PopupStergeItem = ({ setShowPopupStergeItem, accessToken, item, items, fetchItems }) => {
+const PopupStergeItem = ({ setShowPopupStergeItem, item, items, fetchItems }) => {
 
     const handleStergeItem = async () => {
         setShowPopupStergeItem(false);
@@ -10,9 +10,9 @@ const PopupStergeItem = ({ setShowPopupStergeItem, accessToken, item, items, fet
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`,
                 },
                 body: JSON.stringify({ id_item: item.id_item }),
+                credentials: "include"
             });
 
             if (response.ok) {

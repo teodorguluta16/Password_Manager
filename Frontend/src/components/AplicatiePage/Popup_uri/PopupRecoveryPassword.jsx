@@ -26,7 +26,7 @@ async function convertToCryptoKey(base64Key) {
     const cryptoKey = await crypto.subtle.importKey("raw", keyArrayBuffer, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
     return cryptoKey;
 }
-const PopupRecoveryPassword = ({ accessToken, setOpenPopupRecovery, derivedkey }) => {
+const PopupRecoveryPassword = ({ setOpenPopupRecovery, derivedkey }) => {
     const [hasRun, setHasRun] = useState(false);
     const [recoveryKey, setRecoveryKey] = useState(null);
     const [key, setKey] = useState(derivedkey);
@@ -61,8 +61,8 @@ const PopupRecoveryPassword = ({ accessToken, setOpenPopupRecovery, derivedkey }
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`
-                    }
+                    },
+                    credentials: "include"
                 });
                 if (response.ok) {
                     const data = await response.json();
@@ -106,9 +106,9 @@ const PopupRecoveryPassword = ({ accessToken, setOpenPopupRecovery, derivedkey }
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify(jsonItemKey),
+                    credentials: "include"
                 });
 
                 if (!response.ok) {

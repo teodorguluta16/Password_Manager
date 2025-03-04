@@ -17,7 +17,7 @@ function hexToString(hex) {
     }
     return str;
 }
-const ItemiStersi = ({ accessToken, derivedKey }) => {
+const ItemiStersi = ({ derivedKey }) => {
     const [key, setKey] = useState(derivedKey);
 
     useEffect(() => {
@@ -38,8 +38,8 @@ const ItemiStersi = ({ accessToken, derivedKey }) => {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                }
+                },
+                credentials: "include"
             });
 
             if (response.ok) {
@@ -150,7 +150,7 @@ const ItemiStersi = ({ accessToken, derivedKey }) => {
     };
     useEffect(() => {
         fetchItems();
-    }, [accessToken]);
+    }, []);
 
 
 
@@ -163,8 +163,9 @@ const ItemiStersi = ({ accessToken, derivedKey }) => {
         try {
             console.log("Id Item este:", iditem);
             const response = await fetch('http://localhost:9000/api/utilizator/itemiStersi/restore', {
-                method: 'PATCH', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+                method: 'PATCH', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id_item: iditem }),
+                credentials: "include"
             });
 
             if (response.ok) {
@@ -224,7 +225,7 @@ const ItemiStersi = ({ accessToken, derivedKey }) => {
                     </div>
                         : null
                 }
-                {stergeItem && <PopupStergeItemDefinitiv setShowPopupStergeItem={setStergeItem} accessToken={accessToken} item={itemid} items={items} fetchItems={fetchItems} />}
+                {stergeItem && <PopupStergeItemDefinitiv setShowPopupStergeItem={setStergeItem} item={itemid} items={items} fetchItems={fetchItems} />}
                 {restoredItemMessage && <PopupItmeRestauratCuSucces />}
             </div >
         </>

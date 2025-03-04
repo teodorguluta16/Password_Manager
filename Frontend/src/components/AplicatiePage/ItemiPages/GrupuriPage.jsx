@@ -10,7 +10,7 @@ import EdiGrupItem from './EditGrupItem';
 import GroupItmes from "./GroupItems";
 
 
-const GrupuriPage = ({ accessToken, derivedKey }) => {
+const GrupuriPage = ({ derivedKey }) => {
     const [key, setKey] = useState(derivedKey);
 
     useEffect(() => {
@@ -49,7 +49,7 @@ const GrupuriPage = ({ accessToken, derivedKey }) => {
     const fetchGroups = async () => {
         try {
             const response = await fetch('http://localhost:9000/api/getGrupuri', {
-                method: 'GET', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }
+                method: 'GET', headers: { 'Content-Type': 'application/json' }, credentials: "include"
             });
 
             if (response.ok) {
@@ -71,7 +71,7 @@ const GrupuriPage = ({ accessToken, derivedKey }) => {
     const getUserId = async () => {
         try {
             const response = await fetch('http://localhost:9000/api/utilizator/getUserId', {
-                method: 'GET', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }
+                method: 'GET', headers: { 'Content-Type': 'application/json' }, credentials: "include"
             });
 
             if (response.ok) {
@@ -167,7 +167,7 @@ const GrupuriPage = ({ accessToken, derivedKey }) => {
                                             <h3 className="text-xl font-semibold">{group.nume}</h3>
                                             <div className="mt-1 flex justify-end space-x-4">
                                                 <FaClipboard
-                                                    className="w-7 h-7 cursor-pointer hover:text-blue-500"
+                                                    className="w-5 h-5 cursor-pointer hover:text-blue-500"
                                                     onClick={(e) => {
                                                         // Opriți propagarea evenimentului de click pe iconița FaClipboard
                                                         e.stopPropagation();
@@ -210,7 +210,7 @@ const GrupuriPage = ({ accessToken, derivedKey }) => {
                                             <h3 className="text-xl font-semibold">{group.nume}</h3>
                                             <div className="mt-1 flex justify-end space-x-4">
                                                 <FaClipboard
-                                                    className="w-7 h-7 cursor-pointer hover:text-blue-500"
+                                                    className="w-5 h-5 cursor-pointer hover:text-blue-500"
                                                     onClick={(e) => {
                                                         // Opriți propagarea evenimentului de click pe iconița FaClipboard
                                                         e.stopPropagation();
@@ -219,7 +219,7 @@ const GrupuriPage = ({ accessToken, derivedKey }) => {
                                                     }}
                                                 />
                                                 <FaSignOutAlt
-                                                    className="w-7 h-7 cursor-pointer hover:text-red-700"
+                                                    className="w-5 h-5 cursor-pointer hover:text-red-700"
                                                     onClick={(e) => {
                                                         e.stopPropagation(); // Opriți propagarea evenimentului de click
                                                         parasesteGrup(group.id_grup); // Apelează funcția pentru a părăsi grupul
@@ -233,11 +233,11 @@ const GrupuriPage = ({ accessToken, derivedKey }) => {
                         </div>
                     </div>
                 )}
-                {popupGrupNou && <PopupNewGrup accessToken={accessToken} setPopupGrupNou={setPopupGrupNou} derivedKey={key} fetchGroups={fetchGroups} />}
+                {popupGrupNou && <PopupNewGrup setPopupGrupNou={setPopupGrupNou} derivedKey={key} fetchGroups={fetchGroups} />}
             </div >
             }
-            {gestioneazaGrupItem && optiuneGrup === "detalii" && <EdiGrupItem item={gestioneazaGrupItem} setGestioneazaGrupItem={setGestioneazaGrupItem} accessToken={accessToken} derivedKey={key} />}
-            {gestioneazaGrupItem && optiuneGrup === "itemigrup" && <GroupItmes item={gestioneazaGrupItem} setGestioneazaGrupItem={setGestioneazaGrupItem} accessToken={accessToken} derivedKey={key} />}
+            {gestioneazaGrupItem && optiuneGrup === "detalii" && <EdiGrupItem item={gestioneazaGrupItem} setGestioneazaGrupItem={setGestioneazaGrupItem} derivedKey={key} />}
+            {gestioneazaGrupItem && optiuneGrup === "itemigrup" && <GroupItmes item={gestioneazaGrupItem} setGestioneazaGrupItem={setGestioneazaGrupItem} derivedKey={key} />}
         </>
     );
 };

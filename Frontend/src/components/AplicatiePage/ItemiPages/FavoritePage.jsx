@@ -9,7 +9,7 @@ import ListAfisItems from "./ListAfisItems";
 import PopupStergeItem from "../Popup_uri/PopupStergeItem";
 import EditParolaItem from './EditParolaItem';
 
-const FavoritePage = ({ accessToken, derivedKey, items, fetchItems }) => {
+const FavoritePage = ({ derivedKey, items, fetchItems }) => {
     const [key, setKey] = useState(derivedKey);
 
     useEffect(() => {
@@ -39,7 +39,7 @@ const FavoritePage = ({ accessToken, derivedKey, items, fetchItems }) => {
 
     useEffect(() => {
         fetchItems();
-    }, [accessToken]);
+    }, []);
     return (
         <>
             <div className="bg-gray-100">
@@ -87,14 +87,14 @@ const FavoritePage = ({ accessToken, derivedKey, items, fetchItems }) => {
                 {gestioneazaParolaItem === null ? (tipAfisare === "lista" ? (// daca nu e  nicio parola selectata afisez lista de itemi; overflow-y pentru a derula in caz ca se termina ecranul
                     <ListAfisItems items={items} setGestioneazaItem={setGestioneazaParolaItem} setStergeItem={setStergeItem} setItemid={setItemid} />
                 ) : tipAfisare === "grid" ? (
-                    <GridAfisItems items={items} setGestioneazaItem={setGestioneazaParolaItem} setStergeItem={setStergeItem} setItemid={setItemid} accessToken={accessToken} fetchItems={fetchItems} />
+                    <GridAfisItems items={items} setGestioneazaItem={setGestioneazaParolaItem} setStergeItem={setStergeItem} setItemid={setItemid} fetchItems={fetchItems} />
                 ) : null
                 ) : (// daca selectez un item atunci dispare lista de itmei si afisez optiunile pentru itemul curent
-                    <EditParolaItem item={gestioneazaParolaItem} setGestioneazaParolaItem={setGestioneazaParolaItem} accessToken={accessToken} />
+                    <EditParolaItem item={gestioneazaParolaItem} setGestioneazaParolaItem={setGestioneazaParolaItem} />
                 )}
 
                 {/*Popup de Stergere item */}
-                {stergeItem && <PopupStergeItem setShowPopupStergeItem={setStergeItem} accessToken={accessToken} item={itemid} items={items} fetchItems={fetchItems} />}
+                {stergeItem && <PopupStergeItem setShowPopupStergeItem={setStergeItem} item={itemid} items={items} fetchItems={fetchItems} />}
 
             </div >
         </>

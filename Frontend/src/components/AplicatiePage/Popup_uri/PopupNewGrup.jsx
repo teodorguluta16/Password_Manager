@@ -19,7 +19,7 @@ function fixBase64Key(base64Key) {
     const formattedKey = cleanedKey.match(/.{1,64}/g).join("\n");
     return "-----BEGIN PUBLIC KEY-----\n" + formattedKey + "\n-----END PUBLIC KEY-----";
 }
-const PopupNewGrup = ({ accessToken, setPopupGrupNou, derivedKey, fetchGroups }) => {
+const PopupNewGrup = ({ setPopupGrupNou, derivedKey, fetchGroups }) => {
     const [key, setKey] = useState(derivedKey);
 
     useEffect(() => {
@@ -47,7 +47,7 @@ const PopupNewGrup = ({ accessToken, setPopupGrupNou, derivedKey, fetchGroups })
         // extrag cheia publica
         try {
             const response = await fetch('http://localhost:9000/api/getUserPublicKey', {
-                method: 'GET', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+                method: 'GET', headers: { 'Content-Type': 'application/json' }, credentials: "include"
             });
 
             if (response.ok) {
@@ -66,7 +66,7 @@ const PopupNewGrup = ({ accessToken, setPopupGrupNou, derivedKey, fetchGroups })
         //let encryptedPrivateKeyUtilizator = null;
         //try {
         //    const response = await fetch('http://localhost:9000/api/getUserEncryptedPrivateKey', {
-        //        method: 'GET', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+        //        method: 'GET', headers: { 'Content-Type': 'application/json',  },credentials:"include"
         //    });
 
         //    if (response.ok) {
@@ -155,10 +155,10 @@ const PopupNewGrup = ({ accessToken, setPopupGrupNou, derivedKey, fetchGroups })
             const response = await fetch('http://localhost:9000/api/addGrup', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(jsonItem)
+                body: JSON.stringify(jsonItem),
+                credentials: "include"
             });
 
             if (response.ok) {

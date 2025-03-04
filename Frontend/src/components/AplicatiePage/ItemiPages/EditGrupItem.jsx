@@ -7,7 +7,7 @@ import "../../../App.css"
 import { FaEye, FaEyeSlash, FaCopy, FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
 import PopupNewUtilizatorGrup from '../Popup_uri/PopupNewUtilizatorGrup.jsx'
 
-const EditGrupItem = ({ item, setGestioneazaGrupItem, accessToken, derivedKey }) => {
+const EditGrupItem = ({ item, setGestioneazaGrupItem, derivedKey }) => {
     const [key, setKey] = useState(derivedKey);
     let idgrup = item.id_grup;
 
@@ -40,7 +40,8 @@ const EditGrupItem = ({ item, setGestioneazaGrupItem, accessToken, derivedKey })
     const handleVizualizareMembriiGrup = async () => {
         try {
             const response = await fetch('http://localhost:9000/api/grupuri/getGroupMembersforOwner', {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }, body: JSON.stringify({ idgrup })
+                method: 'POST', headers: { 'Content-Type': 'application/json', }, body: JSON.stringify({ idgrup }),
+                credentials: "include"
             });
 
             if (!response.ok) { throw new Error('Cererea nu a reusit!'); }
@@ -54,7 +55,8 @@ const EditGrupItem = ({ item, setGestioneazaGrupItem, accessToken, derivedKey })
     const handleVizualizareOwnerGrup = async () => {
         try {
             const response = await fetch('http://localhost:9000/api/grupuri/getGroupOwnerDetails', {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }, body: JSON.stringify({ idgrup })
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idgrup }),
+                credentials: "include"
             });
 
             if (!response.ok) { throw new Error('Cererea nu a reusit!'); }
@@ -137,7 +139,7 @@ const EditGrupItem = ({ item, setGestioneazaGrupItem, accessToken, derivedKey })
 
 
             </div>
-            {popupUtilizatorNou && <PopupNewUtilizatorGrup accessToken={accessToken} setPopupUtilizatorNou={setPopupUtilizatorNou} idgrup={item.id_grup} encryptedprivategroupkey={item.encryptedprivategroupkey} derivedKey={key} />}
+            {popupUtilizatorNou && <PopupNewUtilizatorGrup setPopupUtilizatorNou={setPopupUtilizatorNou} idgrup={item.id_grup} encryptedprivategroupkey={item.encryptedprivategroupkey} derivedKey={key} />}
         </>
     );
 };

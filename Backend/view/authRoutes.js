@@ -48,80 +48,65 @@ authRouter.post("/login", async (req, res) => {
         if (result.rows.length === 0) {
             return res.status(404).send("Utilizatorul nu există\n");
         }
+
         const hashStocat = result.rows[0].parola;
         const potrivire = hashedPassword === hashStocat;
 
-
         if (potrivire) {
-            let TipUser;
-            if (result.rows[0].tip_ut === 1) {
-                TipUser = "Client";
-            }
-            else {
-                TipUser = "Admin";
-            }
-
-            //access token
+            let TipUser = result.rows[0].tip_ut === 1 ? "Client" : "Admin";
             const accessToken = jwt.sign(
-                {
-                    username: Email,
-                    sub: result.rows[0].id,
-                    name: result.rows[0].nume,
-                    role: TipUser
-                },
+                { username: Email, sub: result.rows[0].id, name: result.rows[0].nume, role: TipUser },
                 process.env.ACCESS_TOKEN_SECRET,
                 { expiresIn: '1h' }
             );
 
-            // refresh token
             const refreshToken = jwt.sign(
-                {
-                    username: Email,
-                    sub: result.rows[0].id,
-                    name: result.rows[0].nume,
-                    role: TipUser
-                },
+                { username: Email, sub: result.rows[0].id, name: result.rows[0].nume, role: TipUser },
                 process.env.REFRESH_TOKEN_SECRET,
-                { expiresIn: '1m' }
+                { expiresIn: '1d' }
             );
 
-            // Validarea token-ului
-            jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-                if (err) {
-                    console.log('Invalid token:', err);
-                } else {
-                    //console.log('Decoded token:', decoded);
-                    console.log("Token decodificat");
-                }
-            });
-
             await client.query("UPDATE Utilizatori SET refresh_token = $1 WHERE Email = $2", [refreshToken, Email]);
-
-            // Setăm refresh token-ul în cookie (httpOnly pentru securitate)
-            res.cookie('jwt', refreshToken, {
+            res.cookie("jwt", refreshToken, {
                 httpOnly: true,
-                secure: false, // doar pe HTTPS în producție
-                maxAge: 24 * 60 * 60 * 1000, // 1 zi
+                secure: process.env.NODE_ENV === "production",
+                maxAge: 24 * 60 * 60 * 1000,
+                sameSite: "None"
             });
 
-            // Setăm access token-ul în cookie (httpOnly și secure pe HTTPS)
-            //res.cookie("accessToken", accessToken, {
-            //    httpOnly: true,
-            //    secure: false, // doar pe HTTPS în producție
-            //    maxAge: 3600000 // 1 oră
-            //});
+            res.cookie("accessToken", accessToken, {
+                httpOnly: true,
+                secure: false,
+                maxAge: 60 * 60 * 1000, // 1 oră
+                sameSite: "Lax"
+            });
 
-            console.log("Autentificare reusita");
-            res.json({ accessToken }); /// daca stochez acces Token in memory voi fi vulnerabil sau cv de genul
-        }
-        else {
+            console.log("Autentificare reușită");
+            res.json({ message: "Autentificat cu succes" });
+        } else {
             console.log("Parola incorectă");
             return res.status(401).send("Parola incorectă");
         }
     } catch (error) {
-        console.error("Eroare in procesul de login", error);
+        console.error("Eroare în procesul de login", error);
         return res.status(500).send("Eroare server");
     }
+});
+
+authRouter.get('/validateToken', (req, res) => {
+    const token = req.cookies?.accessToken; // ✅ Citim token-ul din cookies
+
+    if (!token) {
+        return res.status(401).json({ message: "Nu ești autentificat" });
+    }
+
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+        if (err) {
+            return res.status(403).json({ message: "Token invalid sau expirat" });
+        }
+
+        res.status(200).json({ name: user.name }); // ✅ Trimitem numele utilizatorului către frontend
+    });
 });
 
 authRouter.post("/getCopyEncryptedSimmetricKey", async (req, res) => {
@@ -238,26 +223,11 @@ authRouter.post("/refresh", async (req, res) => {
     }
 });
 
-authRouter.post("/logout", (req, res) => {
-    res.clearCookie('jwt', {
-        httpOnly: true,  // Protejează cookie-ul de accesul JavaScript
-        secure: false,   // Doar pentru HTTPS în producție
-        maxAge: 0,       // Setează durata cookie-ului la 0 pentru a-l șterge
-    });
-    const { Email } = req.body;
-
-    client.query("UPDATE Utilizatori SET refresh_token = NULL WHERE Email = $1", [Email], (err, result) => {
-        if (err) {
-            console.error("Eroare la delogare:", err);
-            return res.status(500).send("Eroare server");
-        }
-
-        // Răspunde clientului
-        console.log("Delogare reușită");
-        res.status(200).send("Delogare reușită");
-    });
+authRouter.post('/logout', (req, res) => {
+    res.clearCookie('accessToken', { path: '/', httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "Lax" });
+    res.clearCookie('jwt', { path: '/', httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "Lax" });
+    return res.status(200).json({ message: 'Deconectat cu succes' });
 });
-
 
 
 export default authRouter;

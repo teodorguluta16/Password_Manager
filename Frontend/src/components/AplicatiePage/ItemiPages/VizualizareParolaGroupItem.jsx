@@ -11,7 +11,7 @@ const Istoric = [
     { operatie: "Actualizare Notita", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
 ]
 
-const VizualizareParolaGroupItem = ({ item, setGestioneazaParolaItem, accessToken }) => {
+const VizualizareParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
     const [itemNume, setItemNume] = useState(item.nume);
     const [userName, setItemUsername] = useState(item.username);
     const [parolaName, setItemParola] = useState(item.parola);
@@ -53,8 +53,8 @@ const VizualizareParolaGroupItem = ({ item, setGestioneazaParolaItem, accessToke
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`
-                    }
+                    },
+                    credentials: "include"
                 });
 
                 if (response.ok) {
@@ -69,7 +69,7 @@ const VizualizareParolaGroupItem = ({ item, setGestioneazaParolaItem, accessToke
             }
         };
         fetchItems();
-    }, [accessToken]);
+    }, []);
 
     return (
         <div className="px-12 mb-2">

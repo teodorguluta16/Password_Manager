@@ -64,7 +64,6 @@ const AplicatiePage = () => {
   const [meniuExtins, setExtins] = useState(!isSmallScreen);
   const [meniuExtinsVerticala, setMeniuExtinsVerticala] = useState(false);
 
-  const [accessToken, setAccessToken] = useState(null);
   const [initiale, setInitiale] = useState(null);
   const [name_user, setNameUser] = useState('');
   const [loading, setLoading] = useState(true);
@@ -86,35 +85,34 @@ const AplicatiePage = () => {
   }, []);
 
   useEffect(() => {
-    const storedToken = sessionStorage.getItem('accessToken');
-    if (storedToken) {
-      const tokenParts = storedToken.split('.');
-      if (tokenParts.length === 3) {
-        const payload = JSON.parse(atob(tokenParts[1]));
-        const expiryDate = payload.exp * 1000;
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('http://localhost:9000/api/auth/validateToken', {
+          method: 'GET',
+          credentials: "include" // ✅ Trimite cookie-ul cu tokenul
+        });
 
-        if (expiryDate < Date.now()) {
-          sessionStorage.removeItem('accessToken');
-          navigate('/login');
-        } else {
-          setAccessToken(storedToken);
-          console.log("Tockenul este", storedToken);
-          const tokendecodificat = parseJwt(storedToken);
-          if (tokendecodificat && tokendecodificat.name) {
-            const [firstName, lastName] = tokendecodificat.name.split(' ');
-            let aux = `${firstName.charAt(0)}${lastName.charAt(0)}`;
-            setInitiale(aux);
-          } else {
-            console.error('Numele utilizatorului nu este disponibil');
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Utilizator autentificat:", data);
+
+          // ✅ Extrage inițialele utilizatorului din răspunsul serverului
+          if (data.name) {
+            const [firstName, lastName] = data.name.split(' ');
+            setInitiale(`${firstName.charAt(0)}${lastName.charAt(0)}`);
           }
+        } else {
+          console.warn("Token invalid sau expirat. Redirecționare la login.");
+          navigate('/login');
         }
+      } catch (error) {
+        console.error("Eroare la verificarea autentificării:", error);
+        navigate('/login');
       }
-    } else {
-      navigate('/login');
-    }
+    };
 
-    setLoading(false);
-  }, [navigate]);
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -183,10 +181,24 @@ const AplicatiePage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isFocused, setIsFocused] = useState(false);
 
-  const deconectare = () => {
-    sessionStorage.removeItem('accessToken');
-    window.location.href = '/login';
+  const deconectare = async () => {
+    try {
+      const response = await fetch('http://localhost:9000/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include', // ✅ Asigură-te că trimiți cookie-urile
+      });
+
+      if (response.ok) {
+        console.log("Deconectare reușită!");
+        window.location.href = '/login'; // ✅ Redirecționează la pagina de login
+      } else {
+        console.error("Eroare la deconectare");
+      }
+    } catch (error) {
+      console.error("Eroare la deconectare:", error);
+    }
   };
+
 
 
   const [items, setItems] = useState([]);
@@ -194,13 +206,14 @@ const AplicatiePage = () => {
   const [paroleItemsAll, setParoleItems] = useState([]);
 
   const fetchItems = async () => {
+
     try {
       const response = await fetch('http://localhost:9000/api/utilizator/itemi', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
-        }
+        },
+        credentials: "include" // ✅ Trimite cookie-ul cu tokenul
       });
 
       if (response.ok) {
@@ -347,10 +360,10 @@ const AplicatiePage = () => {
     }
   };
   useEffect(() => {
-    if (accessToken && savedKey) {
+    if (savedKey) {
       fetchItems();
     }
-  }, [accessToken]);
+  }, [savedKey]);
 
   return (
 
@@ -592,22 +605,22 @@ const AplicatiePage = () => {
         </button>
 
         {/* Paginile de lucru*/}
-        {sectiuneItemi === 'toate' && accessToken && savedKey && (<ItemsAllPage accessToken={accessToken} derivedKey={savedKey} items={items} fetchItems={fetchItems} />)}
-        {sectiuneItemi === 'parole' && accessToken && savedKey && <ParolePage accessToken={accessToken} derivedKey={savedKey} items={paroleItemsAll} fetchItems={fetchItems} />}
-        {sectiuneItemi === 'notite' && accessToken && <NotitePage accessToken={accessToken} />}
-        {sectiuneItemi === 'carduri' && accessToken && <CarduriBancarePage accessToken={accessToken} />}
-        {sectiuneItemi === 'adrese' && accessToken && <AdresePage accessToken={accessToken} />}
-        {sectiuneItemi === 'favorite' && accessToken && <FavoritePage accessToken={accessToken} derivedKey={savedKey} items={favoriteItemsAll} fetchItems={fetchItems} />}
-        {sectiuneItemi === 'grupuri' && accessToken && <GrupuriPage accessToken={accessToken} derivedKey={savedKey} />}
-        {sectiuneItemi === 'itemieliminati' && accessToken && <ItemiStersi accessToken={accessToken} derivedKey={savedKey} />}
+        {sectiuneItemi === 'toate' && savedKey && (<ItemsAllPage derivedKey={savedKey} items={items} fetchItems={fetchItems} />)}
+        {sectiuneItemi === 'parole' && savedKey && <ParolePage derivedKey={savedKey} items={paroleItemsAll} fetchItems={fetchItems} />}
+        {sectiuneItemi === 'notite' && <NotitePage />}
+        {sectiuneItemi === 'carduri' && <CarduriBancarePage />}
+        {sectiuneItemi === 'adrese' && <AdresePage />}
+        {sectiuneItemi === 'favorite' && <FavoritePage derivedKey={savedKey} items={favoriteItemsAll} fetchItems={fetchItems} />}
+        {sectiuneItemi === 'grupuri' && <GrupuriPage derivedKey={savedKey} />}
+        {sectiuneItemi === 'itemieliminati' && <ItemiStersi derivedKey={savedKey} />}
 
-        {sectiuneItemi === 'Ajutor' && accessToken && <HelpPage accessToken={accessToken} />}
-        {sectiuneItemi === "ProfilUtilizator" && <MyAccountPage setMeniuContulMeu={setMeniuContulMeu} accessToken={accessToken} derivedkey={savedKey} />}
+        {sectiuneItemi === 'Ajutor' && <HelpPage />}
+        {sectiuneItemi === "ProfilUtilizator" && <MyAccountPage setMeniuContulMeu={setMeniuContulMeu} derivedkey={savedKey} />}
 
         {/*Popup-ul de la creeaza item Nou */}
         {shoMeniuCreeazaItem && (<PopupNewItem setShoMeniuCreeazaItem={setMeniuCreeazaItem} setShowParolaPopup={setShowParolaPopup} setShowNotitaPopup={setShowNotitaPopup} />)}
         {/*Popup-ul de la Parola */}
-        {ShowParolaPopup && (<PopupParolaItem setShowParolaPopup={setShowParolaPopup} accessToken={accessToken} derivedKey={savedKey} fetchItems={fetchItems} />)}
+        {ShowParolaPopup && (<PopupParolaItem setShowParolaPopup={setShowParolaPopup} derivedKey={savedKey} fetchItems={fetchItems} />)}
         {ShowNotitaPopup && (<PopupNotitaItem setShowNotitaPopup={setShowNotitaPopup} />)}
       </div>
     </div >

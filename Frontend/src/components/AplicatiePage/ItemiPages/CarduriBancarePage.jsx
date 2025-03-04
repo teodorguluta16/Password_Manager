@@ -5,7 +5,7 @@ import ListIcon from "../../../assets/website/list.png"
 import GridIcon from "../../../assets/website/visualization.png"
 
 
-const CarduriBancarePage = ({ accessToken }) => {
+const CarduriBancarePage = ({ }) => {
     const [isDeschisMeniuSortare, setIsDropdownOpen] = useState(false);
     const [OptiuneSelectata, setSelectedOption] = useState("Sortează după: Nume");
 

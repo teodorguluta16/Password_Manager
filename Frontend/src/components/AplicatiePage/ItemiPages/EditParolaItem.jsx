@@ -12,7 +12,7 @@ const Istoric = [
     { operatie: "Actualizare Notita", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
 ]
 
-const EditParolaItem = ({ item, setGestioneazaParolaItem, accessToken }) => {
+const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
     const [itemNume, setItemNume] = useState(item.nume);
     const [userName, setItemUsername] = useState(item.username);
     const [parolaName, setItemParola] = useState(item.parola);
@@ -55,15 +55,14 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem, accessToken }) => {
         }
     }
     useEffect(() => {
-        console.log("tokenul:", accessToken);
         const fetchItems = async () => {
             try {
                 const response = await fetch('http://localhost:9000/api/getOwner', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`
-                    }
+                    },
+                    credentials: "include"
                 });
 
                 if (response.ok) {
@@ -82,7 +81,7 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem, accessToken }) => {
 
 
         fetchItems();
-    }, [accessToken]);
+    }, []);
 
     const salveazaToateModificarile = async () => {
         try {
@@ -95,7 +94,7 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem, accessToken }) => {
     }
     return (
         <>
-            <div className="px-12 mb-2 ">
+            <div className="px-6 mb-2 ">
                 {/* Bara de sus cu butoane și titlu centrat */}
                 <div className="flex items-center justify-between pb-3 mt-4">
                     {/* Butoanele pe stânga */}

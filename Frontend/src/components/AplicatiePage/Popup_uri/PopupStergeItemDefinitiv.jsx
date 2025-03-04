@@ -1,14 +1,15 @@
 import React from "react";
 
-const PopupStergeItemDefinitiv = ({ setShowPopupStergeItem, accessToken, item, items, fetchItems }) => {
+const PopupStergeItemDefinitiv = ({ setShowPopupStergeItem, item, items, fetchItems }) => {
 
     const handleStergeItem = async () => {
         setShowPopupStergeItem(false);
 
         try {
             const response = await fetch('http://localhost:9000/api/utilizator/stergeItemDefinitiv', {
-                method: 'DELETE', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}`, },
+                method: 'DELETE', headers: { 'Content-Type': 'application/json', },
                 body: JSON.stringify({ id_item: item.id_item }),
+                credentials: "include"
             });
 
             if (response.ok) {

@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } from "../../FunctiiDate/FunctiiDefinite"
 import { useKeySimetrica } from '../../FunctiiDate/ContextKeySimetrice'
 
-const PopupParolaItem = ({ setShowParolaPopup, accessToken, derivedKey, fetchItems }) => {
+const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
     const [numeItem, setNumeItem] = useState('');
     const [urlItem, setUrlItem] = useState('');
     const [usernameItem, setUserNamItem] = useState('');
@@ -93,9 +93,9 @@ const PopupParolaItem = ({ setShowParolaPopup, accessToken, derivedKey, fetchIte
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify(jsonItem),
+                    credentials: "include"
                 });
 
                 if (!response.ok) {
@@ -111,9 +111,9 @@ const PopupParolaItem = ({ setShowParolaPopup, accessToken, derivedKey, fetchIte
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify(jsonItemKey),
+                    credentials: "include"
                 });
 
                 if (!response.ok) {

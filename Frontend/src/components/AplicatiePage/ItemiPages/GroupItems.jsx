@@ -37,11 +37,36 @@ function decryptWithPrivateKey(encryptedMessage, privateKey) {
         throw new Error('Decriptare nereușită');
     }
 }
-const GroupItmes = ({ item, setGestioneazaGrupItem, accessToken, derivedKey }) => {
+const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
 
-    const tokendecodificat = parseJwt(accessToken);
-    let id_current_user = tokendecodificat.sub;
+
+
+    const [id_current_user, setIdUtilizator] = useState(null);
+
+    useEffect(() => {
+        const fetchUserId = async () => {
+            try {
+                const response = await fetch("http://localhost:9000/api/utilizator/getMyId", {
+                    method: "GET",
+                    credentials: "include",
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setIdUtilizator(data.Id);
+                } else {
+                    console.error("Eroare: Nu ești autentificat");
+                }
+            } catch (error) {
+                console.error("Eroare la obținerea idUtilizator:", error);
+            }
+        };
+
+        fetchUserId();
+    }, []);
+
     let idgrup = item.id_grup;
+
     const [key, setKey] = useState(derivedKey);
     useEffect(() => {
         if (derivedKey) {
@@ -77,7 +102,7 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, accessToken, derivedKey }) =
     const fetchGroupsItems = async () => {
         try {
             const response = await fetch('http://localhost:9000/api/grupuri/getGroupItemi', {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }, body: JSON.stringify({ idgrup })
+                method: 'POST', headers: { 'Content-Type': 'application/json', }, body: JSON.stringify({ idgrup }), credentials: "include"
             });
 
             if (response.ok) {
@@ -89,7 +114,7 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, accessToken, derivedKey }) =
                 let encryptedPrivateKeyUtilizator = null;
                 try {
                     const response = await fetch('http://localhost:9000/api/getUserEncryptedPrivateKey', {
-                        method: 'GET', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+                        method: 'GET', headers: { 'Content-Type': 'application/json' }, credentials: "include"
                     });
 
                     if (response.ok) {
@@ -120,7 +145,7 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, accessToken, derivedKey }) =
                 let encryptedgroupAesKey = null;
                 try {
                     const response = await fetch('http://localhost:9000/api/getGroupSimmetricEncryptedKey', {
-                        method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` }, body: JSON.stringify({ idgrup })
+                        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idgrup }), credentials: "include"
                     });
 
                     if (response.ok) {
@@ -372,15 +397,15 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, accessToken, derivedKey }) =
 
                 ) : (
                     id_current_user === gestioneazaItem.id_owner ? (
-                        <EditParolaGroupItem item={gestioneazaItem} setGestioneazaParolaItem={setGestioneazaItem} accessToken={accessToken} />
+                        <EditParolaGroupItem item={gestioneazaItem} setGestioneazaParolaItem={setGestioneazaItem} />
                     ) : (
-                        <VizualizareParolaGroupItem item={gestioneazaItem} setGestioneazaParolaItem={setGestioneazaItem} accessToken={accessToken} />
+                        <VizualizareParolaGroupItem item={gestioneazaItem} setGestioneazaParolaItem={setGestioneazaItem} />
                     )
                 )}
 
                 {/* Popup-ul care apare când este apăsat butonul */}
                 {popupVisible && (<PopupNewGrupItem setPopupVisible={setPopupVisible} setShowParolaPopup={setShowParolaPopup} />)}
-                {ShowParolaPopup && (<PopupNewGrupParola setShowParolaPopup={setShowParolaPopup} accessToken={accessToken} derivedKey={key} idgrup={idgrup} />)}
+                {ShowParolaPopup && (<PopupNewGrupParola setShowParolaPopup={setShowParolaPopup} derivedKey={key} idgrup={idgrup} />)}
             </div>
         </>
     );

@@ -10,7 +10,7 @@ import LaunchLogo from "../../../assets/website/launch.png"
 import FavoriteLogo from "../../../assets/website/favorite.png"
 import DeleteIcon from "../../../assets/website/delete.png"
 
-const GridAfisItems = ({ items, setGestioneazaItem, setStergeItem, setItemid, accessToken, fetchItems }) => {
+const GridAfisItems = ({ items, setGestioneazaItem, setStergeItem, setItemid, fetchItems }) => {
     const [favoriteItems, setFavoriteItems] = useState({});
 
     useEffect(() => {
@@ -34,9 +34,9 @@ const GridAfisItems = ({ items, setGestioneazaItem, setStergeItem, setItemid, ac
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
                 },
-                body: JSON.stringify({ id_item: itemId, isFavorite: newFavoriteState })
+                body: JSON.stringify({ id_item: itemId, isFavorite: newFavoriteState }),
+                credentials: "include"
             });
 
             const data = await response.json();
