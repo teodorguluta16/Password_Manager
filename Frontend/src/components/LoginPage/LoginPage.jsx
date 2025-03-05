@@ -146,6 +146,66 @@ const LoginPage = () => {
 
   };
 
+  const handleTest = async (e) => {
+    e.preventDefault();
+
+    // Comanda pentru a lansa PuTTY automat
+    const puttyCommand = `@echo off\nputty -ssh demo@test.rebex.net -pw password`;
+
+    // Crearea unui fișier Blob și descărcarea lui ca .bat
+    const blob = new Blob([puttyCommand], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "connect_putty.bat"; // Nume fișier
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  const handleTest2 = async (e) => {
+    e.preventDefault();
+
+    // Script AutoHotkey pentru conectare automată la PuTTY
+    const ahkScript = `
+    Run, putty -ssh demo@test.rebex.net -pw password
+    `;
+
+    // Crearea fișierului `.ahk` și descărcarea lui automat
+    const blob = new Blob([ahkScript], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "connect_putty.ahk"; // Nume fișier AHK
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleTest3 = async (e) => {
+    e.preventDefault();
+
+    // Script AutoHotkey pentru conectare automată la PuTTY
+    const ahkScript = `
+    Run, putty -ssh demo@test.rebex.net -pw password
+    Sleep, 10000 ; Așteaptă 10 secunde
+    Process, Close, putty.exe
+    ExitApp
+    `;
+
+    // Crearea fișierului `.ahk` în React
+    const ahkBlob = new Blob([ahkScript], { type: "text/plain" });
+    const ahkFileUrl = URL.createObjectURL(ahkBlob);
+
+    // Descărcare automată a fișierului `.ahk`
+    const ahkLink = document.createElement("a");
+    ahkLink.href = ahkFileUrl;
+    ahkLink.download = "connect_putty.ahk"; // Nume fișier
+    document.body.appendChild(ahkLink);
+    ahkLink.click();
+    document.body.removeChild(ahkLink);
+
+    setTimeout(() => {
+      window.location.href = "file:///C:/Users/Teo_G/Desktop/compile.bat";
+    }, 2000);
+  };
   return (
     <>
       <div className='flex flex-col lg:flex-row h-screen'>
@@ -166,10 +226,13 @@ const LoginPage = () => {
             <div className='mt-7 flex flex-col items-center px-6'>
               <button className='px-6 py-2 w-3/4 bg-green-600 text-white rounded hover:bg-yellow-500 mb-6' onClick={handleLogin}>Log In</button>
               {incorectCredentiale && (<h3 className="w-full text-red-600 text-semibold text-center"> Eroare ! Credentiale Incorecte !</h3>)}
-              <button type='button' onClick={toggleForm} className='mt-2 text-blue-500 hover:underline inline-block bg-transparent border-none p-0 cursor-pointe mb-3'>
+              <button type='button' onClick={toggleForm} className='mt-2 text-blue-500 hover:underline inline-block bg-transparent border-none p-0 cursor-pointer mb-3'>
                 Creează un cont nou
               </button>
               <button onClick={navigareForgetPassword} className='text-blue-500 hover:underline'>Ți-ai uitat parola?</button>
+              <button type='button' onClick={handleTest3} className='bg-pruple-400 hover:bg-purple-600 cursor-pointer'>
+                Test
+              </button>
             </div>
           </form>
         </div>
