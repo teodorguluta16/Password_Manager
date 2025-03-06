@@ -8,12 +8,11 @@ import NoteLogo from "../../../assets/website/note2.png";
 import Address from '../../../assets/website/address.png'
 
 
-const PopupNewItem = ({ setShoMeniuCreeazaItem, setShowParolaPopup, setShowNotitaPopup }) => {
+const PopupNewItem = ({ setShoMeniuCreeazaItem, setShowParolaPopup, setShowNotitaPopup, setShowCardPopup, setShowAddressPopup }) => {
 
   const handleCursorAfara = (e) => {
     if (e.target === e.currentTarget) {
       setShoMeniuCreeazaItem(false);
-
     }
   };
 
@@ -25,6 +24,14 @@ const PopupNewItem = ({ setShoMeniuCreeazaItem, setShowParolaPopup, setShowNotit
   const handleMeniuNotitaItem = () => {
     setShoMeniuCreeazaItem(false);
     setShowNotitaPopup(true);
+  }
+  const handleMeniuCardPopup = () => {
+    setShoMeniuCreeazaItem(false);
+    setShowCardPopup(true);
+  }
+  const handleMeniuAdresePopup = () => {
+    setShoMeniuCreeazaItem(false);
+    setShowAddressPopup(true);
   }
 
   return (
@@ -41,11 +48,11 @@ const PopupNewItem = ({ setShoMeniuCreeazaItem, setShowParolaPopup, setShowNotit
               <img src={NoteLogo} alt="Notiță Logo" className="w-10 h-10 mb-2" />
               <span>Notiță</span>
             </li>
-            <li className="hover:bg-green-500 cursor-pointer p-4 hover:rounded-lg flex flex-col items-center">
+            <li onClick={handleMeniuCardPopup} className="hover:bg-green-500 cursor-pointer p-4 hover:rounded-lg flex flex-col items-center">
               <img src={CardLogo} alt="Card Logo" className="w-10 h-10 mb-2" />
               <span>Card</span>
             </li>
-            <li className="hover:bg-green-500 cursor-pointer p-4 hover:rounded-lg flex flex-col items-center">
+            <li onClick={handleMeniuAdresePopup} className="hover:bg-green-500 cursor-pointer p-4 hover:rounded-lg flex flex-col items-center">
               <img src={Address} alt="Grup Logo" className="w-10 h-10 mb-2" />
               <span>Adresă</span>
             </li>

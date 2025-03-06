@@ -4,13 +4,21 @@ import { useNavigate } from 'react-router-dom';
 
 import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } from "../../FunctiiDate/FunctiiDefinite"
 
-const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
-    const [numeItem, setNumeItem] = useState('');
-    const [urlItem, setUrlItem] = useState('');
-    const [usernameItem, setUserNamItem] = useState('');
-    const [parolaItem, setParolaItem] = useState('');
-    const [comentariuItem, setComentariuItem] = useState('');
+const PopupNewAdrese = ({ setShowAddressPopup, derivedKey, fetchItems }) => {
     const [key, setKey] = useState(derivedKey);
+
+    const [numeDestinatar, setNumeDestinatar] = useState("");
+    const [adresa, setAdresa] = useState("");
+    const [oras, setOras] = useState("");
+    const [codPostal, setCodPostal] = useState("");
+    const [tara, setTara] = useState("");
+    const [comentariuAdresa, setComentariuAdresa] = useState("");
+
+    const handleAdaugaAdresa = () => {
+        // Funcționalitate pentru salvarea adresei
+        console.log({ numeDestinatar, adresa, oras, codPostal, tara, comentariuAdresa });
+        setShowAddressPopup(false);
+    }
 
     useEffect(() => {
         if (derivedKey) {
@@ -18,6 +26,12 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
             console.log("Cheia setată:", derivedKey);
         }
     }, [derivedKey]);
+
+    const handleAdauga = () => {
+        // Funcționalitate pentru salvarea cardului
+        console.log({ numeBanca, numarCard, dataExpirare, cvvCard, comentariuCard });
+        setShowCardPopup(false);
+    }
 
     const handleAdaugaItem = async () => {
         try {
@@ -135,44 +149,43 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
         <>
             <div className="fixed inset-0 bg-opacity-50 bg-gray-400 flex items-center justify-center">
                 <div className="bg-white rounded-lg shadow-lg max-w-lg w-4/5 md:w-1/2 h-3/4 md:h-5/6 p-6 flex flex-col items-center justify-center relative">
-                    <button className="absolute right-4 top-2 text-4xl cursor-pointer hover:text-red-300" onClick={() => setShowParolaPopup(false)}>&times;</button>
-                    <h3 className="text-xl font-semibold text-center mb-6 relative">Parola Nouă</h3>
+                    <button className="absolute right-4 top-2 text-4xl cursor-pointer hover:text-red-300" onClick={() => setShowAddressPopup(false)}>&times;</button>
+                    <h3 className="text-xl font-semibold text-center mb-6 relative">Adaugă Adresă</h3>
                     <form className="flex flex-col items-left w-full h-screen gap-2 flex-grow overflow-y-auto">
-                        <div className="flex flex-col md:flex-row ">
-                            <div className="block">
-                                <label className="text-sm md:text-md font-medium">Nume Platforma</label>
-                                <input type="name" value={numeItem} onChange={(e) => { setNumeItem(e.target.value) }} className="mt-2 border py-1 px-2 border-gray-600 rounded-md md:w-5/6 w-full"></input>
 
+                        <label className="text-sm md:text-md font-medium">Nume Destinatar</label>
+                        <input type="text" value={numeDestinatar} onChange={(e) => setNumeDestinatar(e.target.value)} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full" placeholder="Ex: Ion Popescu" />
+
+                        <label className="text-sm md:text-md font-medium">Adresă</label>
+                        <input type="text" value={adresa} onChange={(e) => setAdresa(e.target.value)} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full" placeholder="Strada, număr, bloc, apartament" />
+
+                        <div className="flex flex-col md:flex-row gap-4">
+                            <div className="w-1/2">
+                                <label className="text-sm md:text-md font-medium">Oraș</label>
+                                <input type="text" value={oras} onChange={(e) => setOras(e.target.value)} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full" placeholder="Oraș" />
                             </div>
-                            <div className="block">
-                                <label className="text-sm md:text-md font-medium">URL</label>
-                                <input type="url" value={urlItem} onChange={(e) => { setUrlItem(e.target.value) }} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full"></input>
-
+                            <div className="w-1/2">
+                                <label className="text-sm md:text-md font-medium">Cod Poștal</label>
+                                <input type="text" value={codPostal} onChange={(e) => setCodPostal(e.target.value)} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full" placeholder="Cod Poștal" maxLength="10" />
                             </div>
                         </div>
 
+                        <label className="text-sm md:text-md font-medium">Țară</label>
+                        <input type="text" value={tara} onChange={(e) => setTara(e.target.value)} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full" placeholder="Țara" />
 
-                        <label className="text-sm md:text-md font-medium">Username</label>
-                        <input type="name" value={usernameItem} onChange={(e) => { setUserNamItem(e.target.value) }} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full" placeholder="Username sau E-mail"></input>
-
-
-                        <label className="text-sm md:text-md font-medium">Parola</label>
-                        <input type="password" value={parolaItem} onChange={(e) => { setParolaItem(e.target.value) }} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full"></input>
-                        <button>---</button>
-
-                        <label className="text-sm md:text-md font-medium">Adauga un comentariu</label>
-                        <textarea type="note" value={comentariuItem} onChange={(e) => { setComentariuItem(e.target.value) }} className="border mt-2 py-1 px-2 border-gray-600 rounded-md w-full min-h-32 resize-none"></textarea>
-
+                        <label className="text-sm md:text-md font-medium">Adaugă un comentariu</label>
+                        <textarea value={comentariuAdresa} onChange={(e) => setComentariuAdresa(e.target.value)} className="border mt-2 py-1 px-2 border-gray-600 rounded-md w-full min-h-32 resize-none" placeholder="Note opționale"></textarea>
                     </form>
-                    <div className="flex justify-center items-center">
-                        <button onClick={handleAdaugaItem} className="bg-green-600 w-full h-1/2 md:w-full md:h-2/3 items-center justify-center rounded-lg mt-4 py-2 px-4 hover:bg-yellow-500 text-white transition-all duration-200 mb-4">
-                            Adaugă Item
+
+                    <div className="flex justify-center items-center w-full">
+                        <button onClick={handleAdaugaAdresa} className="bg-green-600 w-full py-2 px-4 rounded-lg mt-4 hover:bg-yellow-500 text-white transition-all duration-200 mb-4">
+                            Adaugă Adresă
                         </button>
                     </div>
-                </div >
-            </div >
+                </div>
+            </div>
         </>
     );
 };
 
-export default PopupParolaItem;
+export default PopupNewAdrese;

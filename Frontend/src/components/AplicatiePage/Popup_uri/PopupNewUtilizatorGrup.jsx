@@ -187,7 +187,7 @@ const PopupNewUtilizatorGrup = ({ setPopupUtilizatorNou, idgrup, derivedKey }) =
             if (response.ok) {
                 const data2 = await response.json();
                 console.log(data2);
-                //publicKeyUtilizator = data2.PublicKey;
+                setPopupUtilizatorNou(false);
             } else {
                 const errorData = await response.json(); console.log('Eroare:', errorData.message);
             }
@@ -209,7 +209,7 @@ const PopupNewUtilizatorGrup = ({ setPopupUtilizatorNou, idgrup, derivedKey }) =
                     </form>
                     <div className="flex justify-center items-center">
                         <button onClick={handleAdaugaMembru} className="bg-green-600 w-full h-1/2 md:w-full md:h-2/3 items-center justify-center rounded-lg mt-4 py-2 px-4 hover:bg-yellow-500 text-white transition-all duration-200 mb-4">
-                            Creează
+                            Adaugă
                         </button>
                     </div>
                 </div >

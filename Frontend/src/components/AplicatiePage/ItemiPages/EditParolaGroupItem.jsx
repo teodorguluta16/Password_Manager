@@ -123,7 +123,7 @@ const EditParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
 
                 <div className="custom-height4 overflow-y-auto">
                     <div className="flex flex-col gap-12 lg:flex-row mt-2">
-                        <div className="grid sm:grid-cols-2 grid-cols-1 gap-6">
+                        <div className="grid sm:grid-cols-2 lg:gap-x-36 grid-cols-1 gap-6">
                             <div className="w-full flex flex-col space-y-6">
                                 {/* Usernameul de la parola*/}
                                 <div className="flex items-center mt-6 border-b border-gray-300 pb-2 w-full max-w-[400px]">

@@ -14,6 +14,7 @@ import DeletedIcon from "../../assets/website/garbage.png"
 import AddIcon from "../../assets/website/add.png"
 import FavoriteIcon from '../../assets/website/star.png'
 import Address from '../../assets/website/address.png'
+import IDCard from "../../assets/website/id-card.png"
 import '../../App.css';
 
 import ItemsAllPage from './ItemiPages/ItemsAllPage';
@@ -29,6 +30,7 @@ import AdresePage from './ItemiPages/AdresePage';
 import PopupNewItem from './Popup_uri/PopupNewItem';
 import PopupParolaItem from "./Popup_uri/PopupParolaItem";
 import PopupNotitaItem from "./Popup_uri/PopupNotitaItem";
+import PopupCardItem from "./Popup_uri/PopupNewCreditCard";
 import ItemiStersi from './ItemiPages/ItemiStersi';
 
 import { getKeyFromIndexedDB } from "../FunctiiDate/ContextKeySimetrice";
@@ -177,6 +179,7 @@ const AplicatiePage = () => {
   const [shoMeniuCreeazaItem, setMeniuCreeazaItem] = useState(false);
   const [ShowParolaPopup, setShowParolaPopup] = useState(false);
   const [ShowNotitaPopup, setShowNotitaPopup] = useState(false);
+  const [ShowCardPopup, setShowCardPopup] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -443,6 +446,11 @@ const AplicatiePage = () => {
               <img src={Address} alt="Grupuri Icon" className="w-6 h-6 mr-2 filter invert"></img>
               <span>Adrese</span>
             </li>
+            <li onClick={() => selecteazaSectiune('carteidentitate')} className={`mb-2 hover:bg-green-700 hover:rounded hover:px-4 cursor-pointer 
+              flex items-center transition-all duration-300 ${sectiuneItemi == "carteidentitate" ? 'bg-green-700 rounded px-4' : ''}`}>
+              <img src={IDCard} alt="Identitate Icon" className="w-6 h-6 mr-2 filter invert"></img>
+              <span>Identitate</span>
+            </li>
 
             <hr className="border-t border-green-600 my-2" />
 
@@ -618,10 +626,11 @@ const AplicatiePage = () => {
         {sectiuneItemi === "ProfilUtilizator" && <MyAccountPage setMeniuContulMeu={setMeniuContulMeu} derivedkey={savedKey} />}
 
         {/*Popup-ul de la creeaza item Nou */}
-        {shoMeniuCreeazaItem && (<PopupNewItem setShoMeniuCreeazaItem={setMeniuCreeazaItem} setShowParolaPopup={setShowParolaPopup} setShowNotitaPopup={setShowNotitaPopup} />)}
+        {shoMeniuCreeazaItem && (<PopupNewItem setShoMeniuCreeazaItem={setMeniuCreeazaItem} setShowParolaPopup={setShowParolaPopup} setShowNotitaPopup={setShowNotitaPopup} setShowCardPopup={setShowCardPopup} />)}
         {/*Popup-ul de la Parola */}
         {ShowParolaPopup && (<PopupParolaItem setShowParolaPopup={setShowParolaPopup} derivedKey={savedKey} fetchItems={fetchItems} />)}
         {ShowNotitaPopup && (<PopupNotitaItem setShowNotitaPopup={setShowNotitaPopup} />)}
+        {ShowCardPopup && (<PopupCardItem setShowCardPopup={setShowCardPopup} derivedKey={savedKey} fetchItems={fetchItems} />)}
       </div>
     </div >
   );
