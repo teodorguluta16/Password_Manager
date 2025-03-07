@@ -194,6 +194,7 @@ const AplicatiePage = () => {
   const [items, setItems] = useState([]);
   const [favoriteItemsAll, setFavoriteItems] = useState([]);
   const [paroleItemsAll, setParoleItems] = useState([]);
+  const [RemoteItemsAll, setRemoteItmes] = useState([]);
 
   const fetchItems = async () => {
 
@@ -614,7 +615,7 @@ const AplicatiePage = () => {
         {sectiuneItemi === 'favorite' && <FavoritePage derivedKey={savedKey} items={favoriteItemsAll} fetchItems={fetchItems} />}
         {sectiuneItemi === 'grupuri' && <GrupuriPage derivedKey={savedKey} />}
         {sectiuneItemi === 'itemieliminati' && <ItemiStersi derivedKey={savedKey} />}
-        {sectiuneItemi === 'remoteworking' && <RemoteWorkingPage derivedKey={savedKey} />}
+        {sectiuneItemi === 'remoteworking' && <RemoteWorkingPage derivedKey={savedKey} items={RemoteItemsAll} fetchItems={fetchItems} />}
 
         {sectiuneItemi === 'Ajutor' && <HelpPage />}
         {sectiuneItemi === "ProfilUtilizator" && <MyAccountPage setMeniuContulMeu={setMeniuContulMeu} derivedkey={savedKey} />}
