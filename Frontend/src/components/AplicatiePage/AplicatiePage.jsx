@@ -15,6 +15,7 @@ import AddIcon from "../../assets/website/add.png"
 import FavoriteIcon from '../../assets/website/star.png'
 import Address from '../../assets/website/address.png'
 import IDCard from "../../assets/website/id-card.png"
+import RemoteWorking from "../../assets/website/remote-working.png"
 import '../../App.css';
 
 import ItemsAllPage from './ItemiPages/ItemsAllPage';
@@ -31,7 +32,9 @@ import PopupNewItem from './Popup_uri/PopupNewItem';
 import PopupParolaItem from "./Popup_uri/PopupParolaItem";
 import PopupNotitaItem from "./Popup_uri/PopupNotitaItem";
 import PopupCardItem from "./Popup_uri/PopupNewCreditCard";
+import PopupNewAdrese from "./Popup_uri/PopupNewAdrese";
 import ItemiStersi from './ItemiPages/ItemiStersi';
+import RemoteWorkingPage from './ItemiPages/RemoteWorkingPage';
 
 import { getKeyFromIndexedDB } from "../FunctiiDate/ContextKeySimetrice";
 
@@ -43,23 +46,6 @@ function hexToString(hex) {
     str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
   }
   return str;
-}
-
-function parseJwt(token) {
-  if (!token) {
-    console.error("Token-ul nu este disponibil.");
-    return null;
-  }
-
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(escape(window.atob(base64)));
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error("Eroare la decodificarea token-ului:", error);
-    return null;
-  }
 }
 const AplicatiePage = () => {
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 640);
@@ -180,6 +166,7 @@ const AplicatiePage = () => {
   const [ShowParolaPopup, setShowParolaPopup] = useState(false);
   const [ShowNotitaPopup, setShowNotitaPopup] = useState(false);
   const [ShowCardPopup, setShowCardPopup] = useState(false);
+  const [ShowAdresaPopup, setShowAddressPopup] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -451,6 +438,12 @@ const AplicatiePage = () => {
               <img src={IDCard} alt="Identitate Icon" className="w-6 h-6 mr-2 filter invert"></img>
               <span>Identitate</span>
             </li>
+            <li onClick={() => selecteazaSectiune('remoteworking')} className={`mb-2 hover:bg-green-700 hover:rounded hover:px-4 cursor-pointer 
+              flex items-center transition-all duration-300 ${sectiuneItemi == "remoteworking" ? 'bg-green-700 rounded px-4' : ''}`}>
+              <img src={RemoteWorking} alt="Identitate Icon" className="w-6 h-6 mr-2 filter invert"></img>
+              <span>Remote Working</span>
+            </li>
+
 
             <hr className="border-t border-green-600 my-2" />
 
@@ -621,16 +614,18 @@ const AplicatiePage = () => {
         {sectiuneItemi === 'favorite' && <FavoritePage derivedKey={savedKey} items={favoriteItemsAll} fetchItems={fetchItems} />}
         {sectiuneItemi === 'grupuri' && <GrupuriPage derivedKey={savedKey} />}
         {sectiuneItemi === 'itemieliminati' && <ItemiStersi derivedKey={savedKey} />}
+        {sectiuneItemi === 'remoteworking' && <RemoteWorkingPage derivedKey={savedKey} />}
 
         {sectiuneItemi === 'Ajutor' && <HelpPage />}
         {sectiuneItemi === "ProfilUtilizator" && <MyAccountPage setMeniuContulMeu={setMeniuContulMeu} derivedkey={savedKey} />}
 
         {/*Popup-ul de la creeaza item Nou */}
-        {shoMeniuCreeazaItem && (<PopupNewItem setShoMeniuCreeazaItem={setMeniuCreeazaItem} setShowParolaPopup={setShowParolaPopup} setShowNotitaPopup={setShowNotitaPopup} setShowCardPopup={setShowCardPopup} />)}
+        {shoMeniuCreeazaItem && (<PopupNewItem setShoMeniuCreeazaItem={setMeniuCreeazaItem} setShowParolaPopup={setShowParolaPopup} setShowNotitaPopup={setShowNotitaPopup} setShowCardPopup={setShowCardPopup} setShowAddressPopup={setShowAddressPopup} />)}
         {/*Popup-ul de la Parola */}
         {ShowParolaPopup && (<PopupParolaItem setShowParolaPopup={setShowParolaPopup} derivedKey={savedKey} fetchItems={fetchItems} />)}
         {ShowNotitaPopup && (<PopupNotitaItem setShowNotitaPopup={setShowNotitaPopup} />)}
         {ShowCardPopup && (<PopupCardItem setShowCardPopup={setShowCardPopup} derivedKey={savedKey} fetchItems={fetchItems} />)}
+        {ShowAdresaPopup && (<PopupNewAdrese setShowAddressPopup={setShowAddressPopup} derivedKey={savedKey} fetchItems={fetchItems} />)}
       </div>
     </div >
   );
