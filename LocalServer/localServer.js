@@ -1,5 +1,5 @@
 const express = require("express");
-const { spawn } = require("child_process");
+const { spawn, exec } = require("child_process");
 const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
@@ -68,57 +68,74 @@ app.get("/check-ssh-key", (req, res) => {
 });
 
 app.post("/launch-ssh", (req, res) => {
-    const { host, terminal } = req.body;
+    const { host, user, ppkKey, terminal } = req.body;
 
-    if (!host || !terminal) {
+    if (!host || !user || !terminal) {
+        console.log("eroare");
         return res.status(400).json({ error: "Missing SSH credentials or terminal type" });
     }
 
-    // 📌 Căutăm conexiunea salvată pentru acest host
-    const savedConnections = getSavedConnections();
-    const connection = savedConnections.find(conn => conn.host === host);
+    let sshKeyPath;
+    // 📌 Dacă utilizatorul a trimis cheia PPK, creăm un fișier temporar pentru ea
+    if (ppkKey) {
+        console.log(ppkKey);
+        sshKeyPath = path.join(__dirname, `temp_key_${Date.now()}.ppk`);
+        fs.writeFileSync(sshKeyPath, ppkKey, "utf8");
+    } else {
+        // 📌 Căutăm conexiunea salvată
+        const savedConnections = getSavedConnections();
+        const connection = savedConnections.find(conn => conn.host === host);
 
-    if (!connection) {
-        return res.status(400).json({ error: "No saved connection for this host!" });
-    }
+        if (!connection) {
+            return res.status(400).json({ error: "No saved connection for this host!" });
+        }
 
-    const { user, sshKeyPath } = connection;
+        sshKeyPath = connection.sshKeyPath;
 
-    if (!fs.existsSync(sshKeyPath)) {
-        return res.status(400).json({ error: "SSH key file not found!" });
+        if (!fs.existsSync(sshKeyPath)) {
+            return res.status(400).json({ error: "SSH key file not found!" });
+        }
     }
 
     let command = null;
 
     if (terminal === "putty") {
         command = `"C:\\Program Files\\PuTTY\\putty.exe" -ssh ${user}@${host} -i "${sshKeyPath}"`;
-
-
-    }
-    else if (terminal === "mremoteng") {
-        const connectionId = `{${Date.now()}}`;
-
-        const xmlContent = `<?xml version="1.0"?>
-        <Connections>
-            <Connection>
-                <Id>${connectionId}</Id>
-                <Name>${host}</Name>
-                <Protocol>SSH</Protocol>
-                <Hostname>${host}</Hostname>
-                <Port>22</Port>
-                <Username>${user}</Username>
-                <SecureShellKeyFile>${sshKeyPath}</SecureShellKeyFile>
-            </Connection>
-        </Connections>`;
-
-        const xmlFilePath = "C:\\Users\\Public\\mRemoteNG_Session.xml";
-        fs.writeFileSync(xmlFilePath, xmlContent, "utf8");
-
-        command = `"C:\\Program Files (x86)\\mRemoteNG\\mRemoteNG.exe" /openfile:"${xmlFilePath}" /id:${connectionId}`;
     }
     else if (terminal === "windows-terminal") {
-        command = `wt new-tab ssh -i "${sshKeyPath}" ${user}@${host}`;
+        const openSSHKeyPath = sshKeyPath.replace(".ppk", "_openssh");
+
+        // Convertim cheia PPK în OpenSSH
+        const puttygenCommand = `"C:\\Program Files\\PuTTY\\puttygen.exe" "${sshKeyPath}" -O private-openssh -o "${openSSHKeyPath}"`;
+
+        console.log("🔄 Converting PPK to OpenSSH format...");
+        exec(puttygenCommand, (error, stdout, stderr) => {
+            if (error) {
+                console.error("❌ Error converting PPK to OpenSSH:", stderr);
+                return res.status(500).json({ error: "Failed to convert PPK to OpenSSH" });
+            }
+
+            console.log("✅ PPK converted successfully to OpenSSH.");
+            command = `wt new-tab ssh -i "${openSSHKeyPath}" ${user}@${host}`;
+
+            console.log("🟢 Running command:", command);
+            const child = spawn(command, { shell: true });
+
+            child.on("error", (err) => {
+                console.error("❌ Failed to start terminal:", err);
+                return res.status(500).json({ error: "Failed to launch terminal" });
+            });
+
+            res.json({ message: `${terminal} launched successfully` });
+
+            // 🔄 Ștergem cheia temporară după 30 secunde
+            setTimeout(() => {
+                fs.unlinkSync(openSSHKeyPath);
+                console.log("🗑️ Temporary OpenSSH key deleted:", openSSHKeyPath);
+            }, 30000);
+        });
     }
+
 
     if (command) {
         console.log("🟢 Running command:", command);
@@ -130,11 +147,19 @@ app.post("/launch-ssh", (req, res) => {
         });
 
         res.json({ message: `${terminal} launched successfully` });
+
+        // 📌 Ștergem cheia PPK temporară după 30 secunde pentru securitate
+        if (ppkKey) {
+            setTimeout(() => {
+                fs.unlinkSync(sshKeyPath);
+                console.log("🗑️ Temporary PPK file deleted:", sshKeyPath);
+            }, 30000);
+        }
     } else {
         console.log("⚠️ `command` este null, deci `spawn()` nu va fi executat.");
+        res.status(400).json({ error: "Invalid terminal type" });
     }
 });
-
 
 app.listen(PORT, () => {
     console.log(`Local server running at http://localhost:${PORT}`);

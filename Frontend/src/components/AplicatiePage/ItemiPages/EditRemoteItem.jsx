@@ -12,13 +12,14 @@ const Istoric = [
     { operatie: "Actualizare Notita", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
 ]
 
-const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
+const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
     const [itemNume, setItemNume] = useState(item.nume);
     const [userName, setItemUsername] = useState(item.username);
     const [parolaName, setItemParola] = useState(item.parola);
-    const [urlNume, setItemUrl] = useState(item.url);
-    const [note, setItemNote] = useState(item.comentariu);
-    const [deEditat, setdeEditat] = useState({ nume: false, username: false, parola: false, url: false, note: false });
+    const [hostNume, setItemHost] = useState(item.host);
+    console.log(hostNume);
+    const [ppkKey, setPPKkey] = useState(item.ppkKey);
+    const [deEditat, setdeEditat] = useState({ nume: false, username: false, parola: false, url: false, ppkKey: false });
 
     const [esteCopiat, setEsteCopiat] = useState(false);
     const copieContinut = (text) => {
@@ -49,11 +50,6 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
     const [ownerNume, setOwnerNume] = useState("");
     const [ownerPrenume, setOwnerPrenume] = useState("");
 
-    const accesUrl = (text) => {
-        if (text) {
-            window.open(text, '_blank', 'noopener,noreferrer');
-        }
-    }
     useEffect(() => {
         const fetchItems = async () => {
             try {
@@ -85,13 +81,66 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
 
     const salveazaToateModificarile = async () => {
         try {
-            const requestData = { uidItem, itemNume, userName, parolaName, urlNume, note };
+            const requestData = { uidItem, itemNume, userName, parolaName, hostNume, ppkKey };
             // ca sa le modific trebuie iarasi sa le criptez la loc si sa le trimit la fel ca la aduagare item
 
         } catch (error) {
             console.error('Error during the request:', error);
         }
     }
+
+    const [isLocalServerRunning, setIsLocalServerRunning] = useState(false);
+    const [selectedTerminal, setSelectedTerminal] = useState("putty"); // Default: PuTTY
+
+    // 🔹 State pentru gestionarea conexiunilor salvate
+    const [savedConnections, setSavedConnections] = useState([]); // Lista de conexiuni SSH salvate
+    const [selectedHost, setSelectedHost] = useState(""); // IP/host selectat
+    const [username, setUsername] = useState(""); // Username completat automat
+    const [password, setPassword] = useState(""); // Parolă completată automat
+
+    // 🔹 Verifică dacă serverul local rulează
+    const checkLocalServer = async () => {
+        try {
+            const response = await fetch("http://localhost:3001/ping");
+            return response.ok;
+        } catch (error) {
+            return false;
+        }
+    };
+
+    // 🔹 Încarcă lista de conexiuni salvate la inițializarea componentei
+    useEffect(() => {
+        checkLocalServer().then(setIsLocalServerRunning);
+
+        fetch("http://localhost:3001/saved-connections")
+            .then((res) => res.json())
+            .then((data) => setSavedConnections(data));
+    }, []);
+
+    // 🔹 Funcția pentru lansarea SSH cu terminalul selectat
+    const launchSSH = async () => {
+
+        const requestBody = {
+            host: hostNume,
+            user: userName,
+            ppkKey: ppkKey,
+            terminal: selectedTerminal,
+        };
+
+        try {
+            const response = await fetch("http://localhost:3001/launch-ssh", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestBody),
+            });
+
+            const data = await response.json();
+            console.log(data.message);
+        } catch (error) {
+            console.error("Error launching SSH:", error);
+        }
+    };
+
     return (
         <>
             <div className="px-6 mb-2 ">
@@ -99,7 +148,7 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                 <div className="flex items-center justify-between pb-3 mt-4">
                     {/* Butoanele pe stânga */}
                     <div className="flex items-center space-x-4">
-                        <button onClick={() => setGestioneazaParolaItem(null)} className="py-1 px-1 cursor-pointer rounded-lg">
+                        <button onClick={() => setGestioneazaRemoteItem(null)} className="py-1 px-1 cursor-pointer rounded-lg">
                             <FaArrowLeft className="w-6 h-6 hover:text-blue-600 transition-all duration-300 ease-in-out" />
                         </button>
                         <button onClick={salveazaToateModificarile} className="py-1 px-1 cursor-pointer rounded-lg">
@@ -119,11 +168,53 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                         )}
                     </div>
                 </div>
+                <div>
+                    {/* Selectare terminal */}
+                    <div className="text-left mt-4">
+                        <select
+                            className="border p-2 rounded"
+                            value={selectedTerminal}
+                            onChange={(e) => setSelectedTerminal(e.target.value)}
+                        >
+                            <option value="putty">PuTTY</option>
+                            <option value="windows-terminal">Windows Terminal</option>
+                        </select>
 
+                        {/* Buton de lansare */}
+                        {isLocalServerRunning ? (
+                            <button onClick={launchSSH} className="bg-green-500 text-white px-4 py-2 rounded ml-2">
+                                Launch SSH
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => window.location.href = "https://your-server.com/LocalSSHServerInstaller.exe"}
+                                className="bg-blue-500 text-white px-4 py-2 rounded ml-2"
+                            >
+                                Install SSH Launcher
+                            </button>
+                        )}
+                    </div>
+
+                </div>
                 <div className="custom-height4 overflow-y-auto">
                     <div className="flex flex-col  lg:flex-row mt-2">
                         <div className="grid sm:grid-cols-2 lg:gap-x-36 grid-cols-1 gap-6">
                             <div className="w-full flex flex-col space-y-6">
+                                {/*Campul de host */}
+                                <div className="flex itmes-center mt-6">
+                                    <div className="flex flex-col lg:flex-row">
+                                        <h3 className="font-medium">Hostname/IP :</h3>
+                                        {deEditat.host ? (
+                                            <input type="text" value={hostNume} onChange={(e) => setItemHost(e.target.value)} className="lg:ml-3 border boder-gray-300 rounded-lg py-1 "></input>
+                                        ) : (
+                                            <span className="lg:ml-3 text-blue-500 cursor-pointer hover:underline">{hostNume}</span>
+                                        )}
+                                        <button onClick={() => setdeEditat({ ...deEditat, host: !deEditat.host })} className="lg:ml-3 text-gray-500 hover:text-blue-500 transition">
+                                            {deEditat.host ? <FaSave /> : <FaEdit />}
+                                        </button>
+                                    </div>
+
+                                </div>
                                 {/* Usernameul de la parola*/}
                                 <div className="flex items-center mt-6 border-b border-gray-300 pb-2 w-full max-w-[400px]">
                                     <p className="font-medium text-gray-700">Username: </p>
@@ -173,44 +264,43 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                                         {deEditat.parola ? <FaSave /> : <FaEdit />}
                                     </button>
                                 </div>
-                                {/*Note/Mentiuni*/}
-                                <div className="mt-6">
-                                    <h3 className="font-medium">Note/Mentiuni:</h3>
-                                    {deEditat.note ? (
-                                        <textarea value={note} onChange={(e) => setItemNote(e.target.value)} className=" h-auto min-h-12 max-h-48 mt-3 w-full border border-gray-400 border-2 rounded-lg mr-2"></textarea>
-                                    ) : (
-                                        <p className="mt-2 text rounded-lg w-full h-auto">{note}</p>
-                                    )}
-                                    <button onClick={() => setdeEditat({ ...deEditat, note: !deEditat.note })} className="text-gray-500 hover:text-blue-500 transition">
-                                        {deEditat.note ? <FaSave /> : <FaEdit />}
-                                    </button>
-                                </div>
-                            </div>
-                            <div className="space-y-4">
-                                {/*Campul de URL */}
-                                <div className="flex itmes-center mt-6">
-                                    <div className="flex flex-col lg:flex-row lg:ml-4">
-                                        <h3 className="font-medium">Adresa URL:</h3>
-                                        {deEditat.url ? (
-                                            <input type="text" value={urlNume} onChange={(e) => setItemUrl(e.target.value)} className="lg:ml-3 border boder-gray-300 rounded-lg py-1 "></input>
-                                        ) : (
-                                            <span onClick={() => accesUrl(urlNume)} className="lg:ml-3 text-blue-500 cursor-pointer hover:underline">{urlNume}</span>
-                                        )}
-                                        <button onClick={() => setdeEditat({ ...deEditat, url: !deEditat.url })} className="lg:ml-3 text-gray-500 hover:text-blue-500 transition">
-                                            {deEditat.url ? <FaSave /> : <FaEdit />}
-                                        </button>
-                                    </div>
+                                {/*Istoric */}
+                                <div className='w-full  custom_top_istoric mt-5'>
+                                    <div className="flex flex-col space-y-1 ">
+                                        <h3 className="font-medium">Istoric Modificari:</h3>
+                                        <h2 className="text-gray-700 cursor-pointer hover:underline text-gray-400" onClick={() => setAfisIstoric(!afisIstoric)}>{afisIstoric ? 'Ascunde' : 'Afiseaza'}</h2>
+                                        {afisIstoric && (<div>{Istoric.length > 0 ? (<div className="h-48 w-full overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
+                                            {Istoric.map((it, index) => (
+                                                <div key={index} className="py-1 mx-2">
+                                                    <span className="font-semibold">{it.operatie}</span>
+                                                    <div className="flex space-x-2">
+                                                        <span className="text-sm">{it.data}</span>
+                                                        <span className="text-sm">{it.time}</span>
+                                                        <span className="text-sm italic text-gray-600">by {it.modifiedby}</span>
+                                                    </div>
 
+                                                    <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        ) : (<p className="text-gray-600">Istoric Gol</p>
+                                        )}</div>)}
+
+
+                                    </div>
                                 </div>
+
+                            </div>
+                            <div className="space-y-4 lg:mt-4">
                                 {/* UID-ul itemului */}
-                                <div className="flex flex-col lg:flex-row lg:ml-4">
+                                <div className="flex flex-col lg:flex-row">
                                     <h3 className="font-medium">Record ID:</h3>
                                     <span className="lg:ml-3 text-blue-500">{uidItem}</span>
                                 </div>
                                 {/* Data creării și cine a creat */}
-                                <div className="flex flex-col lg:flex-row lg:ml-4">
+                                <div className="flex flex-col lg:flex-row">
                                     <h3 className="font-medium">Creat:</h3>
-                                    <div className="">
+                                    <div className="ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{createdDate}</span>
                                             {createdBy && <span className="text-gray-500 italic">by ionut@@@ {createdBy}</span>}
@@ -218,50 +308,30 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                                     </div>
                                 </div>
                                 {/* Proprietar */}
-                                <div className="flex flex-col lg:flex-row lg:ml-4">
+                                <div className="flex flex-col lg:flex-row">
                                     <h3 className="font-medium">Proprietar:</h3>
-                                    <span className="text-gray-700">{`${ownerNume} ${ownerPrenume}`}</span>
+                                    <span className="text-gray-700 ml-2">{`${ownerNume} ${ownerPrenume}`}</span>
                                 </div>
                                 {/* Data modificării și cine a modificat */}
-                                <div className="flex flex-col lg:flex-row lg:ml-4">
+                                <div className="flex flex-col lg:flex-row">
                                     <h3 className="font-medium">Modificat:</h3>
-                                    <div className="">
+                                    <div className="ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{modifiedDate}</span>
                                             {modifiedBy && <span className="text-gray-500 italic">by ionut@ionut {modifiedBy}</span>}
                                         </div>
                                     </div>
                                 </div>
+                                {/*Cheia PPK*/}
+                                <div className="mt-6">
+                                    <h3 className="font-medium">Cheia Privată:</h3>
+                                </div>
                             </div>
 
 
                         </div>
                     </div>
-                    {/*Istoric */}
-                    <div className='w-full  custom_top_istoric mt-5'>
-                        <div className="flex flex-col space-y-1 ">
-                            <h3 className="font-medium">Istoric Modificari:</h3>
-                            <h2 className="text-gray-700 cursor-pointer hover:underline text-gray-400" onClick={() => setAfisIstoric(!afisIstoric)}>{afisIstoric ? 'Ascunde' : 'Afiseaza'}</h2>
-                            {afisIstoric && (<div>{Istoric.length > 0 ? (<div className="h-48 sm:w-1/2 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
-                                {Istoric.map((it, index) => (
-                                    <div key={index} className="py-1 mx-2">
-                                        <span className="font-semibold">{it.operatie}</span>
-                                        <div className="flex space-x-2">
-                                            <span className="text-sm">{it.data}</span>
-                                            <span className="text-sm">{it.time}</span>
-                                            <span className="text-sm italic text-gray-600">by {it.modifiedby}</span>
-                                        </div>
 
-                                        <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
-                                    </div>
-                                ))}
-                            </div>
-                            ) : (<p className="text-gray-600">Istoric Gol</p>
-                            )}</div>)}
-
-
-                        </div>
-                    </div>
                 </div>
 
             </div>
@@ -269,4 +339,4 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
     );
 };
 
-export default EditParolaItem;
+export default EditRemoteItem;

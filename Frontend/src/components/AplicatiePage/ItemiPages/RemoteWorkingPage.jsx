@@ -7,7 +7,7 @@ import PopupNewPuttyConnection from "../Popup_uri/PopupNewPuttyConnection";
 import "../../../App.css"
 import GridAfisItems from "./GridAfisItems";
 import PopupStergeItem from "../Popup_uri/PopupStergeItem";
-import EditParolaItem from './EditParolaItem';
+import EditRemoteItem from './EditRemoteItem';
 
 
 const RemoteWorking = ({ derivedKey, items, fetchItems }) => {
@@ -49,7 +49,6 @@ const RemoteWorking = ({ derivedKey, items, fetchItems }) => {
     return (
         <>
             <div className="bg-gray-100">
-                {/* ✅ Ascunde secțiunea de titlu, sortare și vizualizare dacă un item este selectat */}
                 {gestioneazaRemoteItem === null && (
                     <>
                         <h2 className="font-bold text-2xl text-center mt-3">Conexiunile mele</h2>
@@ -111,14 +110,14 @@ const RemoteWorking = ({ derivedKey, items, fetchItems }) => {
                     ) : tipAfisare === "grid" ? (
                         <GridAfisItems
                             items={items}
-                            setGestioneazaRemoteItem={setGestioneazaRemoteItem}
+                            setGestioneazaItem={setGestioneazaRemoteItem}
                             setStergeItem={setStergeItem}
                             setItemid={setItemid}
                             fetchItems={fetchItems}
                         />
                     ) : null
                 ) : (
-                    <EditParolaItem
+                    <EditRemoteItem
                         item={gestioneazaRemoteItem}
                         setGestioneazaRemoteItem={setGestioneazaRemoteItem}
                     />
