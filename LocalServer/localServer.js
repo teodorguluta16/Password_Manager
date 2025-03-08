@@ -103,38 +103,9 @@ app.post("/launch-ssh", (req, res) => {
         command = `"C:\\Program Files\\PuTTY\\putty.exe" -ssh ${user}@${host} -i "${sshKeyPath}"`;
     }
     else if (terminal === "windows-terminal") {
-        const openSSHKeyPath = sshKeyPath.replace(".ppk", "_openssh");
-
-        // Convertim cheia PPK în OpenSSH
-        const puttygenCommand = `"C:\\Program Files\\PuTTY\\puttygen.exe" "${sshKeyPath}" -O private-openssh -o "${openSSHKeyPath}"`;
-
-        console.log("🔄 Converting PPK to OpenSSH format...");
-        exec(puttygenCommand, (error, stdout, stderr) => {
-            if (error) {
-                console.error("❌ Error converting PPK to OpenSSH:", stderr);
-                return res.status(500).json({ error: "Failed to convert PPK to OpenSSH" });
-            }
-
-            console.log("✅ PPK converted successfully to OpenSSH.");
-            command = `wt new-tab ssh -i "${openSSHKeyPath}" ${user}@${host}`;
-
-            console.log("🟢 Running command:", command);
-            const child = spawn(command, { shell: true });
-
-            child.on("error", (err) => {
-                console.error("❌ Failed to start terminal:", err);
-                return res.status(500).json({ error: "Failed to launch terminal" });
-            });
-
-            res.json({ message: `${terminal} launched successfully` });
-
-            // 🔄 Ștergem cheia temporară după 30 secunde
-            setTimeout(() => {
-                fs.unlinkSync(openSSHKeyPath);
-                console.log("🗑️ Temporary OpenSSH key deleted:", openSSHKeyPath);
-            }, 30000);
-        });
+        command = `wt new-tab ssh -i "${sshKeyPath}" ${user}@${host}`;
     }
+
 
 
     if (command) {

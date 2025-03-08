@@ -330,8 +330,6 @@ const AplicatiePage = () => {
               const tagHex7 = dataObject2.data.ppkKey.tag;
               const rez_ppkKey = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
 
-              console.log("Datele primite de la server aferente remoteConnexion:", rez_tip, rez_nume, rez_username, rez_parola, isDeleted, isFavorite, rez_ppkKey);
-
               remoteItems.push({
                 nume: rez_nume,
                 tipitem: rez_tip,
@@ -346,7 +344,7 @@ const AplicatiePage = () => {
                 id_item: id_item,
                 isDeleted: isDeleted,
                 isFavorite: isFavorite
-              })
+              });
             }
 
 

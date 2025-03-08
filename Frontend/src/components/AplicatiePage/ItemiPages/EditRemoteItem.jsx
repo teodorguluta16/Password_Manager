@@ -19,6 +19,7 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
     const [hostNume, setItemHost] = useState(item.host);
     console.log(hostNume);
     const [ppkKey, setPPKkey] = useState(item.ppkKey);
+    const [privateKey, sePrivateKey] = useState(item.privateKey);
     const [deEditat, setdeEditat] = useState({ nume: false, username: false, parola: false, url: false, ppkKey: false });
 
     const [esteCopiat, setEsteCopiat] = useState(false);
@@ -73,9 +74,6 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
                 console.error('Error fetching items:', error);
             }
         };
-
-
-
         fetchItems();
     }, []);
 
@@ -123,7 +121,7 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
         const requestBody = {
             host: hostNume,
             user: userName,
-            ppkKey: ppkKey,
+            key: ppkKey,
             terminal: selectedTerminal,
         };
 
@@ -172,12 +170,11 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
                     {/* Selectare terminal */}
                     <div className="text-left mt-4">
                         <select
-                            className="border p-2 rounded"
+                            className="border py-2 px-4 rounded"
                             value={selectedTerminal}
                             onChange={(e) => setSelectedTerminal(e.target.value)}
                         >
                             <option value="putty">PuTTY</option>
-                            <option value="windows-terminal">Windows Terminal</option>
                         </select>
 
                         {/* Buton de lansare */}

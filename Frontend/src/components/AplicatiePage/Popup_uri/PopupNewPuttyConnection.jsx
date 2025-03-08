@@ -47,9 +47,6 @@ const PopupNewPuttyConnection = ({ setPopupNewRemote, derivedKey, fetchItems }) 
         document.body.removeChild(link);
     };
 
-
-    const [cheiePEM, setCheiePEM] = useState(null);
-
     const handleKeyUpload = (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -61,11 +58,8 @@ const PopupNewPuttyConnection = ({ setPopupNewRemote, derivedKey, fetchItems }) 
             if (file.name.endsWith(".ppk")) {
                 setCheiePPK(fileContent);
                 console.log("✅ Cheie PPK încărcată");
-            } else if (file.name.endsWith(".pem")) {
-                setCheiePEM(fileContent);
-                console.log("✅ Cheie PEM încărcată");
             } else {
-                alert("⚠️ Format neacceptat! Selectează un fișier .ppk sau .pem.");
+                alert("⚠️ Format neacceptat! ");
             }
         };
 
@@ -88,7 +82,6 @@ const PopupNewPuttyConnection = ({ setPopupNewRemote, derivedKey, fetchItems }) 
             const enc_UsernameItem = await criptareDate(usernameItem, key_aes);
             const enc_ParolaItem = await criptareDate(parolaItem, key_aes);
             const enc_PPKkey = await criptareDate(cheiePPK, key_aes);
-            const encPrivateKey = await criptareDate(cheiePrivata, key_aes);
 
             // criptare cheie
             const criptKey = await decodeMainKey(key);
@@ -135,13 +128,13 @@ const PopupNewPuttyConnection = ({ setPopupNewRemote, derivedKey, fetchItems }) 
                     version: 1
                 },
                 data: {
-                    tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag, },
+                    tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag },
                     nume: { iv: enc_NumeItem.iv, encData: enc_NumeItem.encData, tag: enc_NumeItem.tag },
                     host: { iv: enc_Hostitem.iv, encData: enc_Hostitem.encData, tag: enc_Hostitem.tag },
                     username: { iv: enc_UsernameItem.iv, encData: enc_UsernameItem.encData, tag: enc_UsernameItem.tag },
                     parola: { iv: enc_ParolaItem.iv, encData: enc_ParolaItem.encData, tag: enc_ParolaItem.tag },
                     ppkKey: { iv: enc_PPKkey.iv, encData: enc_PPKkey.encData, tag: enc_PPKkey.tag }
-                },
+                }
             };
 
             try {
@@ -185,12 +178,12 @@ const PopupNewPuttyConnection = ({ setPopupNewRemote, derivedKey, fetchItems }) 
         } catch (error) {
             console.error("Eroare la criptarea datelor:", error);
         }
-        //await fetchItems();
+        await fetchItems();
     }
 
     return (
         <div className="fixed inset-0 bg-opacity-50 bg-gray-400 flex items-center justify-center">
-            <div className="bg-white rounded-lg shadow-lg max-w-lg w-4/5 md:w-1/2 h-3/4 md:h-5/6 p-6 flex flex-col items-center justify-center relative">
+            <div className="bg-white rounded-lg shadow-lg max-w-lg w-4/5 md:w-1/2 h-6/7 md:h-6/7 p-6 flex flex-col items-center justify-center relative">
                 <button className="absolute right-4 top-2 text-4xl cursor-pointer hover:text-red-300"
                     onClick={() => setPopupNewRemote(false)}>&times;</button>
                 <h3 className="text-xl font-semibold text-center mb-6 relative">Conexiune Nouă</h3>
@@ -234,23 +227,22 @@ const PopupNewPuttyConnection = ({ setPopupNewRemote, derivedKey, fetchItems }) 
                         </div>
                     )}
 
-                    {/* Opțiunea de a încărca un fișier PPK sau PEM */}
-                    <label className="text-sm md:text-md font-medium mt-4">Încarcă cheie PPK sau PEM existentă</label>
-                    <input type="file" accept=".ppk,.pem" onChange={handleKeyUpload}
-                        className="border py-1 px-2 border-gray-600 rounded-md w-full" />
+                    {/* Opțiunea de a încărca un fișier PPK, PEM sau id_rsa */}
+                    <label className="text-sm md:text-md font-medium mt-4">
+                        Încarcă cheie PPK
+                    </label>
+                    <input
+                        type="file"
+                        accept=".ppk"
+                        onChange={handleKeyUpload}
+                        className="border py-1 px-2 border-gray-600 rounded-md w-full"
+                    />
 
                     {/* Butoane de descărcare pentru cheile încărcate */}
                     {cheiePPK && (
                         <button type="button" className="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-800 transition mt-2"
                             onClick={() => downloadKeyFile(cheiePPK, `${usernameItem}_id_rsa.ppk`)}>
                             Descarcă PPK
-                        </button>
-                    )}
-
-                    {cheiePEM && (
-                        <button type="button" className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-800 transition mt-2"
-                            onClick={() => downloadKeyFile(cheiePEM, `${usernameItem}_id_rsa.pem`)}>
-                            Descarcă PEM
                         </button>
                     )}
                 </form>
