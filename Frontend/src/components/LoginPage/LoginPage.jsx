@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { useKeySimetrica } from '../FunctiiDate/ContextKeySimetrice'
 import { criptareDate, generateKey, decodeMainKey, decriptareDate } from "../FunctiiDate/FunctiiDefinite"
-import { saveKeyInIndexedDB } from '../FunctiiDate/ContextKeySimetrice'; // Importăm funcția corect
+import { saveKeyInIndexedDB } from '../FunctiiDate/ContextKeySimetrice';
 import CryptoJS from 'crypto-js';
 
 function hexToString(hex) {
@@ -146,95 +146,34 @@ const LoginPage = () => {
 
   };
 
-  const handleTest = async (e) => {
-    e.preventDefault();
-
-    // Comanda pentru a lansa PuTTY automat
-    const puttyCommand = `@echo off\nputty -ssh demo@test.rebex.net -pw password`;
-
-    // Crearea unui fișier Blob și descărcarea lui ca .bat
-    const blob = new Blob([puttyCommand], { type: "text/plain" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "connect_putty.bat"; // Nume fișier
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-  const handleTest2 = async (e) => {
-    e.preventDefault();
-
-    // Script AutoHotkey pentru conectare automată la PuTTY
-    const ahkScript = `
-    Run, putty -ssh demo@test.rebex.net -pw password
-    `;
-
-    // Crearea fișierului `.ahk` și descărcarea lui automat
-    const blob = new Blob([ahkScript], { type: "text/plain" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "connect_putty.ahk"; // Nume fișier AHK
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const handleTest3 = async (e) => {
-    e.preventDefault();
-
-    // Script AutoHotkey pentru conectare automată la PuTTY
-    const ahkScript = `
-    Run, putty -ssh demo@test.rebex.net -pw password
-    Sleep, 10000 ; Așteaptă 10 secunde
-    Process, Close, putty.exe
-    ExitApp
-    `;
-
-    // Crearea fișierului `.ahk` în React
-    const ahkBlob = new Blob([ahkScript], { type: "text/plain" });
-    const ahkFileUrl = URL.createObjectURL(ahkBlob);
-
-    // Descărcare automată a fișierului `.ahk`
-    const ahkLink = document.createElement("a");
-    ahkLink.href = ahkFileUrl;
-    ahkLink.download = "connect_putty.ahk"; // Nume fișier
-    document.body.appendChild(ahkLink);
-    ahkLink.click();
-    document.body.removeChild(ahkLink);
-
-    setTimeout(() => {
-      window.location.href = "file:///C:/Users/Teo_G/Desktop/compile.bat";
-    }, 2000);
-  };
   return (
     <>
-      <div className='flex flex-col lg:flex-row h-screen'>
+      <div className='flex flex-col md:flex-row h-screen'>
         {/* Stanga Video */}
-        <div className='relative w-full lg:w-1/2 h-auto'>
-          <video src={Video2} autoPlay loop muted className="w-full h-full object-cover aspect-[16/9] lg:aspect-auto"></video>
+        <div className='relative w-full md:w-1/2 h-auto'>
+          <video src={Video2} autoPlay loop muted className="w-full md:h-full object-cover aspect-[16/9] md:aspect-auto max-h-[50vh] md:max-h-full"></video>
         </div>
 
         {/* Dreapta formular */}
-        <div className='flex flex-col justify-center items-center w-full lg:w-1/2 bg-gray-100 h-full lg:mt-0'>
-          <h2 className='text-4xl font-bold text-center -mt-10'>Intră în cont</h2>
-          <form className='mt-6 flex flex-col items-left lg:w-96 w-3/4'>
-            <label className='block text-lg font-medium'>E-mail:</label>
-            <input type='email' value={Email} onChange={(e) => { setEmail(e.target.value); setincorectCredentiale(false); }} className='mt-2 p-3 border border-green-400 rounded w-full bg-neutral' placeholder='Introdu adresa ta' />
-            <label className='block text-lg font-medium mt-4'>Parola:</label>
-            <input type='password' value={Parola} onChange={(e) => { setParola(e.target.value); setincorectCredentiale(false); }} className='mt-2 p-3 border border-green-400 rounded w-full bg-neutral' placeholder='Introdu parola' />
+        <div className="w-full md:w-1/2">
+          <div className='flex flex-col justify-center items-center bg-gray-100 h-1/2 min-h-screen md:mt-0 -mt-32'>
+            <h2 className='text-4xl font-bold text-center md:mt-0'>Intră în cont</h2>
+            <form className='mt-6 flex flex-col items-left lg:w-96 w-3/4 justify-center items-cente'>
+              <label className='block text-lg font-medium'>E-mail:</label>
+              <input type='email' value={Email} onChange={(e) => { setEmail(e.target.value); setincorectCredentiale(false); }} className='mt-2 p-3 border border-green-400 rounded w-full bg-neutral' placeholder='Introdu adresa ta' />
+              <label className='block text-lg font-medium mt-4'>Parola:</label>
+              <input type='password' value={Parola} onChange={(e) => { setParola(e.target.value); setincorectCredentiale(false); }} className='mt-2 p-3 border border-green-400 rounded w-full bg-neutral' placeholder='Introdu parola' />
 
-            <div className='mt-7 flex flex-col items-center px-6'>
-              <button className='px-6 py-2 w-3/4 bg-green-600 text-white rounded hover:bg-yellow-500 mb-6' onClick={handleLogin}>Log In</button>
-              {incorectCredentiale && (<h3 className="w-full text-red-600 text-semibold text-center"> Eroare ! Credentiale Incorecte !</h3>)}
-              <button type='button' onClick={toggleForm} className='mt-2 text-blue-500 hover:underline inline-block bg-transparent border-none p-0 cursor-pointer mb-3'>
-                Creează un cont nou
-              </button>
-              <button onClick={navigareForgetPassword} className='text-blue-500 hover:underline'>Ți-ai uitat parola?</button>
-              <button type='button' onClick={handleTest3} className='bg-pruple-400 hover:bg-purple-600 cursor-pointer'>
-                Test
-              </button>
-            </div>
-          </form>
+              <div className='mt-7 flex flex-col items-center px-6'>
+                <button className='px-6 py-2 w-3/4 bg-green-600 text-white rounded hover:bg-yellow-500 mb-6' onClick={handleLogin}>Log In</button>
+                {incorectCredentiale && (<h3 className="w-full text-red-600 text-semibold text-center"> Eroare ! Credentiale Incorecte !</h3>)}
+                <button type='button' onClick={toggleForm} className='mt-2 text-blue-500 hover:underline inline-block bg-transparent border-none p-0 cursor-pointer mb-3'>
+                  Creează un cont nou
+                </button>
+                <button onClick={navigareForgetPassword} className='text-blue-500 hover:underline'>Ți-ai uitat parola?</button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </>

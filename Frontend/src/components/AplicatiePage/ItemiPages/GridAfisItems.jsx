@@ -5,6 +5,7 @@ import PeopleLogo from "../../../assets/website/people.png";
 import ParolaLogo from "../../../assets/website/password2.png";
 import CardLogo from "../../../assets/website/credit-card2.png";
 import NoteLogo from "../../../assets/website/note2.png";
+import RemoteLogo from "../../../assets/website/remote-access.png"
 
 import LaunchLogo from "../../../assets/website/launch.png"
 import FavoriteLogo from "../../../assets/website/favorite.png"
@@ -83,7 +84,7 @@ const GridAfisItems = ({ items, setGestioneazaItem, setStergeItem, setItemid, fe
                     </div>
                     <div className="mt-0 items-center justify-center h-full">
                         <div className="flex flex-col items-center py-2">
-                            <img src={item.tipitem === 'password' ? ParolaLogo : item.tipitem === 'note' ? NoteLogo : item.tipitem === 'card' ? CardLogo : PeopleLogo} alt="Logo Parola Item" className="w-8 h-8"></img>
+                            <img src={item.tipitem === 'password' ? ParolaLogo : item.tipitem === 'note' ? NoteLogo : item.tipitem === 'card' ? CardLogo : item.tipitem === "remoteConnexion" ? RemoteLogo : PeopleLogo} alt="Logo Parola Item" className="w-8 h-8"></img>
                             <h2>{item.nume}</h2>
                             <h2>{item.username}</h2>
                         </div>

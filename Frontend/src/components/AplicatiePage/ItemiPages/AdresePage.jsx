@@ -20,8 +20,8 @@ const AdresePage = ({ }) => {
     return (
         <>
             <div>
-                <h2 className="font-bold text-2xl text-center mt-6">Adrese</h2>
-                <div className="block md:flex justify-between items-center mx-6 mt-4">
+                <h2 className="font-bold text-2xl text-center mt-3">Adrese</h2>
+                <div className="block md:flex justify-between items-center mx-6 mt-0">
                     {/*Sectiunea de vizualizare a datelor*/}
                     <div className="flex space-x-2">
                         <button className="flex items-center px-2 space-x-2 py-2 rounded-lg bg-gray-100 ml-2 hover:bg-yellow-400">
@@ -58,7 +58,7 @@ const AdresePage = ({ }) => {
                     </div>
                 </div>
 
-                <hr className="border-t-3 border-gray-500 my-4 rounded-full mx-12" />
+                <hr className="border-t-2 border-gray-500 my-2 rounded-full mx-6" />
             </div>
         </>
     );

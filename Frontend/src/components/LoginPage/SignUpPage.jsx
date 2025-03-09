@@ -144,15 +144,15 @@ const SignUpPage = () => {
     };
     return (
         <>
-            <div className='flex flex-col lg:flex-row h-screen'>
+            <div className='flex flex-col md:flex-row h-screen'>
                 {/* Stanga Video */}
-                <div className='relative w-full lg:w-1/2 h-auto'>
-                    <video src={Video2} autoPlay loop muted className="w-full h-full object-cover aspect-[16/9] lg:aspect-auto"></video>
+                <div className='relative w-full md:w-1/2 h-auto'>
+                    <video src={Video2} autoPlay loop muted className="w-full h-full object-cover aspect-[16/9] md:aspect-auto"></video>
                 </div>
 
                 {/* Dreapta formular */}
-                <div className='flex flex-col justify-center items-center w-full lg:w-1/2 bg-gray-100 h-full lg:mt-0'>
-                    <h2 className='text-4xl font-bold text-center'>Creează cont nou</h2>
+                <div className='flex flex-col justify-center items-center w-full md:w-1/2 bg-gray-100 h-full md:mt-0'>
+                    <h2 className='text-4xl font-bold text-center mt-8 md:mt-0'>Creează cont nou</h2>
                     <form className='mt-6 flex flex-col items-left mx-4'>
                         <label className='block text-lg font-medium'>Nume si Prenume:</label>
 
@@ -173,7 +173,7 @@ const SignUpPage = () => {
                         {contCreacCuSucces && <h3 className='text-green-600 text-semibold text-center mt-3'>Cont creat cu succes !</h3>}
                         <div className='mt-7 flex flex-col items-center px-6'>
                             <button onClick={handleSubmit} className='px-6 py-2 w-3/4 bg-green-600 text-white rounded hover:bg-yellow-500 mb-6'>Sign Up</button>
-                            <button type='button' onClick={toggleForm} className='mt-2 text-blue-500 hover:underline'>
+                            <button type='button' onClick={toggleForm} className='-mt-2 md:mt-2 text-blue-500 hover:underline mb-6 '>
                                 Ai deja un cont? Loghează-te aici
                             </button>
                         </div>

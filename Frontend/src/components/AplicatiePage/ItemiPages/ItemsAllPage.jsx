@@ -49,8 +49,8 @@ const ItemsAllPage = ({ derivedKey, items, fetchItems }) => {
                 {/* ✅ Ascunde această secțiune când un item este selectat pentru editare */}
                 {gestioneazaParolaItem === null && (
                     <>
-                        <h2 className="font-bold text-2xl text-center mt-4">Toate Câmpurile</h2>
-                        <div className="flex flex-row aliniere_custom justify-between items-center mx-6 mt-4">
+                        <h2 className="font-bold text-2xl text-center mt-3">Toate Câmpurile</h2>
+                        <div className="flex flex-row aliniere_custom justify-between items-center mx-6 mt-0">
                             {/*Sectiunea de vizualizare a datelor */}
                             <div className="flex space-x-2">
                                 <button onClick={() => setTipAfisare("lista")} className="flex items-center px-2 space-x-2 py-2 rounded-lg bg-gray-100 ml-2 hover:bg-yellow-400">
@@ -86,7 +86,7 @@ const ItemsAllPage = ({ derivedKey, items, fetchItems }) => {
                             </div>
                         </div>
 
-                        <hr className="border-t-2 border-gray-500 my-4 rounded-full mx-6" />
+                        <hr className="border-t-2 border-gray-500 my-2 rounded-full mx-6" />
                     </>
                 )}
 

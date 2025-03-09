@@ -301,6 +301,40 @@ const AplicatiePage = () => {
                 isFavorite: isFavorite
               });
 
+              fetchedItems.push({
+                nume: rez_nume,
+                tipitem: rez_tip,
+                username: rez_username,
+                parola: rez_parola,
+                url: rez_url,
+                comentariu: rez_comentariu,
+                created_at: created_at,
+                modified_at: modified_at,
+                version: version,
+                id_owner: id_owner,
+                id_item: id_item,
+                isDeleted: isDeleted,
+                isFavorite: isFavorite
+              });
+
+              if (isFavorite) {
+                favoriteItems.push({
+                  nume: rez_nume,
+                  tipitem: rez_tip,
+                  username: rez_username,
+                  parola: rez_parola,
+                  url: rez_url,
+                  comentariu: rez_comentariu,
+                  created_at: created_at,
+                  modified_at: modified_at,
+                  version: version,
+                  id_owner: id_owner,
+                  id_item: id_item,
+                  isDeleted: isDeleted,
+                  isFavorite: isFavorite
+                });
+              }
+
             }
             if (rez_tip === "remoteConnexion") {
               const ivHex3 = dataObject2.data.nume.iv;
@@ -345,34 +379,14 @@ const AplicatiePage = () => {
                 isDeleted: isDeleted,
                 isFavorite: isFavorite
               });
-            }
 
-
-
-            /*fetchedItems.push({
-              nume: rez_nume,
-              tipitem: rez_tip,
-              username: rez_username,
-              parola: rez_parola,
-              url: rez_url,
-              comentariu: rez_comentariu,
-              created_at: created_at,
-              modified_at: modified_at,
-              version: version,
-              id_owner: id_owner,
-              id_item: id_item,
-              isDeleted: isDeleted,
-              isFavorite: isFavorite
-            });
-
-            if (isFavorite) {
-              favoriteItems.push({
+              fetchedItems.push({
                 nume: rez_nume,
                 tipitem: rez_tip,
                 username: rez_username,
                 parola: rez_parola,
-                url: rez_url,
-                comentariu: rez_comentariu,
+                host: rez_host,
+                ppkKey: rez_ppkKey,
                 created_at: created_at,
                 modified_at: modified_at,
                 version: version,
@@ -381,9 +395,25 @@ const AplicatiePage = () => {
                 isDeleted: isDeleted,
                 isFavorite: isFavorite
               });
-            }*/
+              if (isFavorite) {
+                favoriteItems.push({
+                  nume: rez_nume,
+                  tipitem: rez_tip,
+                  username: rez_username,
+                  parola: rez_parola,
+                  host: rez_host,
+                  ppkKey: rez_ppkKey,
+                  created_at: created_at,
+                  modified_at: modified_at,
+                  version: version,
+                  id_owner: id_owner,
+                  id_item: id_item,
+                  isDeleted: isDeleted,
+                  isFavorite: isFavorite
+                });
+              }
 
-
+            }
 
           } catch (error) {
             console.error('Eroare la decriptarea item-ului cu ID-ul:', item.id_item, error);
@@ -487,11 +517,7 @@ const AplicatiePage = () => {
               <img src={Address} alt="Grupuri Icon" className="w-6 h-6 mr-2 filter invert"></img>
               <span>Adrese</span>
             </li>
-            <li onClick={() => selecteazaSectiune('carteidentitate')} className={`mb-2 hover:bg-green-700 hover:rounded hover:px-4 cursor-pointer 
-              flex items-center transition-all duration-300 ${sectiuneItemi == "carteidentitate" ? 'bg-green-700 rounded px-4' : ''}`}>
-              <img src={IDCard} alt="Identitate Icon" className="w-6 h-6 mr-2 filter invert"></img>
-              <span>Identitate</span>
-            </li>
+
             <li onClick={() => selecteazaSectiune('remoteworking')} className={`mb-2 hover:bg-green-700 hover:rounded hover:px-4 cursor-pointer 
               flex items-center transition-all duration-300 ${sectiuneItemi == "remoteworking" ? 'bg-green-700 rounded px-4' : ''}`}>
               <img src={RemoteWorking} alt="Identitate Icon" className="w-6 h-6 mr-2 filter invert"></img>

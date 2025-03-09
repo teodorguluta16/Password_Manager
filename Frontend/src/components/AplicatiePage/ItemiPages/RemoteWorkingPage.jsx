@@ -52,7 +52,7 @@ const RemoteWorking = ({ derivedKey, items, fetchItems }) => {
                 {gestioneazaRemoteItem === null && (
                     <>
                         <h2 className="font-bold text-2xl text-center mt-3">Conexiunile mele</h2>
-                        <div className="flex flex-row aliniere_custom justify-between items-center mx-6 mt-6">
+                        <div className="flex sm:flex-row flex-col justify-between items-center mx-6 mt-2">
                             {/*Sectiunea de vizualizare a datelor */}
                             <div className="flex space-x-2">
                                 <button onClick={() => setTipAfisare("lista")} className="flex items-center px-2 space-x-2 py-2 rounded-lg bg-gray-100 ml-2 hover:bg-yellow-400">
@@ -64,7 +64,7 @@ const RemoteWorking = ({ derivedKey, items, fetchItems }) => {
                                 <div onClick={openPopup} className="relative flex justify-center">
                                     <button className="flex px-4 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-800">
                                         <FaPlus className="w-5 h-5" />
-                                        <span className="ml-2">Adaugă Conexiune</span>
+                                        <span className="ml-2 hidden md:inline">Adaugă Conexiune</span>
                                     </button>
                                 </div>
                             </div>
