@@ -1,11 +1,23 @@
 import React from "react";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ListIcon from "../../../assets/website/list.png"
 import GridIcon from "../../../assets/website/visualization.png"
 
+import GridAfisItems from "./GridAfisItems";
+import ListAfisItems from "./ListAfisItems";
+import PopupStergeItem from "../Popup_uri/PopupStergeItem";
+import EditParolaItem from './EditParolaItem';
 
+const NotitePage = ({ derivedKey, items, fetchItems }) => {
+    const [key, setKey] = useState(derivedKey);
 
-const NotitePage = ({ }) => {
+    useEffect(() => {
+        if (derivedKey) {
+            setKey(derivedKey);
+        }
+    }, [derivedKey]);
+
+    console.log("Cheia simetrică este: ", key);
     const [isDeschisMeniuSortare, setIsDropdownOpen] = useState(false);
     const [OptiuneSelectata, setSelectedOption] = useState("Sortează după: Nume");
 
@@ -17,6 +29,15 @@ const NotitePage = ({ }) => {
         setSelectedOption(optiune);
         setIsDropdownOpen(false);
     };
+
+    const [gestioneazaParolaItem, setGestioneazaParolaItem] = useState(null);
+    const [tipAfisare, setTipAfisare] = useState("grid");
+    const [stergeItem, setStergeItem] = useState(false);
+    const [itemid, setItemid] = useState("");
+
+    useEffect(() => {
+        fetchItems();
+    }, []);
     return (
         <>
             <div className="bg-gray-100">
@@ -59,6 +80,41 @@ const NotitePage = ({ }) => {
                 </div>
 
                 <hr className="border-t-2 border-gray-500 my-2 rounded-full mx-6" />
+                {/* Sectiunea de itemi Parola */}
+                {gestioneazaParolaItem === null ? (
+                    tipAfisare === "lista" ? (
+                        <ListAfisItems
+                            items={items}
+                            setGestioneazaItem={setGestioneazaParolaItem}
+                            setStergeItem={setStergeItem}
+                            setItemid={setItemid}
+                            fetchItems={fetchItems}
+                        />
+                    ) : tipAfisare === "grid" ? (
+                        <GridAfisItems
+                            items={items}
+                            setGestioneazaItem={setGestioneazaParolaItem}
+                            setStergeItem={setStergeItem}
+                            setItemid={setItemid}
+                            fetchItems={fetchItems}
+                        />
+                    ) : null
+                ) : (
+                    <EditParolaItem
+                        item={gestioneazaParolaItem}
+                        setGestioneazaParolaItem={setGestioneazaParolaItem}
+                    />
+                )}
+
+                {/*Popup de Stergere item */}
+                {stergeItem && (
+                    <PopupStergeItem
+                        setShowPopupStergeItem={setStergeItem}
+                        item={itemid}
+                        items={items}
+                        fetchItems={fetchItems}
+                    />
+                )}
             </div>
         </>
     );

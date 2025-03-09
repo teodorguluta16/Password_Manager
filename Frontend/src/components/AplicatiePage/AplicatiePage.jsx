@@ -195,6 +195,7 @@ const AplicatiePage = () => {
   const [favoriteItemsAll, setFavoriteItems] = useState([]);
   const [paroleItemsAll, setParoleItems] = useState([]);
   const [RemoteItemsAll, setRemoteItmes] = useState([]);
+  const [notiteItemsAll, setNotiteItmes] = useState([]);
 
   const fetchItems = async () => {
 
@@ -215,6 +216,7 @@ const AplicatiePage = () => {
         let favoriteItems = [];
         let paroleItems = [];
         let remoteItems = [];
+        let notiteItems = [];
         for (let item of data) {
           try {
             const isFavorite = item.isfavorite;
@@ -414,6 +416,71 @@ const AplicatiePage = () => {
               }
 
             }
+            if (rez_tip === "notita") {
+              const ivHex3 = dataObject2.data.nume.iv;
+              const encDataHex3 = dataObject2.data.nume.encData;
+              const tagHex3 = dataObject2.data.nume.tag;
+
+              const rez_nume = await decriptareDate(encDataHex3, ivHex3, tagHex3, importedKey);
+
+
+              const ivHex4 = dataObject2.data.data.iv;
+              const encDataHex4 = dataObject2.data.data.encData;
+              const tagHex4 = dataObject2.data.data.tag;
+
+              const rez_data = await decriptareDate(encDataHex4, ivHex4, tagHex4, importedKey);
+
+              const ivHex7 = dataObject2.data.comentariu.iv;
+              const encDataHex7 = dataObject2.data.comentariu.encData;
+              const tagHex7 = dataObject2.data.comentariu.tag;
+              const rez_comentariu = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
+
+              console.log("Datele primite de la server aferente parolei:", rez_tip, rez_nume, rez_data, rez_comentariu, isDeleted, isFavorite);
+              notiteItems.push({
+                nume: rez_nume,
+                tipitem: rez_tip,
+                data: rez_data,
+                comentariu: rez_comentariu,
+                created_at: created_at,
+                modified_at: modified_at,
+                version: version,
+                id_owner: id_owner,
+                id_item: id_item,
+                isDeleted: isDeleted,
+                isFavorite: isFavorite
+              });
+
+              fetchedItems.push({
+                nume: rez_nume,
+                tipitem: rez_tip,
+                data: rez_data,
+                comentariu: rez_comentariu,
+                created_at: created_at,
+                modified_at: modified_at,
+                version: version,
+                id_owner: id_owner,
+                id_item: id_item,
+                isDeleted: isDeleted,
+                isFavorite: isFavorite
+              });
+
+              if (isFavorite) {
+                favoriteItems.push({
+                  nume: rez_nume,
+                  tipitem: rez_tip,
+                  data: rez_data,
+                  comentariu: rez_comentariu,
+                  created_at: created_at,
+                  modified_at: modified_at,
+                  version: version,
+                  id_owner: id_owner,
+                  id_item: id_item,
+                  isDeleted: isDeleted,
+                  isFavorite: isFavorite
+                });
+              }
+
+            }
 
           } catch (error) {
             console.error('Eroare la decriptarea item-ului cu ID-ul:', item.id_item, error);
@@ -424,6 +491,7 @@ const AplicatiePage = () => {
         setFavoriteItems(favoriteItems);
         setParoleItems(paroleItems);
         setRemoteItmes(remoteItems);
+        setNotiteItmes(notiteItems);
       } else {
         console.error('Failed to fetch items', response.statusText);
       }
@@ -688,7 +756,7 @@ const AplicatiePage = () => {
         {/* Paginile de lucru*/}
         {sectiuneItemi === 'toate' && savedKey && (<ItemsAllPage derivedKey={savedKey} items={items} fetchItems={fetchItems} />)}
         {sectiuneItemi === 'parole' && savedKey && <ParolePage derivedKey={savedKey} items={paroleItemsAll} fetchItems={fetchItems} />}
-        {sectiuneItemi === 'notite' && <NotitePage />}
+        {sectiuneItemi === 'notite' && <NotitePage derivedKey={savedKey} items={notiteItemsAll} fetchItems={fetchItems} />}
         {sectiuneItemi === 'carduri' && <CarduriBancarePage />}
         {sectiuneItemi === 'adrese' && <AdresePage />}
         {sectiuneItemi === 'favorite' && <FavoritePage derivedKey={savedKey} items={favoriteItemsAll} fetchItems={fetchItems} />}
@@ -703,7 +771,7 @@ const AplicatiePage = () => {
         {shoMeniuCreeazaItem && (<PopupNewItem setShoMeniuCreeazaItem={setMeniuCreeazaItem} setShowParolaPopup={setShowParolaPopup} setShowNotitaPopup={setShowNotitaPopup} setShowCardPopup={setShowCardPopup} setShowAddressPopup={setShowAddressPopup} />)}
         {/*Popup-ul de la Parola */}
         {ShowParolaPopup && (<PopupParolaItem setShowParolaPopup={setShowParolaPopup} derivedKey={savedKey} fetchItems={fetchItems} />)}
-        {ShowNotitaPopup && (<PopupNotitaItem setShowNotitaPopup={setShowNotitaPopup} />)}
+        {ShowNotitaPopup && (<PopupNotitaItem setShowNotitaPopup={setShowNotitaPopup} derivedKey={savedKey} fetchItems={fetchItems} />)}
         {ShowCardPopup && (<PopupCardItem setShowCardPopup={setShowCardPopup} derivedKey={savedKey} fetchItems={fetchItems} />)}
         {ShowAdresaPopup && (<PopupNewAdrese setShowAddressPopup={setShowAddressPopup} derivedKey={savedKey} fetchItems={fetchItems} />)}
       </div>
