@@ -95,9 +95,9 @@ const EditParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
     }
     return (
         <>
-            <div className="px-6 mb-2 ">
+            <div className="px-2 mb-2 mt-4">
                 {/* Bara de sus cu butoane și titlu centrat */}
-                <div className="flex items-center justify-between pb-3 mt-4">
+                <div className="flex items-center justify-between pb-3 mt-0">
                     {/* Butoanele pe stânga */}
                     <div className="flex items-center space-x-4">
                         <button onClick={() => setGestioneazaParolaItem(null)} className="py-1 px-1 cursor-pointer rounded-lg">

@@ -389,10 +389,6 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
                 )
                 }
 
-
-
-
-
                 {/* Sectiunea de itemi */}
                 {gestioneazaItem === null ? (tipAfisare === "lista" ? (// daca nu e  nicio parola selectata afisez lista de itemi; overflow-y pentru a derula in caz ca se termina ecranul
                     <div>

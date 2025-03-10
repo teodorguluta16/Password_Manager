@@ -121,7 +121,7 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
         const requestBody = {
             host: hostNume,
             user: userName,
-            key: ppkKey,
+            ppkKey: ppkKey,
             terminal: selectedTerminal,
         };
 

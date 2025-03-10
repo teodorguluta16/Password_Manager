@@ -94,9 +94,9 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
     }
     return (
         <>
-            <div className="px-6 mb-2 ">
+            <div className="px-4 mb-2 ">
                 {/* Bara de sus cu butoane și titlu centrat */}
-                <div className="flex items-center justify-between pb-3 mt-4">
+                <div className="flex items-center justify-between pb-3 mt-3">
                     {/* Butoanele pe stânga */}
                     <div className="flex items-center space-x-4">
                         <button onClick={() => setGestioneazaParolaItem(null)} className="py-1 px-1 cursor-pointer rounded-lg">
@@ -189,14 +189,14 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                             <div className="space-y-4">
                                 {/*Campul de URL */}
                                 <div className="flex itmes-center mt-6">
-                                    <div className="flex flex-col lg:flex-row lg:ml-4">
+                                    <div className="flex flex-col  lg:ml-4">
                                         <h3 className="font-medium">Adresa URL:</h3>
                                         {deEditat.url ? (
-                                            <input type="text" value={urlNume} onChange={(e) => setItemUrl(e.target.value)} className="lg:ml-3 border boder-gray-300 rounded-lg py-1 "></input>
+                                            <input type="text" value={urlNume} onChange={(e) => setItemUrl(e.target.value)} className="border boder-gray-300 rounded-lg py-1 "></input>
                                         ) : (
-                                            <span onClick={() => accesUrl(urlNume)} className="lg:ml-3 text-blue-500 cursor-pointer hover:underline">{urlNume}</span>
+                                            <span onClick={() => accesUrl(urlNume)} className="text-blue-500 cursor-pointer hover:underline">{urlNume}</span>
                                         )}
-                                        <button onClick={() => setdeEditat({ ...deEditat, url: !deEditat.url })} className="lg:ml-3 text-gray-500 hover:text-blue-500 transition">
+                                        <button onClick={() => setdeEditat({ ...deEditat, url: !deEditat.url })} className="text-gray-500 hover:text-blue-500 transition">
                                             {deEditat.url ? <FaSave /> : <FaEdit />}
                                         </button>
                                     </div>
@@ -210,7 +210,7 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                                 {/* Data creării și cine a creat */}
                                 <div className="flex flex-col lg:flex-row lg:ml-4">
                                     <h3 className="font-medium">Creat:</h3>
-                                    <div className="">
+                                    <div className="ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{createdDate}</span>
                                             {createdBy && <span className="text-gray-500 italic">by ionut@@@ {createdBy}</span>}
@@ -220,12 +220,12 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                                 {/* Proprietar */}
                                 <div className="flex flex-col lg:flex-row lg:ml-4">
                                     <h3 className="font-medium">Proprietar:</h3>
-                                    <span className="text-gray-700">{`${ownerNume} ${ownerPrenume}`}</span>
+                                    <span className="text-gray-700 ml-2">{`${ownerNume} ${ownerPrenume}`}</span>
                                 </div>
                                 {/* Data modificării și cine a modificat */}
                                 <div className="flex flex-col lg:flex-row lg:ml-4">
                                     <h3 className="font-medium">Modificat:</h3>
-                                    <div className="">
+                                    <div className="ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{modifiedDate}</span>
                                             {modifiedBy && <span className="text-gray-500 italic">by ionut@ionut {modifiedBy}</span>}

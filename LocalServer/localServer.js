@@ -101,6 +101,7 @@ app.post("/launch-ssh", (req, res) => {
 
     if (terminal === "putty") {
         command = `"C:\\Program Files\\PuTTY\\putty.exe" -ssh ${user}@${host} -i "${sshKeyPath}"`;
+        console.log("Comanda este: ", command);
     }
     else if (terminal === "windows-terminal") {
         command = `wt new-tab ssh -i "${sshKeyPath}" ${user}@${host}`;

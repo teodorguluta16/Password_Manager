@@ -6,6 +6,7 @@ import PeopleLogo from "../../../assets/website/people.png";
 import ParolaLogo from "../../../assets/website/password2.png";
 import CardLogo from "../../../assets/website/credit-card2.png";
 import NoteLogo from "../../../assets/website/note2.png";
+import RemoteLogo from "../../../assets/website/remote-access.png"
 import { FaHistory, FaTrash } from 'react-icons/fa';
 import PopupStergeItemDefinitiv from '../Popup_uri/PopupStergeItemDefinitiv';
 import PopupItmeRestauratCuSucces from '../Popup_uri/PopupItemRestauratCuSucces';
@@ -197,11 +198,7 @@ const ItemiStersi = ({ derivedKey }) => {
                         {items.map((item, index) => (
                             <div key={index} className="border border-white-700 border-b-2 rounded-lg shadow-lg bg-white px-2 flex justify-between items-center hover:bg-gray-200 transition-all duration-300 ease-in-out">
                                 <div className="flex items-center space-x-4">
-                                    <img
-                                        src={item.tipitem === 'password' ? ParolaLogo : item.tipitem === 'note' ? NoteLogo : item.tipitem === 'card' ? CardLogo : PeopleLogo}
-                                        alt="Logo Parola Item"
-                                        className="w-8 h-8"
-                                    />
+                                    <img src={item.tipitem === 'password' ? ParolaLogo : item.tipitem === 'notita' ? NoteLogo : item.tipitem === 'card' ? CardLogo : item.tipitem === "remoteConnexion" ? RemoteLogo : PeopleLogo} alt="Logo Parola Item" className="w-8 h-8"></img>
                                     <div>
                                         <h2 className="font-semibold">{item.nume}</h2>
                                         <h3 className="text-sm text-gray-500">{item.username}</h3>

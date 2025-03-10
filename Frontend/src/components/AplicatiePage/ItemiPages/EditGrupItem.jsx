@@ -78,7 +78,7 @@ const EditGrupItem = ({ item, setGestioneazaGrupItem, derivedKey }) => {
 
     return (
         <>
-            <div className="py-4 px-12 mb-2">
+            <div className="py-4 px-12 mb-2 mt-3">
                 <button onClick={() => setGestioneazaGrupItem(null)} className="px-1 cursor-pointer rounded-lg -ml-4  mt-2">
                     <FaArrowLeft className="w-8 h-8 hover:text-blue-600 transition-all duration-300 ease-in-out" />
                 </button>

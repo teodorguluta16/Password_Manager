@@ -72,12 +72,12 @@ const VizualizareParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
     }, []);
 
     return (
-        <div className="px-12 mb-2">
+        <div className="px-4 mb-2">
             <button onClick={() => setGestioneazaParolaItem(null)} className="py-1 px-1 cursor-pointer rounded-lg -ml-1">
                 <FaArrowLeft className="w-6 h-6 hover:text-blue-600 transition-all duration-300 ease-in-out" />
             </button>
 
-            <div className="overflow-y-auto custom-height2">
+            <div className="overflow-y-auto custom-height4">
                 {/* Numele itemului (parolei) */}
                 <div className="flex items-center mt-2">
                     <h2 className='font-semibold text-2xl'>{itemNume}</h2>
