@@ -6,6 +6,7 @@ import ParolaLogo from "../../../assets/website/password2.png";
 import CardLogo from "../../../assets/website/credit-card2.png";
 import NoteLogo from "../../../assets/website/note2.png";
 import RemoteLogo from "../../../assets/website/remote-access.png"
+import AdressLogo from "../../../assets/website/map-and-location.png"
 
 import LaunchLogo from "../../../assets/website/launch.png"
 import FavoriteLogo from "../../../assets/website/favorite.png"
@@ -67,7 +68,7 @@ const GridAfisItems = ({ items, setGestioneazaItem, setStergeItem, setItemid, fe
 
 
     return (
-        <div className="grid custom_grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-4 md:gap-6 ml-2 mr-2 px-8 sm:px-4 md:px-12 custom-height overflow-y-auto py-4 -mt-4">
+        <div className="grid custom_grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-4 md:gap-6 ml-2 mr-2 px-8 sm:px-4 md:px-12 custom-height overflow-y-auto py-4 mt-0">
             {items.map((item, index) => (
                 <div key={index} onClick={() => setGestioneazaItem(item)} className="border border-white-700 rounded-lg w-68 h-28 shadow-lg shadow-gray-300 bg-white items-center hover:bg-gray-400 cursor-pointer group  transition-all duration-300 ease-in-out">
                     <div className="flex flex-col justify-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-100 space-x-2 relative">
@@ -84,8 +85,8 @@ const GridAfisItems = ({ items, setGestioneazaItem, setStergeItem, setItemid, fe
                     </div>
                     <div className="mt-0 items-center justify-center h-full">
                         <div className="flex flex-col items-center py-2">
-                            <img src={item.tipitem === 'password' ? ParolaLogo : item.tipitem === 'notita' ? NoteLogo : item.tipitem === 'card' ? CardLogo : item.tipitem === "remoteConnexion" ? RemoteLogo : PeopleLogo} alt="Logo Parola Item" className="w-8 h-8"></img>
-                            {(item.tipitem === "notita") && (
+                            <img src={item.tipitem === 'password' ? ParolaLogo : item.tipitem === 'notita' ? NoteLogo : item.tipitem === 'card' ? CardLogo : item.tipitem === "remoteConnexion" ? RemoteLogo : item.tipitem === 'adresa' ? AdressLogo : PeopleLogo} alt="Logo Parola Item" className="w-8 h-8"></img>
+                            {(item.tipitem === "notita" || item.tipitem === "adresa") && (
                                 <h2 className="mt-2">{item.nume}</h2>
                             )}
                             {(item.tipitem === "password" || item.tipitem === "remoteConnexion") && (
