@@ -120,7 +120,7 @@ app.post("/launch-ssh", (req, res) => {
 
         res.json({ message: `${terminal} launched successfully` });
 
-        // 📌 Ștergem cheia PPK temporară după 30 secunde pentru securitate
+        // stergem cheia PPK temporară după 30 secunde pentru securitate
         if (ppkKey) {
             setTimeout(() => {
                 fs.unlinkSync(sshKeyPath);

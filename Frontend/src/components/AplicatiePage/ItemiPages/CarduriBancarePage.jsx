@@ -1,11 +1,25 @@
 import React from "react";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import ListIcon from "../../../assets/website/list.png"
 import GridIcon from "../../../assets/website/visualization.png"
+import "../../../App.css"
+import GridAfisItems from "./GridAfisItems";
+import ListAfisItems from "./ListAfisItems";
+import PopupStergeItem from "../Popup_uri/PopupStergeItem";
+import EditCarduriItem from './EditCarduriItem';
 
 
-const CarduriBancarePage = ({ }) => {
+const CarduriBancarePage = ({ derivedKey, items, fetchItems }) => {
+    const [key, setKey] = useState(derivedKey);
+
+    useEffect(() => {
+        if (derivedKey) {
+            setKey(derivedKey);
+        }
+    }, [derivedKey]);
+
+    console.log("Cheia simetrică card este: ", key);
     const [isDeschisMeniuSortare, setIsDropdownOpen] = useState(false);
     const [OptiuneSelectata, setSelectedOption] = useState("Sortează după: Nume");
 
@@ -17,48 +31,90 @@ const CarduriBancarePage = ({ }) => {
         setSelectedOption(optiune);
         setIsDropdownOpen(false);
     };
+
+    const [gestioneazaCardItem, setGestioneazaCardItem] = useState(null);
+    const [tipAfisare, setTipAfisare] = useState("grid");
+    const [stergeItem, setStergeItem] = useState(false);
+    const [itemid, setItemid] = useState("");
+
+    useEffect(() => {
+        fetchItems();
+    }, []);
     return (
         <>
-            <div>
-                <h2 className="font-bold text-2xl text-center mt-3">Carduri și Conturi Bancare</h2>
-                <div className="block md:flex justify-between items-center mx-6 mt-0">
-                    {/*Sectiunea de vizualizare a datelor*/}
-                    <div className="flex space-x-2">
-                        <button className="flex items-center px-2 space-x-2 py-2 rounded-lg bg-gray-100 ml-2 hover:bg-yellow-400">
-                            <img src={ListIcon} alt="List Icon" className="w-6 h-6"></img>
-                        </button>
-                        <button className="flex items-center px-2 space-x-2 py-2 rounded-lg bg-gray-100 ml-2 hover:bg-yellow-400">
-                            <img src={GridIcon} alt="List Icon" className="w-6 h-6"></img>
-                        </button>
-                    </div>
-
-                    {/* Sectiunea de sortare */}
-                    <div className="relative">
-                        {/*Buton de deschidere meniu select*/}
-                        <button className="flex items-center px-4 space-x-2 py-2 rounded-lg bg-gray-100 mr-2" onClick={() => handleDropdownToggle()}>
-                            {/* Model iconita sagetuta al meniului de select*/}
-                            <span className="text-1xl font-semibold">{OptiuneSelectata}</span>
-                            <svg
-                                className={`w-4 h-4 transform transition-transform ${isDeschisMeniuSortare ? 'rotate-180' : 'rotate-0'}`}  /* Pentru rotatie*/
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                        {isDeschisMeniuSortare && <div className="absolute border rounded-lg bg-white shadow-lg w-full mt-2">
-                            <ul className="py-2">
-                                <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400" onClick={() => handleOptionSelect("Sortează după: Nume ")}>Nume</li>
-                                <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400" onClick={() => handleOptionSelect("Sortează după: Data ")}>Data Adaugarii</li>
-                            </ul>
+            <div className="bg-gray-100">
+                {gestioneazaCardItem === null && (
+                    <>
+                        <h2 className="font-bold text-2xl text-center mt-3">Carduri Bancare</h2>
+                        <div className="flex flex-row aliniere_custom justify-between items-center mx-6 mt-0">
+                            <div className="flex space-x-2">
+                                <button onClick={() => setTipAfisare("lista")} className="flex items-center px-2 space-x-2 py-2 rounded-lg bg-gray-100 ml-2 hover:bg-yellow-400">
+                                    <img src={ListIcon} alt="List Icon" className="w-6 h-6"></img>
+                                </button>
+                                <button onClick={() => setTipAfisare("grid")} className="flex items-center px-2 space-x-2 py-2 rounded-lg bg-gray-100 ml-2 hover:bg-yellow-400">
+                                    <img src={GridIcon} alt="List Icon" className="w-6 h-6"></img>
+                                </button>
+                            </div>
+                            <div className="relative">
+                                <button className="flex items-center px-4 space-x-2 py-2 rounded-lg bg-gray-100 md:mr-2" onClick={() => handleDropdownToggle()}>
+                                    <span className="text-1xl font-semibold">{OptiuneSelectata}</span>
+                                    <svg
+                                        className={`w-4 h-4 transform transition-transform ${isDeschisMeniuSortare ? 'rotate-180' : 'rotate-0'}`}
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                {isDeschisMeniuSortare && (
+                                    <div className="absolute border rounded-lg bg-white shadow-lg w-full mt-2">
+                                        <ul className="py-2">
+                                            <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400" onClick={() => handleOptionSelect("Sortează după: Nume ")}>Nume</li>
+                                            <li className="px-4 py-2 cursor-pointer hover:bg-yellow-400" onClick={() => handleOptionSelect("Sortează după: Data ")}>Data Adaugarii</li>
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                        }
-                    </div>
-                </div>
+                        <hr className="border-t-2 border-gray-500 my-2 rounded-full mx-6" />
+                    </>
+                )}
+                {gestioneazaCardItem === null ? (
+                    tipAfisare === "lista" ? (
+                        <ListAfisItems
+                            items={items}
+                            setGestioneazaItem={setGestioneazaCardItem}
+                            setStergeItem={setStergeItem}
+                            setItemid={setItemid}
+                            fetchItems={fetchItems}
+                        />
+                    ) : tipAfisare === "grid" ? (
+                        <GridAfisItems
+                            items={items}
+                            setGestioneazaItem={setGestioneazaCardItem}
+                            setStergeItem={setStergeItem}
+                            setItemid={setItemid}
+                            fetchItems={fetchItems}
+                        />
+                    ) : null
+                ) : (
+                    <EditCarduriItem
+                        item={gestioneazaCardItem}
+                        setGestioneazaCardItem={setGestioneazaCardItem}
+                    />
+                )}
 
-                <hr className="border-t-2 border-gray-500 my-2 rounded-full mx-6" />
+                {/*Popup de Stergere item */}
+                {stergeItem && (
+                    <PopupStergeItem
+                        setShowPopupStergeItem={setStergeItem}
+                        item={itemid}
+                        items={items}
+                        fetchItems={fetchItems}
+                    />
+                )}
             </div>
         </>
     );

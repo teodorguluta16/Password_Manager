@@ -75,16 +75,15 @@ const exportKey = async (key) => {
 };
 
 const importAESKey = async (base64Key) => {
-    // Decodifică șirul Base64 într-un ArrayBuffer
+
     const keyBuffer = Uint8Array.from(atob(base64Key), c => c.charCodeAt(0));
 
-    // Importă cheia AES din ArrayBuffer
     const cryptoKey = await window.crypto.subtle.importKey(
-        'raw',                // tipul cheii
-        keyBuffer,            // ArrayBuffer-ul cu cheia
-        { name: 'AES-GCM' },  // Algoritmul dorit (AES-GCM)
-        false,                // Nu permitem exportul cheii
-        ['encrypt', 'decrypt'] // Permisiuni
+        'raw',
+        keyBuffer,
+        { name: 'AES-GCM' },
+        false,
+        ['encrypt', 'decrypt']
     );
 
     return cryptoKey;

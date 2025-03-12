@@ -76,64 +76,142 @@ const ItemiStersi = ({ derivedKey }) => {
 
                         // Decriptare continut
                         const continutfromdata = item.continut_hex;
-                        //console.log("Continutul primit de la server: ", continutfromdata);
 
                         const decodedString2 = hexToString(continutfromdata);
                         const dataObject2 = JSON.parse(decodedString2);
 
                         const { created_at, modified_at, version } = dataObject2.metadata;
-                        //console.log("Metadatele obiectului: ", dataObject2);
 
                         const ivHex2 = dataObject2.data.tip.iv;
                         const encDataHex2 = dataObject2.data.tip.encData;
                         const tagHex2 = dataObject2.data.tip.tag;
-
                         const rez_tip = await decriptareDate(encDataHex2, ivHex2, tagHex2, importedKey);
 
-                        const ivHex3 = dataObject2.data.nume.iv;
-                        const encDataHex3 = dataObject2.data.nume.encData;
-                        const tagHex3 = dataObject2.data.nume.tag;
+                        if (rez_tip === "password") {
+                            const ivHex3 = dataObject2.data.nume.iv;
+                            const encDataHex3 = dataObject2.data.nume.encData;
+                            const tagHex3 = dataObject2.data.nume.tag;
 
-                        const rez_nume = await decriptareDate(encDataHex3, ivHex3, tagHex3, importedKey);
+                            const rez_nume = await decriptareDate(encDataHex3, ivHex3, tagHex3, importedKey);
 
 
-                        const ivHex4 = dataObject2.data.username.iv;
-                        const encDataHex4 = dataObject2.data.username.encData;
-                        const tagHex4 = dataObject2.data.username.tag;
+                            const ivHex4 = dataObject2.data.username.iv;
+                            const encDataHex4 = dataObject2.data.username.encData;
+                            const tagHex4 = dataObject2.data.username.tag;
 
-                        const rez_username = await decriptareDate(encDataHex4, ivHex4, tagHex4, importedKey);
+                            const rez_username = await decriptareDate(encDataHex4, ivHex4, tagHex4, importedKey);
 
-                        const ivHex5 = dataObject2.data.parola.iv;
-                        const encDataHex5 = dataObject2.data.parola.encData;
-                        const tagHex5 = dataObject2.data.parola.tag;
-                        const rez_parola = await decriptareDate(encDataHex5, ivHex5, tagHex5, importedKey);
+                            const ivHex5 = dataObject2.data.parola.iv;
+                            const encDataHex5 = dataObject2.data.parola.encData;
+                            const tagHex5 = dataObject2.data.parola.tag;
+                            const rez_parola = await decriptareDate(encDataHex5, ivHex5, tagHex5, importedKey);
 
-                        const ivHex6 = dataObject2.data.url.iv;
-                        const encDataHex6 = dataObject2.data.url.encData;
-                        const tagHex6 = dataObject2.data.url.tag;
-                        const rez_url = await decriptareDate(encDataHex6, ivHex6, tagHex6, importedKey);
 
-                        const ivHex7 = dataObject2.data.comentariu.iv;
-                        const encDataHex7 = dataObject2.data.comentariu.encData;
-                        const tagHex7 = dataObject2.data.comentariu.tag;
-                        const rez_comentariu = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
+                            const ivHex6 = dataObject2.data.url.iv;
+                            const encDataHex6 = dataObject2.data.url.encData;
+                            const tagHex6 = dataObject2.data.url.tag;
+                            const rez_url = await decriptareDate(encDataHex6, ivHex6, tagHex6, importedKey);
 
-                        console.log("Datele primite de la server aferente parolei: ", rez_tip, rez_nume, rez_url, rez_username, rez_parola, rez_comentariu, isDeleted);
+                            const ivHex7 = dataObject2.data.comentariu.iv;
+                            const encDataHex7 = dataObject2.data.comentariu.encData;
+                            const tagHex7 = dataObject2.data.comentariu.tag;
+                            const rez_comentariu = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
 
-                        fetchedItems.push({
-                            nume: rez_nume,
-                            tipitem: rez_tip,
-                            username: rez_username,
-                            parola: rez_parola,
-                            url: rez_url,
-                            comentariu: rez_comentariu,
-                            created_at: created_at,
-                            modified_at: modified_at,
-                            version: version,
-                            id_owner: id_owner,
-                            id_item: id_item,
-                            isDeleted: isDeleted
-                        });
+                            console.log("Datele primite de la server aferente parolei:", rez_tip, rez_nume, rez_url, rez_username, rez_parola, rez_comentariu, isDeleted);
+                            fetchedItems.push({
+                                nume: rez_nume,
+                                tipitem: rez_tip,
+                                username: rez_username,
+                                parola: rez_parola,
+                                url: rez_url,
+                                comentariu: rez_comentariu,
+                                created_at: created_at,
+                                modified_at: modified_at,
+                                version: version,
+                                id_owner: id_owner,
+                                id_item: id_item,
+                                isDeleted: isDeleted,
+                            });
+
+
+                        }
+                        if (rez_tip === "remoteConnexion") {
+                            const ivHex3 = dataObject2.data.nume.iv;
+                            const encDataHex3 = dataObject2.data.nume.encData;
+                            const tagHex3 = dataObject2.data.nume.tag;
+
+                            const rez_nume = await decriptareDate(encDataHex3, ivHex3, tagHex3, importedKey);
+
+                            const ivHex4 = dataObject2.data.username.iv;
+                            const encDataHex4 = dataObject2.data.username.encData;
+                            const tagHex4 = dataObject2.data.username.tag;
+
+                            const rez_username = await decriptareDate(encDataHex4, ivHex4, tagHex4, importedKey);
+
+                            const ivHex5 = dataObject2.data.parola.iv;
+                            const encDataHex5 = dataObject2.data.parola.encData;
+                            const tagHex5 = dataObject2.data.parola.tag;
+                            const rez_parola = await decriptareDate(encDataHex5, ivHex5, tagHex5, importedKey);
+
+                            const ivHex6 = dataObject2.data.host.iv;
+                            const encDataHex6 = dataObject2.data.host.encData;
+                            const tagHex6 = dataObject2.data.host.tag;
+                            const rez_host = await decriptareDate(encDataHex6, ivHex6, tagHex6, importedKey);
+
+                            const ivHex7 = dataObject2.data.ppkKey.iv;
+                            const encDataHex7 = dataObject2.data.ppkKey.encData;
+                            const tagHex7 = dataObject2.data.ppkKey.tag;
+                            const rez_ppkKey = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
+
+                            fetchedItems.push({
+                                nume: rez_nume,
+                                tipitem: rez_tip,
+                                username: rez_username,
+                                parola: rez_parola,
+                                host: rez_host,
+                                ppkKey: rez_ppkKey,
+                                created_at: created_at,
+                                modified_at: modified_at,
+                                version: version,
+                                id_owner: id_owner,
+                                id_item: id_item,
+                                isDeleted: isDeleted,
+                            });
+                        }
+                        if (rez_tip === "notita") {
+                            const ivHex3 = dataObject2.data.nume.iv;
+                            const encDataHex3 = dataObject2.data.nume.encData;
+                            const tagHex3 = dataObject2.data.nume.tag;
+
+                            const rez_nume = await decriptareDate(encDataHex3, ivHex3, tagHex3, importedKey);
+
+
+                            const ivHex4 = dataObject2.data.data.iv;
+                            const encDataHex4 = dataObject2.data.data.encData;
+                            const tagHex4 = dataObject2.data.data.tag;
+
+                            const rez_data = await decriptareDate(encDataHex4, ivHex4, tagHex4, importedKey);
+
+                            const ivHex7 = dataObject2.data.comentariu.iv;
+                            const encDataHex7 = dataObject2.data.comentariu.encData;
+                            const tagHex7 = dataObject2.data.comentariu.tag;
+                            const rez_comentariu = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
+
+                            console.log("Datele primite de la server aferente parolei:", rez_tip, rez_nume, rez_data, rez_comentariu, isDeleted);
+
+                            fetchedItems.push({
+                                nume: rez_nume,
+                                tipitem: rez_tip,
+                                data: rez_data,
+                                comentariu: rez_comentariu,
+                                created_at: created_at,
+                                modified_at: modified_at,
+                                version: version,
+                                id_owner: id_owner,
+                                id_item: id_item,
+                                isDeleted: isDeleted,
+                            });
+                        }
                     } catch (error) {
                         console.error('Eroare la decriptarea item-ului cu ID-ul:', item.id_item, error);
                     }
@@ -201,7 +279,6 @@ const ItemiStersi = ({ derivedKey }) => {
                                     <img src={item.tipitem === 'password' ? ParolaLogo : item.tipitem === 'notita' ? NoteLogo : item.tipitem === 'card' ? CardLogo : item.tipitem === "remoteConnexion" ? RemoteLogo : PeopleLogo} alt="Logo Parola Item" className="w-8 h-8"></img>
                                     <div>
                                         <h2 className="font-semibold">{item.nume}</h2>
-                                        <h3 className="text-sm text-gray-500">{item.username}</h3>
                                         <h3 className="text-sm text-gray-500">Data stergerii: 12.11.2023</h3>
                                     </div>
                                 </div>

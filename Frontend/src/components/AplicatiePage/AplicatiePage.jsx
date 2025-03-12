@@ -196,6 +196,7 @@ const AplicatiePage = () => {
   const [paroleItemsAll, setParoleItems] = useState([]);
   const [RemoteItemsAll, setRemoteItmes] = useState([]);
   const [notiteItemsAll, setNotiteItmes] = useState([]);
+  const [carduriItemsAll, setCarduriItems] = useState([]);
 
   const fetchItems = async () => {
 
@@ -217,6 +218,7 @@ const AplicatiePage = () => {
         let paroleItems = [];
         let remoteItems = [];
         let notiteItems = [];
+        let carduriItems = [];
         for (let item of data) {
           try {
             const isFavorite = item.isfavorite;
@@ -482,6 +484,89 @@ const AplicatiePage = () => {
 
             }
 
+            if (rez_tip === "card") {
+              const ivHex3 = dataObject2.data.nume.iv;
+              const encDataHex3 = dataObject2.data.nume.encData;
+              const tagHex3 = dataObject2.data.nume.tag;
+
+              const rez_nume = await decriptareDate(encDataHex3, ivHex3, tagHex3, importedKey);
+
+              const ivHex4 = dataObject2.data.numarItem.iv;
+              const encDataHex4 = dataObject2.data.numarItem.encData;
+              const tagHex4 = dataObject2.data.numarItem.tag;
+
+              const rez_numarCard = await decriptareDate(encDataHex4, ivHex4, tagHex4, importedKey);
+
+              const ivHex5 = dataObject2.data.numePosesor.iv;
+              const encDataHex5 = dataObject2.data.numePosesor.encData;
+              const tagHex5 = dataObject2.data.numePosesor.tag;
+
+              const rez_posesorCard = await decriptareDate(encDataHex5, ivHex5, tagHex5, importedKey);
+
+              const ivHex6 = dataObject2.data.dataExpirare.iv;
+              const encDataHex6 = dataObject2.data.dataExpirare.encData;
+              const tagHex6 = dataObject2.data.dataExpirare.tag;
+
+              const rez_dataExpirare = await decriptareDate(encDataHex6, ivHex6, tagHex6, importedKey);
+
+              const ivHex7 = dataObject2.data.comentariu.iv;
+              const encDataHex7 = dataObject2.data.comentariu.encData;
+              const tagHex7 = dataObject2.data.comentariu.tag;
+              const rez_comentariu = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
+
+              console.log("Datele primite de la server aferente cardului:", rez_tip, rez_nume, rez_numarCard, rez_posesorCard, rez_comentariu, rez_dataExpirare, isDeleted, isFavorite);
+              carduriItems.push({
+                nume: rez_nume,
+                tipitem: rez_tip,
+                numarCard: rez_numarCard,
+                posesorCard: rez_posesorCard,
+                dataExpirare: rez_dataExpirare,
+                comentariu: rez_comentariu,
+                created_at: created_at,
+                modified_at: modified_at,
+                version: version,
+                id_owner: id_owner,
+                id_item: id_item,
+                isDeleted: isDeleted,
+                isFavorite: isFavorite
+              });
+
+              fetchedItems.push({
+                nume: rez_nume,
+                tipitem: rez_tip,
+                numarCard: rez_numarCard,
+                posesorCard: rez_posesorCard,
+                dataExpirare: rez_dataExpirare,
+                comentariu: rez_comentariu,
+                created_at: created_at,
+                modified_at: modified_at,
+                version: version,
+                id_owner: id_owner,
+                id_item: id_item,
+                isDeleted: isDeleted,
+                isFavorite: isFavorite
+              });
+
+              if (isFavorite) {
+                favoriteItems.push({
+                  nume: rez_nume,
+                  tipitem: rez_tip,
+                  numarCard: rez_numarCard,
+                  posesorCard: rez_posesorCard,
+                  dataExpirare: rez_dataExpirare,
+                  comentariu: rez_comentariu,
+                  created_at: created_at,
+                  modified_at: modified_at,
+                  version: version,
+                  id_owner: id_owner,
+                  id_item: id_item,
+                  isDeleted: isDeleted,
+                  isFavorite: isFavorite
+                });
+              }
+
+            }
+
           } catch (error) {
             console.error('Eroare la decriptarea item-ului cu ID-ul:', item.id_item, error);
           }
@@ -492,6 +577,7 @@ const AplicatiePage = () => {
         setParoleItems(paroleItems);
         setRemoteItmes(remoteItems);
         setNotiteItmes(notiteItems);
+        setCarduriItems(carduriItems);
       } else {
         console.error('Failed to fetch items', response.statusText);
       }
@@ -756,8 +842,8 @@ const AplicatiePage = () => {
         {/* Paginile de lucru*/}
         {sectiuneItemi === 'toate' && savedKey && (<ItemsAllPage derivedKey={savedKey} items={items} fetchItems={fetchItems} />)}
         {sectiuneItemi === 'parole' && savedKey && <ParolePage derivedKey={savedKey} items={paroleItemsAll} fetchItems={fetchItems} />}
-        {sectiuneItemi === 'notite' && <NotitePage derivedKey={savedKey} items={notiteItemsAll} fetchItems={fetchItems} />}
-        {sectiuneItemi === 'carduri' && <CarduriBancarePage />}
+        {sectiuneItemi === 'notite' && savedKey && <NotitePage derivedKey={savedKey} items={notiteItemsAll} fetchItems={fetchItems} />}
+        {sectiuneItemi === 'carduri' && savedKey && <CarduriBancarePage derivedKey={savedKey} items={carduriItemsAll} fetchItems={fetchItems} />}
         {sectiuneItemi === 'adrese' && <AdresePage />}
         {sectiuneItemi === 'favorite' && <FavoritePage derivedKey={savedKey} items={favoriteItemsAll} fetchItems={fetchItems} />}
         {sectiuneItemi === 'grupuri' && <GrupuriPage derivedKey={savedKey} />}

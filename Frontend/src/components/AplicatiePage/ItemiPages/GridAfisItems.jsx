@@ -85,8 +85,23 @@ const GridAfisItems = ({ items, setGestioneazaItem, setStergeItem, setItemid, fe
                     <div className="mt-0 items-center justify-center h-full">
                         <div className="flex flex-col items-center py-2">
                             <img src={item.tipitem === 'password' ? ParolaLogo : item.tipitem === 'notita' ? NoteLogo : item.tipitem === 'card' ? CardLogo : item.tipitem === "remoteConnexion" ? RemoteLogo : PeopleLogo} alt="Logo Parola Item" className="w-8 h-8"></img>
-                            <h2>{item.nume}</h2>
-                            <h2>{item.username}</h2>
+                            {(item.tipitem === "notita") && (
+                                <h2 className="mt-2">{item.nume}</h2>
+                            )}
+                            {(item.tipitem === "password" || item.tipitem === "remoteConnexion") && (
+                                <>
+                                    <h2>{item.nume}</h2>
+                                    <h2>{item.username}</h2>
+                                </>
+
+                            )}
+                            {(item.tipitem === "card") && (
+                                <>
+                                    <h2>{item.nume}</h2>
+                                    <h2>{item.posesorCard}</h2>
+                                </>
+
+                            )}
                         </div>
                     </div>
                 </div>

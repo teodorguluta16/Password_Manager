@@ -38,7 +38,7 @@ authRouter.post("/addUser", async (req, res) => {
 authRouter.post("/login", async (req, res) => {
     const { Email, hashedPassword } = req.body;
 
-    if (!Email || !hashedPassword) {
+    if (!Email || !hashedPassword) { //// sa fac salt la hash si il salvez in abza de date
         console.log("Eroare primire date\n");
         return res.status(400).send("Date netrimise\n");
     }

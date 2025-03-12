@@ -3,7 +3,7 @@ import { client } from '../postgres/postgres.js';
 import verifyJWT from '../verifyJWT.js';
 
 const protectedRouter = express.Router();
-// ✅ Aplică `verifyJWT` la toate rutele protejate
+
 protectedRouter.use(verifyJWT);
 //rute protejate 
 
@@ -57,7 +57,7 @@ protectedRouter.post('/addKey', async (req, res) => {
     }
 });
 protectedRouter.get('/utilizator/getSalt', async (req, res) => {
-    const userId = req.user.sub; // ✅ Acum `userId` este extras automat din `accessToken`
+    const userId = req.user.sub;
 
     try {
         const result = await client.query(
@@ -69,7 +69,7 @@ protectedRouter.get('/utilizator/getSalt', async (req, res) => {
             return res.status(404).json({ message: "Utilizator negăsit" });
         }
 
-        res.status(200).json(result.rows[0]); // ✅ Trimitem salt-ul
+        res.status(200).json(result.rows[0]);
     } catch (error) {
         console.error("Eroare la obținerea salt-ului: ", error);
         res.status(500).json({ message: "Eroare server" });

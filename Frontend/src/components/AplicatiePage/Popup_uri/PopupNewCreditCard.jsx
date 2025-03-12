@@ -9,8 +9,8 @@ const PopupNewCreditCard = ({ setShowCardPopup, derivedKey, fetchItems }) => {
 
     const [numeBanca, setNumeBanca] = useState("");
     const [numarCard, setNumarCard] = useState("");
+    const [numePosesor, setNumePosesor] = useState("");
     const [dataExpirare, setDataExpirare] = useState("");
-    const [cvvCard, setCvvCard] = useState("");
     const [comentariuCard, setComentariuCard] = useState("");
 
     useEffect(() => {
@@ -20,25 +20,20 @@ const PopupNewCreditCard = ({ setShowCardPopup, derivedKey, fetchItems }) => {
         }
     }, [derivedKey]);
 
-    const handleAdaugaCard = () => {
-        // Funcționalitate pentru salvarea cardului
-        console.log({ numeBanca, numarCard, dataExpirare, cvvCard, comentariuCard });
-        setShowCardPopup(false);
-    }
-
     const handleAdaugaItem = async () => {
         try {
-            setShowParolaPopup(false);
+            setShowCardPopup(false);
 
             const key_aes = await generateKey();
 
             // criptare elemente
-            const enc_Tip = await criptareDate("password", key_aes);
-            const enc_NumeItem = await criptareDate(numeItem, key_aes);
-            const enc_UrlItem = await criptareDate(urlItem, key_aes);
-            const enc_UsernameItem = await criptareDate(usernameItem, key_aes);
-            const enc_ParolaItem = await criptareDate(parolaItem, key_aes);
-            const enc_ComentariuItem = await criptareDate(comentariuItem, key_aes);
+            const enc_Tip = await criptareDate("card", key_aes);
+            const enc_NumeItem = await criptareDate(numeBanca, key_aes);
+            const enc_NumarItem = await criptareDate(numarCard, key_aes);
+            const enc_NumePosesorItem = await criptareDate(numePosesor, key_aes);
+            const enc_dataExpirareItem = await criptareDate(dataExpirare, key_aes);
+            const enc_ComentariuItem = await criptareDate(comentariuCard, key_aes);
+
 
             // criptare cheie
             const criptKey = await decodeMainKey(key);
@@ -87,9 +82,9 @@ const PopupNewCreditCard = ({ setShowCardPopup, derivedKey, fetchItems }) => {
                 data: {
                     tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag, },
                     nume: { iv: enc_NumeItem.iv, encData: enc_NumeItem.encData, tag: enc_NumeItem.tag },
-                    url: { iv: enc_UrlItem.iv, encData: enc_UrlItem.encData, tag: enc_UrlItem.tag },
-                    username: { iv: enc_UsernameItem.iv, encData: enc_UsernameItem.encData, tag: enc_UsernameItem.tag },
-                    parola: { iv: enc_ParolaItem.iv, encData: enc_ParolaItem.encData, tag: enc_ParolaItem.tag },
+                    numarItem: { iv: enc_NumarItem.iv, encData: enc_NumarItem.encData, tag: enc_NumarItem.tag },
+                    numePosesor: { iv: enc_NumePosesorItem.iv, encData: enc_NumePosesorItem.encData, tag: enc_NumePosesorItem.tag },
+                    dataExpirare: { iv: enc_dataExpirareItem.iv, encData: enc_dataExpirareItem.encData, tag: enc_dataExpirareItem.tag },
                     comentariu: { iv: enc_ComentariuItem.iv, encData: enc_ComentariuItem.encData, tag: enc_ComentariuItem.tag }
                 },
             };
@@ -154,12 +149,13 @@ const PopupNewCreditCard = ({ setShowCardPopup, derivedKey, fetchItems }) => {
 
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="w-1/2">
-                                <label className="text-sm md:text-md font-medium">Data Expirare</label>
-                                <input type="text" value={dataExpirare} onChange={(e) => setDataExpirare(e.target.value)} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full" placeholder="MM/YY" maxLength="5" />
+                                <label className="text-sm md:text-md font-medium">Nume Posesor</label>
+                                <input type="text" value={numePosesor} onChange={(e) => setNumePosesor(e.target.value)} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full" placeholder="Ion Popescu" maxLength="19" />
+
                             </div>
                             <div className="w-1/2">
-                                <label className="text-sm md:text-md font-medium">CVV</label>
-                                <input type="password" value={cvvCard} onChange={(e) => setCvvCard(e.target.value)} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full" placeholder="XXX" maxLength="3" />
+                                <label className="text-sm md:text-md font-medium">Data Expirare</label>
+                                <input type="text" value={dataExpirare} onChange={(e) => setDataExpirare(e.target.value)} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full" placeholder="MM/YY" maxLength="5" />
                             </div>
                         </div>
 
@@ -168,7 +164,7 @@ const PopupNewCreditCard = ({ setShowCardPopup, derivedKey, fetchItems }) => {
                     </form>
 
                     <div className="flex justify-center items-center w-full">
-                        <button onClick={handleAdaugaCard} className="bg-green-600 w-full py-2 px-4 rounded-lg mt-4 hover:bg-yellow-500 text-white transition-all duration-200 mb-4">
+                        <button onClick={handleAdaugaItem} className="bg-green-600 w-full py-2 px-4 rounded-lg mt-4 hover:bg-yellow-500 text-white transition-all duration-200 mb-4">
                             Adaugă Card
                         </button>
                     </div>
