@@ -311,7 +311,7 @@ protectedRouter.post('/grupuri/getGroupMembersforOwner', async (req, res) => {
 
     try {
         const result = await client.query(
-            `select u.nume,u.prenume,u.email from utilizatori as u inner join legusergrup as lg on u.id=lg.id_user 
+            `select u.nume,u.prenume,u.email,u.id from utilizatori as u inner join legusergrup as lg on u.id=lg.id_user 
             where lg.id_grup=$1
             and lg.id_user != $2`,
             [idgrup, userId]
@@ -345,6 +345,25 @@ protectedRouter.post('/grupuri/parasesteGroup', async (req, res) => {
     } catch (error) {
         console.error('Eroare:', error);
         res.status(500).json({ message: 'Eroare la ieșirea din grup' });
+    }
+});
+protectedRouter.post('/grupuri/eliminaUtilizatorGroup', async (req, res) => {
+
+    const { idgrup, userId } = req.body;
+    console.log("id este", userId);
+    try {
+        const result = await client.query(`DELETE FROM legusergrup WHERE id_grup = $1 AND id_user = $2 RETURNING *`, [idgrup, userId]
+        );
+
+        if (result.rowCount > 0) {
+            console.log("sters");
+            res.status(200).json({ success: true, message: 'Utilizator sters cu succes' });
+        } else {
+            res.status(404).json({ success: true, message: 'Nu s-a gasit userul' });
+        }
+    } catch (error) {
+        console.error('Eroare:', error);
+        res.status(500).json({ success: true, message: 'Eroare la eliminarea din grup' });
     }
 });
 

@@ -4,8 +4,9 @@ import ArrowBack from "../../../assets/website/back.png"
 import { FaPlus, FaClipboard, FaPlusCircle, FaPlusSquare, FaUserPlus } from 'react-icons/fa';
 import "../../../App.css"
 
-import { FaEye, FaEyeSlash, FaCopy, FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaCopy, FaEdit, FaSave, FaArrowLeft, FaUserMinus } from 'react-icons/fa';
 import PopupNewUtilizatorGrup from '../Popup_uri/PopupNewUtilizatorGrup.jsx'
+import PopupEliminaUtilizatorGrup from "../Popup_uri/PopupEliminaUtilizatorGrup.jsx";
 
 const EditGrupItem = ({ item, setGestioneazaGrupItem, derivedKey }) => {
     const [key, setKey] = useState(derivedKey);
@@ -76,6 +77,8 @@ const EditGrupItem = ({ item, setGestioneazaGrupItem, derivedKey }) => {
         handleVizualizareOwnerGrup();
     }, [item]);
 
+    const [popupEliminaUt, setPopupEliminaUtilizatorGrup] = useState(false);
+
     return (
         <>
             <div className="py-4 px-12 mb-2 mt-3">
@@ -120,10 +123,18 @@ const EditGrupItem = ({ item, setGestioneazaGrupItem, derivedKey }) => {
                             </div>
                             {afismembriGrup && (<div>{membriGrup.length > 0 ? (<div className="h-64 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
                                 {membriGrup.map((it, index) => (
-                                    <div key={index} className="py-1 mx-2">
-                                        <span className="font-semibold">{`${it.nume} ${it.prenume}`}</span>
-                                        <div className="flex space-x-2">
-                                            <span className="text-sm italic text-gray-600">{it.email}</span>
+                                    <div key={index} className="py-0 mx-2">
+                                        <div className="flex flex-row justify-between items-center">
+                                            <div>
+                                                <span className="font-semibold">{`${it.nume} ${it.prenume}`}</span>
+                                                <div className="flex space-x-2">
+                                                    <span className="text-sm italic text-gray-600">{it.email}</span>
+                                                </div>
+                                            </div>
+                                            <button onClick={() => setPopupEliminaUtilizatorGrup(true)} className="text-red-300 hover:text-red-700 transition-all duration-300 ease-in-out ">
+                                                <FaUserMinus className="w-7 h-7" />
+                                            </button>
+                                            {popupEliminaUt && <PopupEliminaUtilizatorGrup setPopupEliminaUtilizatorGrup={setPopupEliminaUtilizatorGrup} idgrup={item.id_grup} idUtilizator={it.id} />}
                                         </div>
                                         <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
                                     </div>
@@ -138,6 +149,7 @@ const EditGrupItem = ({ item, setGestioneazaGrupItem, derivedKey }) => {
 
             </div>
             {popupUtilizatorNou && <PopupNewUtilizatorGrup setPopupUtilizatorNou={setPopupUtilizatorNou} idgrup={item.id_grup} encryptedprivategroupkey={item.encryptedprivategroupkey} derivedKey={key} />}
+
         </>
     );
 };
