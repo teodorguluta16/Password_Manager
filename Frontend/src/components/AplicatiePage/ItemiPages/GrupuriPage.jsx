@@ -1,15 +1,90 @@
 import React from "react";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import ListIcon from "../../../assets/website/list.png"
 import GridIcon from "../../../assets/website/visualization.png"
-import { FaPlus, FaClipboard, FaSignOutAlt } from 'react-icons/fa';
+import { FaPlus, FaClipboard, FaSignOutAlt, FaTrash, FaEllipsisV } from 'react-icons/fa';
 import PopupNewGrup from "../Popup_uri/PopupNewGrup"
 import PopupParasesteGrup from "../Popup_uri/PopupParasesteGrup";
+import PopupStergeGrupDefinitiv from "../Popup_uri/PopupStergeGrupDefinitiv";
 
 import EdiGrupItem from './EditGrupItem';
 import GroupItmes from "./GroupItems";
 
+const GrupMeniu = ({ group, selecteazaOptiune, setGestioneazaGrupItem, setStergeGrupPopup, setIdGrupDeEliminat }) => {
+    const [open, setOpen] = useState(false);
+    const menuRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    return (
+        <div className="relative flex items-center space-x-2" ref={menuRef}>
+            <FaEllipsisV className="w-7 h-7 cursor-pointer hover:text-blue-700" onClick={(e) => { e.stopPropagation(); setOpen(!open); }} />
+            {open && (
+                <div className="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg z-10">
+                    <button className="w-full flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        onClick={(e) => { e.stopPropagation(); e.preventDefault(); selecteazaOptiune("detalii"); setGestioneazaGrupItem(group); setOpen(false); }}>
+                        <FaClipboard className="w-5 h-5 mr-2" />
+                        Detalii
+                    </button>
+                    <button className="w-full flex items-center px-4 py-2 text-red-500 hover:bg-red-100"
+                        onClick={(e) => { e.stopPropagation(); setStergeGrupPopup(true); setOpen(false); setIdGrupDeEliminat(group.id_grup) }}>
+                        <FaTrash className="w-5 h-5 mr-2" />
+                        Șterge
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
+const GrupMeniu2 = ({ group, selecteazaOptiune, setGestioneazaGrupItem, setleaveGrup }) => {
+    const [open, setOpen] = useState(false);
+    const menuRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    return (
+        <div className="relative flex items-center space-x-2" ref={menuRef}>
+            <FaEllipsisV className="w-7 h-7 cursor-pointer hover:text-blue-700" onClick={(e) => { e.stopPropagation(); setOpen(!open); }} />
+            {open && (
+                <div className="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg z-10">
+                    <button className="w-full flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        onClick={(e) => { e.stopPropagation(); e.preventDefault(); selecteazaOptiune("detalii"); setGestioneazaGrupItem(group); setOpen(false); }}>
+                        <FaClipboard className="w-5 h-5 mr-2" />
+                        Detalii
+                    </button>
+                    <button className="w-full flex items-center px-4 py-2 text-red-500 hover:bg-red-100"
+                        onClick={(e) => { e.stopPropagation(); setleaveGrup(true); setOpen(false); }}>
+                        <FaSignOutAlt className="w-5 h-5 mr-2" />
+                        Părăsește
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
 
 const GrupuriPage = ({ derivedKey }) => {
     const [key, setKey] = useState(derivedKey);
@@ -45,7 +120,6 @@ const GrupuriPage = ({ derivedKey }) => {
     const openPopup = () => {
         setPopupGrupNou(true);
     };
-
 
     const fetchGroups = async () => {
         try {
@@ -92,6 +166,8 @@ const GrupuriPage = ({ derivedKey }) => {
     }, [userId]);
 
     const [leaveGrup, setleaveGrup] = useState(false);
+    const [stergeGrupPop, setStergeGrupPopup] = useState(false);
+    const [idGrupDeEliminat, setIdGrupDeEliminat] = useState(false);
     return (
         <>
             {gestioneazaGrupItem === null && <div>
@@ -167,18 +243,16 @@ const GrupuriPage = ({ derivedKey }) => {
                                             className="border border-white-700 rounded-lg shadow-lg shadow-gray-300 bg-neutral-300 p-4 rounded-lg shadow-md cursor-pointer flex flex-row justify-between hover:bg-yellow-400 cursor-pointer group transition-all duration-300 ease-in-out"
                                         >
                                             <h3 className="text-xl font-semibold">{group.nume}</h3>
-                                            <div className="mt-1 flex justify-end space-x-4">
-                                                <FaClipboard
-                                                    className="w-6 h-6 cursor-pointer hover:text-blue-500"
-                                                    onClick={(e) => {
-                                                        // Opriți propagarea evenimentului de click pe iconița FaClipboard
-                                                        e.stopPropagation();
-                                                        selecteazaOptiune("detalii");
-                                                        setGestioneazaGrupItem(group);
-                                                    }}
-                                                />
-                                            </div>
+                                            <GrupMeniu
+                                                group={group}
+                                                selecteazaOptiune={selecteazaOptiune}
+                                                setGestioneazaGrupItem={setGestioneazaGrupItem}
+                                                setStergeGrupPopup={setStergeGrupPopup}
+                                                setIdGrupDeEliminat={setIdGrupDeEliminat}
+
+                                            />
                                         </div>
+
                                     ))
                             )}
                         </div>
@@ -203,7 +277,7 @@ const GrupuriPage = ({ derivedKey }) => {
                                     .map(group => (
                                         <div
                                             key={group.id_grup}
-                                            onClick={(e) => {
+                                            onClick={() => {
                                                 if (!leaveGrup) { // Previne click-ul pe grup când popup-ul este deschis
                                                     selecteazaOptiune("itemigrup");
                                                     setGestioneazaGrupItem(group);
@@ -211,27 +285,15 @@ const GrupuriPage = ({ derivedKey }) => {
                                             }}
                                             className="border border-white-700 rounded-lg shadow-lg shadow-gray-300 bg-neutral-300 p-4 rounded-lg shadow-md cursor-pointer flex flex-row justify-between hover:bg-yellow-400 cursor-pointer group transition-all duration-300 ease-in-out"
                                         >
-                                            <h3 className="text-xl font-semibold">{group.nume}</h3>
-                                            <div className="mt-1 flex justify-end space-x-4">
-                                                <FaClipboard
-                                                    className="w-6 h-6 cursor-pointer hover:text-blue-500"
-                                                    onClick={(e) => {
-                                                        // Opriți propagarea evenimentului de click pe iconița FaClipboard
-                                                        e.stopPropagation();
-                                                        selecteazaOptiune("detalii");
-                                                        setGestioneazaGrupItem(group);
-                                                    }}
-                                                />
-                                                <FaSignOutAlt
-                                                    className="w-6 h-6 cursor-pointer hover:text-red-700"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation(); // Opriți propagarea evenimentului de click
-                                                        e.preventDefault(); // Previne orice alt efect nedorit
-                                                        setleaveGrup(true); // Apelează funcția pentru a părăsi grupul
-                                                    }}
-                                                />
 
-                                            </div>
+                                            <h3 className="text-xl font-semibold">{group.nume}</h3>
+                                            <GrupMeniu2
+                                                group={group}
+                                                selecteazaOptiune={selecteazaOptiune}
+                                                setGestioneazaGrupItem={setGestioneazaGrupItem}
+                                                setleaveGrup={setleaveGrup}
+
+                                            />
                                             {leaveGrup && <PopupParasesteGrup setShowPopupParasesteGrup={setleaveGrup} item={group.id_grup} fetchItems={fetchGroups} />}
                                         </div>
                                     ))
@@ -244,8 +306,10 @@ const GrupuriPage = ({ derivedKey }) => {
             }
             {gestioneazaGrupItem && optiuneGrup === "detalii" && <EdiGrupItem item={gestioneazaGrupItem} setGestioneazaGrupItem={setGestioneazaGrupItem} derivedKey={key} />}
             {gestioneazaGrupItem && optiuneGrup === "itemigrup" && <GroupItmes item={gestioneazaGrupItem} setGestioneazaGrupItem={setGestioneazaGrupItem} derivedKey={key} />}
-
+            {stergeGrupPop && <PopupStergeGrupDefinitiv setStergeGrupPopup={setStergeGrupPopup} item={idGrupDeEliminat} fetchItems={fetchGroups} />}
         </>
     );
 };
+
+
 export default GrupuriPage;

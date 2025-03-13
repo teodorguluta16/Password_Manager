@@ -441,6 +441,63 @@ protectedRouter.post('/grupuri/getGroupItemi', async (req, res) => {
         res.status(500).send();
     }
 });
+protectedRouter.post('/grupuri/stergeGrup', async (req, res) => {
+    const { idGrup } = req.body;
+    const userId = req.user.sub;
+
+    if (!idGrup || !userId) {
+        return res.status(400).json({ error: "Lipsesc datele necesare!" });
+    }
+    try {
+        await client.query('BEGIN');
+
+        console.log(`User-ul ${userId} vrea să șteargă grupul ${idGrup}`);
+
+        // 1. Găsim toți itemii asociați grupului ÎNAINTE de a șterge referințele
+        const itemiDeSters = await client.query(
+            "SELECT DISTINCT id_item FROM leggrupuriitemi WHERE id_grup = $1",
+            [idGrup]
+        );
+
+        const itemIds = itemiDeSters.rows.map(row => row.id_item);
+
+        // 2. Ștergem referințele utilizatorilor din grup
+        await client.query("DELETE FROM legusergrup WHERE id_grup = $1", [idGrup]);
+
+        // 3. Ștergem referințele itemilor din grup
+        await client.query("DELETE FROM leggrupuriitemi WHERE id_grup = $1", [idGrup]);
+
+        if (itemIds.length > 0) {
+            console.log(`Șterg itemii: ${itemIds.join(", ")}`);
+
+            // 4. Ștergem doar itemii care NU mai sunt referiți în `leggrupuriitemi`
+            await client.query(
+                `DELETE FROM itemi 
+                 WHERE id_item = ANY($1::uuid[]) 
+                 AND NOT EXISTS (SELECT 1 FROM leggrupuriitemi WHERE leggrupuriitemi.id_item = itemi.id_item)`,
+                [itemIds]
+            );
+        }
+
+        // 5. Ștergem grupul doar dacă utilizatorul este owner
+        const result = await client.query(
+            "DELETE FROM grupuri WHERE id_grup = $1 AND id_owner = $2 RETURNING *",
+            [idGrup, userId]
+        );
+
+        if (result.rowCount === 0) {
+            throw new Error("Grupul nu există sau nu ai permisiunea de a-l șterge.");
+        }
+
+        await client.query('COMMIT');
+        res.json({ success: true, message: "Grupul și referințele asociate au fost șterse." });
+
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error("Eroare la ștergerea grupului:", error);
+        res.status(500).json({ error: "Eroare internă la ștergerea grupului." });
+    }
+});
 
 protectedRouter.get('/getGrupuri', async (req, res) => {
     const userId = req.user.sub;

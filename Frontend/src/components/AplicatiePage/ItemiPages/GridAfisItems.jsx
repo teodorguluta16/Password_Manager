@@ -74,7 +74,15 @@ const GridAfisItems = ({ items, setGestioneazaItem, setStergeItem, setItemid, fe
                     <div className="flex flex-col justify-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-100 space-x-2 relative">
                         {(item.tipitem === "password" || item.tipitem === "remoteConnexion") && (
                             <>
-                                <button onClick={(e) => { e.stopPropagation(); }} className="absolute mt-4 right-2 border border-white bg-white rounded-lg px-2 py-1 hover:bg-blue-300">
+                                <button onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (item.tipitem === "password") {
+                                        console.log("tip1");
+                                    } else if (item.tipitem === "remoteConnexion") {
+                                        console.log("tip2");
+                                    }
+                                }}
+                                    className="absolute mt-4 right-2 border border-white bg-white rounded-lg px-2 py-1 hover:bg-blue-300">
                                     <img src={LaunchLogo} alt="Launch Logo" className="w-5 h-5" />
                                 </button>
                                 <button onClick={(e) => toggleFavorite(e, item.id_item)}
