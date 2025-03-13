@@ -2,11 +2,14 @@ import React from 'react'
 import { useState, useEffect } from 'react';
 import "../../../App.css"
 import { decodeMainKey, decriptareDate } from "../../FunctiiDate/FunctiiDefinite"
+
 import PeopleLogo from "../../../assets/website/people.png";
 import ParolaLogo from "../../../assets/website/password2.png";
 import CardLogo from "../../../assets/website/credit-card2.png";
 import NoteLogo from "../../../assets/website/note2.png";
 import RemoteLogo from "../../../assets/website/remote-access.png"
+import AdressLogo from "../../../assets/website/map-and-location.png"
+
 import { FaHistory, FaTrash } from 'react-icons/fa';
 import PopupStergeItemDefinitiv from '../Popup_uri/PopupStergeItemDefinitiv';
 import PopupItmeRestauratCuSucces from '../Popup_uri/PopupItemRestauratCuSucces';
@@ -211,6 +214,107 @@ const ItemiStersi = ({ derivedKey }) => {
                                 id_item: id_item,
                                 isDeleted: isDeleted,
                             });
+
+                        }
+                        if (rez_tip === "card") {
+                            const ivHex3 = dataObject2.data.nume.iv;
+                            const encDataHex3 = dataObject2.data.nume.encData;
+                            const tagHex3 = dataObject2.data.nume.tag;
+
+                            const rez_nume = await decriptareDate(encDataHex3, ivHex3, tagHex3, importedKey);
+
+                            const ivHex4 = dataObject2.data.numarItem.iv;
+                            const encDataHex4 = dataObject2.data.numarItem.encData;
+                            const tagHex4 = dataObject2.data.numarItem.tag;
+
+                            const rez_numarCard = await decriptareDate(encDataHex4, ivHex4, tagHex4, importedKey);
+
+                            const ivHex5 = dataObject2.data.numePosesor.iv;
+                            const encDataHex5 = dataObject2.data.numePosesor.encData;
+                            const tagHex5 = dataObject2.data.numePosesor.tag;
+
+                            const rez_posesorCard = await decriptareDate(encDataHex5, ivHex5, tagHex5, importedKey);
+
+                            const ivHex6 = dataObject2.data.dataExpirare.iv;
+                            const encDataHex6 = dataObject2.data.dataExpirare.encData;
+                            const tagHex6 = dataObject2.data.dataExpirare.tag;
+
+                            const rez_dataExpirare = await decriptareDate(encDataHex6, ivHex6, tagHex6, importedKey);
+
+                            const ivHex7 = dataObject2.data.comentariu.iv;
+                            const encDataHex7 = dataObject2.data.comentariu.encData;
+                            const tagHex7 = dataObject2.data.comentariu.tag;
+                            const rez_comentariu = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
+
+                            console.log("Datele primite de la server aferente cardului:", rez_tip, rez_nume, rez_numarCard, rez_posesorCard, rez_comentariu, rez_dataExpirare, isDeleted);
+                            fetchedItems.push({
+                                nume: rez_nume,
+                                tipitem: rez_tip,
+                                numarCard: rez_numarCard,
+                                posesorCard: rez_posesorCard,
+                                dataExpirare: rez_dataExpirare,
+                                comentariu: rez_comentariu,
+                                created_at: created_at,
+                                modified_at: modified_at,
+                                version: version,
+                                id_owner: id_owner,
+                                id_item: id_item,
+                                isDeleted: isDeleted,
+                            });
+                        }
+                        if (rez_tip === "adresa") {
+                            const ivHex3 = dataObject2.data.nume.iv;
+                            const encDataHex3 = dataObject2.data.nume.encData;
+                            const tagHex3 = dataObject2.data.nume.tag;
+
+                            const rez_nume = await decriptareDate(encDataHex3, ivHex3, tagHex3, importedKey);
+
+                            const ivHex4 = dataObject2.data.adresa.iv;
+                            const encDataHex4 = dataObject2.data.adresa.encData;
+                            const tagHex4 = dataObject2.data.adresa.tag;
+
+                            const rez_adresa = await decriptareDate(encDataHex4, ivHex4, tagHex4, importedKey);
+
+                            const ivHex5 = dataObject2.data.oras.iv;
+                            const encDataHex5 = dataObject2.data.oras.encData;
+                            const tagHex5 = dataObject2.data.oras.tag;
+
+                            const rez_oras = await decriptareDate(encDataHex5, ivHex5, tagHex5, importedKey);
+
+                            const ivHex6 = dataObject2.data.judet.iv;
+                            const encDataHex6 = dataObject2.data.judet.encData;
+                            const tagHex6 = dataObject2.data.judet.tag;
+
+                            const rez_jduet = await decriptareDate(encDataHex6, ivHex6, tagHex6, importedKey);
+
+                            const ivHex7 = dataObject2.data.codPostal.iv;
+                            const encDataHex7 = dataObject2.data.codPostal.encData;
+                            const tagHex7 = dataObject2.data.codPostal.tag;
+
+                            const rez_codPostal = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
+
+                            const ivHex8 = dataObject2.data.comentariu.iv;
+                            const encDataHex8 = dataObject2.data.comentariu.encData;
+                            const tagHex8 = dataObject2.data.comentariu.tag;
+                            const rez_comentariu = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
+
+                            console.log("Datele primite de la server aferente cardului:", rez_tip, rez_nume, rez_adresa, rez_oras, rez_jduet, rez_codPostal, rez_comentariu, isDeleted);
+
+                            fetchedItems.push({
+                                nume: rez_nume,
+                                tipitem: rez_tip,
+                                adresa: rez_adresa,
+                                oras: rez_oras,
+                                judet: rez_jduet,
+                                codPostal: rez_codPostal,
+                                comentariu: rez_comentariu,
+                                created_at: created_at,
+                                modified_at: modified_at,
+                                version: version,
+                                id_owner: id_owner,
+                                id_item: id_item,
+                                isDeleted: isDeleted,
+                            });
                         }
                     } catch (error) {
                         console.error('Eroare la decriptarea item-ului cu ID-ul:', item.id_item, error);
@@ -264,40 +368,34 @@ const ItemiStersi = ({ derivedKey }) => {
         <>
             <div className="bg-gray-100">
                 <h2 className="font-bold text-2xl text-center mt-4 ">Eliminate</h2>
-                <div className="flex flex-row aliniere_custom justify-between items-center mx-6 mt-4">
-
-                </div>
-
                 <hr className="border-t-2 border-gray-500 my-4 rounded-full mx-6" />
-
                 {/* Itemii ce urmeaza sa fie stersi */}
-                {
-                    gestioneazaParolaItem === null ? <div className="space-y-1  mx-8 w-4/7 sm:w-6/7">
-                        {items.map((item, index) => (
-                            <div key={index} className="border border-white-700 border-b-2 rounded-lg shadow-lg bg-white px-2 flex justify-between items-center hover:bg-gray-200 transition-all duration-300 ease-in-out">
-                                <div className="flex items-center space-x-4">
-                                    <img src={item.tipitem === 'password' ? ParolaLogo : item.tipitem === 'notita' ? NoteLogo : item.tipitem === 'card' ? CardLogo : item.tipitem === "remoteConnexion" ? RemoteLogo : PeopleLogo} alt="Logo Parola Item" className="w-8 h-8"></img>
-                                    <div>
-                                        <h2 className="font-semibold">{item.nume}</h2>
-                                        <h3 className="text-sm text-gray-500">Data stergerii: 12.11.2023</h3>
-                                    </div>
-                                </div>
-
-                                <div className="flex space-x-4">
-                                    <button onClick={(e) => { e.stopPropagation(); setStergeItem(true); setItemid(item) }} className="p-2 bg-white-200 border border-red-200 rounded-lg hover:bg-red-400">
-                                        <FaTrash alt="Delete Logo" className="w-5 h-5" />
-                                    </button>
-
-                                    {/* Butonul pentru restaurare */}
-                                    <button onClick={(e) => { e.stopPropagation(); restoreItem(item.id_item); }} className="flex flex-row p-2 bg-blue-200 border rounded-lg hover:bg-blue-500">
-                                        <FaHistory alt="Restore Icon" className="w-5 h-5" />
-                                        <span className='ml-1 customRestoreButtonText'>Restaurează</span>
-                                    </button>
+                {gestioneazaParolaItem === null ? <div className="space-y-1  mx-8 w-4/7 sm:w-6/7 overflow-y-auto custom-height4 ">
+                    {items.map((item, index) => (
+                        <div key={index} className="border border-white-700 border-b-2 rounded-lg shadow-lg bg-white px-2 flex justify-between items-center hover:bg-gray-200 transition-all duration-300 ease-in-out">
+                            <div className="flex items-center space-x-4">
+                                <img src={item.tipitem === 'password' ? ParolaLogo : item.tipitem === 'notita' ? NoteLogo : item.tipitem === 'card' ? CardLogo : item.tipitem === "remoteConnexion" ? RemoteLogo : item.tipitem === 'adresa' ? AdressLogo : PeopleLogo} alt="Logo Parola Item" className="w-8 h-8"></img>
+                                <div>
+                                    <h2 className="font-semibold">{item.nume}</h2>
+                                    <h3 className="text-sm text-gray-500">Data stergerii: 12.11.2023</h3>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                        : null
+
+                            <div className="flex space-x-4">
+                                <button onClick={(e) => { e.stopPropagation(); setStergeItem(true); setItemid(item) }} className="p-2 bg-white-200 border border-red-200 rounded-lg hover:bg-red-400">
+                                    <FaTrash alt="Delete Logo" className="w-5 h-5" />
+                                </button>
+
+                                {/* Butonul pentru restaurare */}
+                                <button onClick={(e) => { e.stopPropagation(); restoreItem(item.id_item); }} className="flex flex-row p-2 bg-blue-200 border rounded-lg hover:bg-blue-500">
+                                    <FaHistory alt="Restore Icon" className="w-5 h-5" />
+                                    <span className='ml-1 customRestoreButtonText'>Restaurează</span>
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                    : null
                 }
                 {stergeItem && <PopupStergeItemDefinitiv setShowPopupStergeItem={setStergeItem} item={itemid} items={items} fetchItems={fetchItems} />}
                 {restoredItemMessage && <PopupItmeRestauratCuSucces />}
