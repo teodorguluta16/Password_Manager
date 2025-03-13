@@ -109,7 +109,6 @@ const EditGrupItem = ({ item, setGestioneazaGrupItem, derivedKey }) => {
 
                     <div className="flex-1">
                         {/*Membri grup */}
-
                         <div className='sm:items-center w-full mb-8 sm:justify-center custom_top_istoric'>
                             <h4 className="font-semibold text-xl">Membrii</h4>
                             <div className="flex space-x-2 sm:justify-start mt-2">
@@ -126,7 +125,6 @@ const EditGrupItem = ({ item, setGestioneazaGrupItem, derivedKey }) => {
                                         <div className="flex space-x-2">
                                             <span className="text-sm italic text-gray-600">{it.email}</span>
                                         </div>
-
                                         <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
                                     </div>
                                 ))}

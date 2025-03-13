@@ -328,6 +328,26 @@ protectedRouter.post('/grupuri/getGroupMembersforOwner', async (req, res) => {
         res.status(401).send();
     }
 });
+protectedRouter.post('/grupuri/parasesteGroup', async (req, res) => {
+
+    const userId = req.user.sub;
+    const { idgrup } = req.body;
+    console.log(userId);
+    try {
+        const result = await client.query(`DELETE FROM legusergrup WHERE id_grup = $1 AND id_user = $2 RETURNING *`, [idgrup, userId]
+        );
+
+        if (result.rowCount > 0) {
+            res.status(200).json({ message: 'Ai părăsit grupul cu succes' });
+        } else {
+            res.status(404).json({ message: 'Nu ești membru al acestui grup sau grupul nu există' });
+        }
+    } catch (error) {
+        console.error('Eroare:', error);
+        res.status(500).json({ message: 'Eroare la ieșirea din grup' });
+    }
+});
+
 protectedRouter.post('/grupuri/getGroupOwnerDetails', async (req, res) => {
     const userId = req.user.sub;
     const { idgrup } = req.body;
@@ -432,6 +452,8 @@ protectedRouter.get('/getEncryptedPrivateKeyGrup', async (req, res) => {
         res.status(401).send();
     }
 });
+
+
 
 // utilizator
 protectedRouter.get('/utilizator/getUserId', async (req, res) => {

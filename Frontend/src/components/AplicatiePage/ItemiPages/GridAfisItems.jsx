@@ -72,16 +72,34 @@ const GridAfisItems = ({ items, setGestioneazaItem, setStergeItem, setItemid, fe
             {items.map((item, index) => (
                 <div key={index} onClick={() => setGestioneazaItem(item)} className="border border-white-700 rounded-lg w-68 h-28 shadow-lg shadow-gray-300 bg-white items-center hover:bg-gray-400 cursor-pointer group  transition-all duration-300 ease-in-out">
                     <div className="flex flex-col justify-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-100 space-x-2 relative">
-                        <button onClick={(e) => { e.stopPropagation(); }} className="absolute mt-4 right-2 border border-white bg-white rounded-lg px-2 py-1 hover:bg-blue-300">
-                            <img src={LaunchLogo} alt="Launch Logo" className="w-5 h-5" />
-                        </button>
-                        <button onClick={(e) => toggleFavorite(e, item.id_item)}
-                            className={`absolute mt-[88px] right-2 border border-white rounded-lg px-2 py-1 ${favoriteItems[item.id_item] ? 'bg-yellow-400' : 'bg-white'} hover:bg-yellow-400`}>
-                            <img src={FavoriteLogo} alt="Favorite Logo" className="w-5 h-5" />
-                        </button>
-                        <button onClick={(e) => { e.stopPropagation(); setStergeItem(true); setItemid(item) }} className=" absolute mt-40 right-2 border border-white bg-white rounded-lg px-2 py-1 hover:bg-red-400">
-                            <img src={DeleteIcon} alt="Delete Logo" className="w-5 h-5" />
-                        </button>
+                        {(item.tipitem === "password" || item.tipitem === "remoteConnexion") && (
+                            <>
+                                <button onClick={(e) => { e.stopPropagation(); }} className="absolute mt-4 right-2 border border-white bg-white rounded-lg px-2 py-1 hover:bg-blue-300">
+                                    <img src={LaunchLogo} alt="Launch Logo" className="w-5 h-5" />
+                                </button>
+                                <button onClick={(e) => toggleFavorite(e, item.id_item)}
+                                    className={`absolute mt-[88px] right-2 border border-white rounded-lg px-2 py-1 ${favoriteItems[item.id_item] ? 'bg-yellow-400' : 'bg-white'} hover:bg-yellow-400`}>
+                                    <img src={FavoriteLogo} alt="Favorite Logo" className="w-5 h-5" />
+                                </button>
+                                <button onClick={(e) => { e.stopPropagation(); setStergeItem(true); setItemid(item) }} className=" absolute mt-40 right-2 border border-white bg-white rounded-lg px-2 py-1 hover:bg-red-400">
+                                    <img src={DeleteIcon} alt="Delete Logo" className="w-5 h-5" />
+                                </button>
+                            </>
+
+                        )}
+                        {(item.tipitem === "notita" || item.tipitem === "adresa" || item.tipitem === "card") && (
+                            <>
+                                <button onClick={(e) => toggleFavorite(e, item.id_item)}
+                                    className={`absolute mt-4 right-2 border border-white rounded-lg px-2 py-1 ${favoriteItems[item.id_item] ? 'bg-yellow-400' : 'bg-white'} hover:bg-yellow-400`}>
+                                    <img src={FavoriteLogo} alt="Favorite Logo" className="w-5 h-5" />
+                                </button>
+                                <button onClick={(e) => { e.stopPropagation(); setStergeItem(true); setItemid(item) }} className=" absolute mt-40 right-2 border border-white bg-white rounded-lg px-2 py-1 hover:bg-red-400">
+                                    <img src={DeleteIcon} alt="Delete Logo" className="w-5 h-5" />
+                                </button>
+                            </>
+
+                        )}
+
                     </div>
                     <div className="mt-0 items-center justify-center h-full">
                         <div className="flex flex-col items-center py-2">

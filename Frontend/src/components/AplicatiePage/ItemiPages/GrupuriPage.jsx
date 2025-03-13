@@ -5,6 +5,7 @@ import ListIcon from "../../../assets/website/list.png"
 import GridIcon from "../../../assets/website/visualization.png"
 import { FaPlus, FaClipboard, FaSignOutAlt } from 'react-icons/fa';
 import PopupNewGrup from "../Popup_uri/PopupNewGrup"
+import PopupParasesteGrup from "../Popup_uri/PopupParasesteGrup";
 
 import EdiGrupItem from './EditGrupItem';
 import GroupItmes from "./GroupItems";
@@ -90,6 +91,7 @@ const GrupuriPage = ({ derivedKey }) => {
         }
     }, [userId]);
 
+    const [leaveGrup, setleaveGrup] = useState(false);
     return (
         <>
             {gestioneazaGrupItem === null && <div>
@@ -167,7 +169,7 @@ const GrupuriPage = ({ derivedKey }) => {
                                             <h3 className="text-xl font-semibold">{group.nume}</h3>
                                             <div className="mt-1 flex justify-end space-x-4">
                                                 <FaClipboard
-                                                    className="w-5 h-5 cursor-pointer hover:text-blue-500"
+                                                    className="w-6 h-6 cursor-pointer hover:text-blue-500"
                                                     onClick={(e) => {
                                                         // Opriți propagarea evenimentului de click pe iconița FaClipboard
                                                         e.stopPropagation();
@@ -201,16 +203,18 @@ const GrupuriPage = ({ derivedKey }) => {
                                     .map(group => (
                                         <div
                                             key={group.id_grup}
-                                            onClick={() => {
-                                                selecteazaOptiune("itemigrup");
-                                                setGestioneazaGrupItem(group);
+                                            onClick={(e) => {
+                                                if (!leaveGrup) { // Previne click-ul pe grup când popup-ul este deschis
+                                                    selecteazaOptiune("itemigrup");
+                                                    setGestioneazaGrupItem(group);
+                                                }
                                             }}
                                             className="border border-white-700 rounded-lg shadow-lg shadow-gray-300 bg-neutral-300 p-4 rounded-lg shadow-md cursor-pointer flex flex-row justify-between hover:bg-yellow-400 cursor-pointer group transition-all duration-300 ease-in-out"
                                         >
                                             <h3 className="text-xl font-semibold">{group.nume}</h3>
                                             <div className="mt-1 flex justify-end space-x-4">
                                                 <FaClipboard
-                                                    className="w-5 h-5 cursor-pointer hover:text-blue-500"
+                                                    className="w-6 h-6 cursor-pointer hover:text-blue-500"
                                                     onClick={(e) => {
                                                         // Opriți propagarea evenimentului de click pe iconița FaClipboard
                                                         e.stopPropagation();
@@ -219,14 +223,16 @@ const GrupuriPage = ({ derivedKey }) => {
                                                     }}
                                                 />
                                                 <FaSignOutAlt
-                                                    className="w-5 h-5 cursor-pointer hover:text-red-700"
+                                                    className="w-6 h-6 cursor-pointer hover:text-red-700"
                                                     onClick={(e) => {
                                                         e.stopPropagation(); // Opriți propagarea evenimentului de click
-                                                        parasesteGrup(group.id_grup); // Apelează funcția pentru a părăsi grupul
+                                                        e.preventDefault(); // Previne orice alt efect nedorit
+                                                        setleaveGrup(true); // Apelează funcția pentru a părăsi grupul
                                                     }}
                                                 />
 
                                             </div>
+                                            {leaveGrup && <PopupParasesteGrup setShowPopupParasesteGrup={setleaveGrup} item={group.id_grup} fetchItems={fetchGroups} />}
                                         </div>
                                     ))
                             )}
@@ -238,6 +244,7 @@ const GrupuriPage = ({ derivedKey }) => {
             }
             {gestioneazaGrupItem && optiuneGrup === "detalii" && <EdiGrupItem item={gestioneazaGrupItem} setGestioneazaGrupItem={setGestioneazaGrupItem} derivedKey={key} />}
             {gestioneazaGrupItem && optiuneGrup === "itemigrup" && <GroupItmes item={gestioneazaGrupItem} setGestioneazaGrupItem={setGestioneazaGrupItem} derivedKey={key} />}
+
         </>
     );
 };
