@@ -12,9 +12,10 @@ const Istoric = [
     { operatie: "Actualizare Notita", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
 ]
 
-const EditCarduriItem = ({ item, setGestioneazaParolaItem }) => {
+const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
     const [itemNume, setItemNume] = useState(item.nume);
-    const [date, setItemData] = useState(item.data);
+    const [date, setItemData] = useState(item.dataExpirare);
+    console.log(date);
     const [note, setItemNote] = useState(item.comentariu);
     const [deEditat, setdeEditat] = useState({ nume: false, note: false });
 
@@ -93,7 +94,7 @@ const EditCarduriItem = ({ item, setGestioneazaParolaItem }) => {
                 <div className="flex items-center justify-between pb-3 mt-6">
                     {/* Butoanele pe stânga */}
                     <div className="flex items-center space-x-4">
-                        <button onClick={() => setGestioneazaParolaItem(null)} className="py-1 px-1 cursor-pointer rounded-lg">
+                        <button onClick={() => setGestioneazaCardItem(null)} className="py-1 px-1 cursor-pointer rounded-lg">
                             <FaArrowLeft className="w-6 h-6 hover:text-blue-600 transition-all duration-300 ease-in-out" />
                         </button>
                         <button onClick={salveazaToateModificarile} className="py-1 px-1 cursor-pointer rounded-lg">
@@ -119,7 +120,7 @@ const EditCarduriItem = ({ item, setGestioneazaParolaItem }) => {
                         <div className="grid sm:grid-cols-2 lg:gap-x-36 grid-cols-1 gap-6 mt-6">
                             <div className="flex flex-col">
                                 <div className="flex flex-row">
-                                    <p className="font-medium mr-2 ml-2">Data:</p>
+                                    <p className="font-medium mr-2 ml-2">Data Expirare:</p>
                                     {deEditat.date ? (
                                         <input
                                             type="date"
@@ -128,7 +129,14 @@ const EditCarduriItem = ({ item, setGestioneazaParolaItem }) => {
                                             className="border border-gray-300 rounded-lg px-2 py-1"
                                         />
                                     ) : (
-                                        <span className="text-gray-800 font-semibold">{new Date(date).toLocaleDateString('ro-RO')}</span>
+                                        <span className="text-gray-800 font-semibold">
+                                            {(() => {
+                                                const [month, year] = date.split("/"); // Separă luna și anul
+                                                const fullYear = parseInt(year.length === 2 ? "20" + year : year, 10); // Adaugă 20 la anul dacă are doar două cifre
+                                                const formattedDate = new Date(fullYear, parseInt(month) - 1, 1); // Setează ziua la 1 pentru a evita erorile
+                                                return formattedDate.toLocaleDateString('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                                            })()}
+                                        </span>
                                     )}
                                 </div>
 

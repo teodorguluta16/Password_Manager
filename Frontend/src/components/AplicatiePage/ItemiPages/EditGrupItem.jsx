@@ -45,7 +45,7 @@ const EditGrupItem = ({ item, setGestioneazaGrupItem, derivedKey }) => {
                 credentials: "include"
             });
 
-            if (!response.ok) { throw new Error('Cererea nu a reusit!'); }
+            //if (!response.ok) { throw new Error('Cererea nu a reusit!'); } // aici tre sa modific putin erorile 
 
             const data = await response.json();
             setMembriiGrup(data);
@@ -76,6 +76,7 @@ const EditGrupItem = ({ item, setGestioneazaGrupItem, derivedKey }) => {
     useEffect(() => {
         handleVizualizareOwnerGrup();
     }, [item]);
+
 
     const [popupEliminaUt, setPopupEliminaUtilizatorGrup] = useState(false);
 
@@ -134,7 +135,7 @@ const EditGrupItem = ({ item, setGestioneazaGrupItem, derivedKey }) => {
                                             <button onClick={() => setPopupEliminaUtilizatorGrup(true)} className="text-red-300 hover:text-red-700 transition-all duration-300 ease-in-out ">
                                                 <FaUserMinus className="w-7 h-7" />
                                             </button>
-                                            {popupEliminaUt && <PopupEliminaUtilizatorGrup setPopupEliminaUtilizatorGrup={setPopupEliminaUtilizatorGrup} idgrup={item.id_grup} idUtilizator={it.id} />}
+                                            {popupEliminaUt && <PopupEliminaUtilizatorGrup setPopupEliminaUtilizatorGrup={setPopupEliminaUtilizatorGrup} idgrup={item.id_grup} idUtilizator={it.id} handleVizualizareMembriiGrup={handleVizualizareMembriiGrup} />}
                                         </div>
                                         <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
                                     </div>
@@ -148,7 +149,7 @@ const EditGrupItem = ({ item, setGestioneazaGrupItem, derivedKey }) => {
 
 
             </div>
-            {popupUtilizatorNou && <PopupNewUtilizatorGrup setPopupUtilizatorNou={setPopupUtilizatorNou} idgrup={item.id_grup} encryptedprivategroupkey={item.encryptedprivategroupkey} derivedKey={key} />}
+            {popupUtilizatorNou && <PopupNewUtilizatorGrup setPopupUtilizatorNou={setPopupUtilizatorNou} idgrup={item.id_grup} encryptedprivategroupkey={item.encryptedprivategroupkey} derivedKey={key} handleVizualizareMembriiGrup={handleVizualizareMembriiGrup} />}
 
         </>
     );

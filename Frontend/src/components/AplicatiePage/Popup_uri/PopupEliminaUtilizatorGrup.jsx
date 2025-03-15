@@ -1,6 +1,6 @@
 import React from "react";
 
-const PopupEliminaUtilizatorGrup = ({ setPopupEliminaUtilizatorGrup, idgrup, idUtilizator }) => {
+const PopupEliminaUtilizatorGrup = ({ setPopupEliminaUtilizatorGrup, idgrup, idUtilizator, handleVizualizareMembriiGrup }) => {
 
     const handleEliminaUtilizatorGrup = async () => {
 
@@ -13,12 +13,12 @@ const PopupEliminaUtilizatorGrup = ({ setPopupEliminaUtilizatorGrup, idgrup, idU
 
             if (response.ok) {
                 console.log(response.json);
-                //await fetchItems();
+                await handleVizualizareMembriiGrup();
             }
-
         } catch (error) {
             console.error('Eroare:', error);
         }
+
         setPopupEliminaUtilizatorGrup(false);
     };
 

@@ -1,11 +1,23 @@
 import express from 'express'
 import { client } from '../postgres/postgres.js';
 import verifyJWT from '../verifyJWT.js';
+import path from "path";
 
 const protectedRouter = express.Router();
 
 protectedRouter.use(verifyJWT);
 //rute protejate 
+
+// ruta descarcare localServer
+protectedRouter.get("/download", (req, res) => {
+    const filePath = path.join(process.cwd(), "files", "localServer.exe");
+    res.download(filePath, "localServer.exe", (err) => {
+        if (err) {
+            console.error("❌ Eroare la descărcare:", err);
+            res.status(500).send("Eroare la descărcare.");
+        }
+    });
+});
 
 // rute pentru itemi 
 protectedRouter.get('/itemistersi', async (req, res) => {

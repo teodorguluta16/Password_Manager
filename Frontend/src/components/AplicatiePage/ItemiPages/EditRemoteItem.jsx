@@ -110,9 +110,9 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
     useEffect(() => {
         checkLocalServer().then(setIsLocalServerRunning);
 
-        fetch("http://localhost:3001/saved-connections")
-            .then((res) => res.json())
-            .then((data) => setSavedConnections(data));
+        //fetch("http://localhost:3001/saved-connections")
+        //    .then((res) => res.json())
+        //    .then((data) => setSavedConnections(data));
     }, []);
 
     // 🔹 Funcția pentru lansarea SSH cu terminalul selectat
@@ -138,6 +138,39 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
             console.error("Error launching SSH:", error);
         }
     };
+
+    const handleDownload = () => {
+        const element = document.createElement("a");
+        const file = new Blob([ppkKey], { type: "text/plain" });
+        element.href = URL.createObjectURL(file);
+        element.download = "private_key.ppk";
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    };
+    const handleDownloadLocalServer = async () => {
+
+        const response = await fetch("http://localhost:9000/api/download", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: "include"
+        });
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "localServer.exe";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        } else {
+            console.error("❌ Eroare la descărcare");
+        }
+    }
 
     return (
         <>
@@ -184,7 +217,7 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
                             </button>
                         ) : (
                             <button
-                                onClick={() => window.location.href = "https://your-server.com/LocalSSHServerInstaller.exe"}
+                                onClick={handleDownloadLocalServer}
                                 className="bg-blue-500 text-white px-4 py-2 rounded ml-2"
                             >
                                 Install SSH Launcher
@@ -322,6 +355,12 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
                                 {/*Cheia PPK*/}
                                 <div className="mt-6">
                                     <h3 className="font-medium">Cheia Privată:</h3>
+                                    <button
+                                        onClick={handleDownload}
+                                        className="bg-orange-400 text-white px-4 py-2 rounded-md hover:bg-orange-600 mt-2"
+                                    >
+                                        Descarcă Cheia
+                                    </button>
                                 </div>
                             </div>
 

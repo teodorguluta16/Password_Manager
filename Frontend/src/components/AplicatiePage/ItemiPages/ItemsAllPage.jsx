@@ -3,12 +3,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ListIcon from "../../../assets/website/list.png"
 import GridIcon from "../../../assets/website/visualization.png"
-import ArrowBack from "../../../assets/website/back.png"
+
 import "../../../App.css"
 import GridAfisItems from "./GridAfisItems";
 import PopupStergeItem from "../Popup_uri/PopupStergeItem";
 import EditParolaItem from './EditParolaItem';
-import { FaEye, FaEyeSlash, FaCopy, FaEdit, FaSave } from 'react-icons/fa';
+import EditRemoteItem from './EditRemoteItem';
+import EditNotitaItem from './EditNotitaItem';
 
 const ItemsAllPage = ({ derivedKey, items, fetchItems }) => {
     const [key, setKey] = useState(derivedKey);
@@ -46,7 +47,6 @@ const ItemsAllPage = ({ derivedKey, items, fetchItems }) => {
     return (
         <>
             <div className="bg-gray-100">
-                {/* ✅ Ascunde această secțiune când un item este selectat pentru editare */}
                 {gestioneazaParolaItem === null && (
                     <>
                         <h2 className="font-bold text-2xl text-center mt-3">Toate Câmpurile</h2>
@@ -98,8 +98,18 @@ const ItemsAllPage = ({ derivedKey, items, fetchItems }) => {
                         <GridAfisItems items={items} setGestioneazaItem={setGestioneazaParolaItem} setStergeItem={setStergeItem} setItemid={setItemid} />
                     ) : null
                 ) : (
-                    // ✅ Când un item este selectat, afișează EditParolaItem
-                    <EditParolaItem item={gestioneazaParolaItem} setGestioneazaParolaItem={setGestioneazaParolaItem} />
+                    <>
+                        {gestioneazaParolaItem.tipitem === "password" && (
+                            <EditParolaItem item={gestioneazaParolaItem} setGestioneazaParolaItem={setGestioneazaParolaItem} />
+                        )}
+                        {gestioneazaParolaItem.tipitem === "remoteConnexion" && (
+                            <EditRemoteItem item={gestioneazaParolaItem} setGestioneazaRemoteItem={setGestioneazaParolaItem} />
+                        )}
+                        {gestioneazaParolaItem.tipitem === "notita" && (
+                            <EditNotitaItem item={gestioneazaParolaItem} setGestioneazaParolaItem={setGestioneazaParolaItem} />
+                        )}
+                    </>
+
                 )}
 
                 {/*Popup de Stergere item */}

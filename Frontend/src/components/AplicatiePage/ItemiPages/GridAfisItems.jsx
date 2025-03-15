@@ -65,6 +65,39 @@ const GridAfisItems = ({ items, setGestioneazaItem, setStergeItem, setItemid, fe
         }
     };
 
+    const handlePassword = (e, item) => {
+        e.stopPropagation();
+        if (item.url) {
+            window.open(item.url, "_blank");
+        } else {
+            console.warn("URL indisponibil!");
+        }
+    };
+
+    const handleRemoteConnexion = async (e, item) => {
+        e.stopPropagation();
+        console.log(item.nume);
+
+        const requestBody = {
+            host: item.host,
+            user: item.username,
+            ppkKey: item.ppkKey,
+            terminal: "putty",
+        };
+
+        try {
+            const response = await fetch("http://localhost:3001/launch-ssh", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestBody),
+            });
+
+            const data = await response.json();
+            console.log(data.message);
+        } catch (error) {
+            console.error("Error launching SSH:", error);
+        }
+    };
 
 
     return (
@@ -75,11 +108,10 @@ const GridAfisItems = ({ items, setGestioneazaItem, setStergeItem, setItemid, fe
                         {(item.tipitem === "password" || item.tipitem === "remoteConnexion") && (
                             <>
                                 <button onClick={(e) => {
-                                    e.stopPropagation();
                                     if (item.tipitem === "password") {
-                                        console.log("tip1");
+                                        handlePassword(e, item);
                                     } else if (item.tipitem === "remoteConnexion") {
-                                        console.log("tip2");
+                                        handleRemoteConnexion(e, item);
                                     }
                                 }}
                                     className="absolute mt-4 right-2 border border-white bg-white rounded-lg px-2 py-1 hover:bg-blue-300">

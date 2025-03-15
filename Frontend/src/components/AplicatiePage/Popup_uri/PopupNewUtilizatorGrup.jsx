@@ -34,7 +34,7 @@ function decryptWithPrivateKey(encryptedMessage, privateKey) {
     });
 }
 
-const PopupNewUtilizatorGrup = ({ setPopupUtilizatorNou, idgrup, derivedKey }) => {
+const PopupNewUtilizatorGrup = ({ setPopupUtilizatorNou, idgrup, derivedKey, handleVizualizareMembriiGrup }) => {
     const [key, setKey] = useState(derivedKey);
 
     useEffect(() => {
@@ -194,6 +194,7 @@ const PopupNewUtilizatorGrup = ({ setPopupUtilizatorNou, idgrup, derivedKey }) =
         } catch (error) {
             console.error('Eroare la trimiterea cererii:', error);
         }
+        await handleVizualizareMembriiGrup();
     };
 
     return (
