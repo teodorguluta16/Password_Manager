@@ -11,6 +11,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
     const [parolaItem, setParolaItem] = useState('');
     const [comentariuItem, setComentariuItem] = useState('');
     const [key, setKey] = useState(derivedKey);
+    const [length, setLength] = useState(32); // Lungime implicită
 
     useEffect(() => {
         if (derivedKey) {
@@ -18,6 +19,17 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
             console.log("Cheia setată:", derivedKey);
         }
     }, [derivedKey]);
+
+    const generateStrongPassword = (length) => {
+        //const length = 64;
+        const chars =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
+        let password = "";
+        for (let i = 0; i < length; i++) {
+            password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        setParolaItem(password);
+    };
 
     const handleAdaugaItem = async () => {
         try {
@@ -158,7 +170,27 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
 
                         <label className="text-sm md:text-md font-medium">Parola</label>
                         <input type="password" value={parolaItem} onChange={(e) => { setParolaItem(e.target.value) }} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full"></input>
-                        <button>---</button>
+                        <div className="mt-2 flex items-center gap-2">
+                            <label className="text-sm">Lungime:</label>
+                            <select
+                                value={length}
+                                onChange={(e) => setLength(Number(e.target.value))}
+                                className="border py-1 px-2 border-gray-600 rounded-md"
+                            >
+                                <option value="16">16</option>
+                                <option value="24">24</option>
+                                <option value="32">32</option>
+                                <option value="64">64</option>
+                            </select>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => generateStrongPassword(length)}
+                            className="mt-2 bg-blue-600 text-white py-1 px-4 rounded-md hover:bg-blue-700 transition"
+                        >
+                            Generează parolă
+                        </button>
 
                         <label className="text-sm md:text-md font-medium">Adauga un comentariu</label>
                         <textarea type="note" value={comentariuItem} onChange={(e) => { setComentariuItem(e.target.value) }} className="border mt-2 py-1 px-2 border-gray-600 rounded-md w-full min-h-32 resize-none"></textarea>
