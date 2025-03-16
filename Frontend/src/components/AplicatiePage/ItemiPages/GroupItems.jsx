@@ -15,6 +15,12 @@ import PopupNewGrupRemote from "../Popup_uri/PopupNewGrupRemote.jsx";
 import GridAfisGroupItems from "./GridAfisGroupItems";
 import forge from 'node-forge';
 import EditParolaGroupItem from './EditParolaGroupItem';
+import EditAdreseGroupItem from "./EditAdreseGroupItem.jsx";
+import EditCardGroupItem from "./EditCardGroupItem.jsx";
+import EditNotitaGroupItem from "./EditNotitaGroupItem.jsx";
+import EditRemoteGroupItem from "./EditRemoteGroupItem.jsx";
+
+
 import VizualizareParolaGroupItem from './VizualizareParolaGroupItem.jsx';
 import VizualizareAdresaGroupItem from "./VizualizareAdresaGroupItem.jsx";
 import VizualizareCardGroupItem from "./VizualizareCardGroupItem.jsx";
@@ -588,7 +594,24 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
 
                 ) : (
                     id_current_user === gestioneazaItem.id_owner ? (
-                        <EditParolaGroupItem item={gestioneazaItem} setGestioneazaParolaItem={setGestioneazaItem} />
+
+                        <>
+                            {gestioneazaItem.tipitem === "password" && (
+                                <EditParolaGroupItem item={gestioneazaItem} setGestioneazaParolaItem={setGestioneazaItem} />
+                            )}
+                            {gestioneazaItem.tipitem === "remoteConnexion" && (
+                                <EditRemoteGroupItem item={gestioneazaItem} setGestioneazaRemoteItem={setGestioneazaItem} />
+                            )}
+                            {gestioneazaItem.tipitem === "notita" && (
+                                <EditNotitaGroupItem item={gestioneazaItem} setGestioneazaParolaItem={setGestioneazaItem} />
+                            )}
+                            {gestioneazaItem.tipitem === "card" && (
+                                <EditCardGroupItem item={gestioneazaItem} setGestioneazaCardItem={setGestioneazaItem} />
+                            )}
+                            {gestioneazaItem.tipitem === "adresa" && (
+                                <EditAdreseGroupItem item={gestioneazaItem} setGestioneazaAdresaItem={setGestioneazaItem} />
+                            )}
+                        </>
                     ) : (
 
                         <>

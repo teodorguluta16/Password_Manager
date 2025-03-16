@@ -150,14 +150,14 @@ const GridAfisItems = ({ items, setGestioneazaItem, setStergeItem, setItemid, fe
                             {(item.tipitem === "password" || item.tipitem === "remoteConnexion") && (
                                 <>
                                     <h2>{item.nume}</h2>
-                                    <h2>{item.username}</h2>
+                                    <h2 className="text-sm">{item.username}</h2>
                                 </>
 
                             )}
                             {(item.tipitem === "card") && (
                                 <>
-                                    <h2>{item.nume}</h2>
-                                    <h2>{item.posesorCard}</h2>
+                                    <h2 className="text-md">{item.nume}</h2>
+                                    <h2 className="text-sm">{item.posesorCard}</h2>
                                 </>
 
                             )}

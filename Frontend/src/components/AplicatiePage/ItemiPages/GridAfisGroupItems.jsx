@@ -5,6 +5,8 @@ import PeopleLogo from "../../../assets/website/people.png";
 import ParolaLogo from "../../../assets/website/password2.png";
 import CardLogo from "../../../assets/website/credit-card2.png";
 import NoteLogo from "../../../assets/website/note2.png";
+import RemoteLogo from "../../../assets/website/remote-access.png"
+import AdressLogo from "../../../assets/website/map-and-location.png"
 
 import LaunchLogo from "../../../assets/website/launch.png"
 import FavoriteLogo from "../../../assets/website/favorite.png"
@@ -27,13 +29,27 @@ const GridAfisGroupItems = ({ items, setGestioneazaItem, setStergeItem, setItemi
                             <img src={DeleteIcon} alt="Delete Logo" className="w-4 h-4" />
                         </button>
                     </div>
-                    <div className="mt-3 items-center justify-center h-full">
+                    <div className="mt-2 ml-2 items-center justify-center h-full">
                         <div className="flex flex-row items-center py-2">
-                            <img src={item.tipitem === 'password' ? ParolaLogo : item.tipitem === 'note' ? NoteLogo : item.tipitem === 'card' ? CardLogo : PeopleLogo} alt="Logo Parola Item" className="w-8 h-8 ml-3"></img>
-                            <div className="flex flex-col ml-2">
-                                <h2>{item.nume}</h2>
-                                <h2>{item.username}</h2>
-                            </div>
+
+                            <img src={item.tipitem === 'password' ? ParolaLogo : item.tipitem === 'notita' ? NoteLogo : item.tipitem === 'card' ? CardLogo : item.tipitem === "remoteConnexion" ? RemoteLogo : item.tipitem === 'adresa' ? AdressLogo : PeopleLogo} alt="Logo Parola Item" className="w-8 h-8 mr-2"></img>
+                            {(item.tipitem === "notita" || item.tipitem === "adresa") && (
+                                <h2 className="mt-2">{item.nume}</h2>
+                            )}
+                            {(item.tipitem === "password" || item.tipitem === "remoteConnexion") && (
+                                <div className="flex flex-col ml-2">
+                                    <h2 >{item.nume}</h2>
+                                    <h2 className="text-sm">{item.username}</h2>
+                                </div>
+
+                            )}
+                            {(item.tipitem === "card") && (
+                                <div className="flex flex-col ml-2 -mt-2 ">
+                                    <h2 className="text-md">{item.nume}</h2>
+                                    <h2 className="text-sm">{item.posesorCard}</h2>
+                                </div>
+
+                            )}
 
                         </div>
                     </div>
