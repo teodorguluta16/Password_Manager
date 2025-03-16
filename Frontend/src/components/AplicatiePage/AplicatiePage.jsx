@@ -599,7 +599,7 @@ const AplicatiePage = () => {
               const tagHex8 = dataObject2.data.comentariu.tag;
               const rez_comentariu = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
 
-              console.log("Datele primite de la server aferente cardului:", rez_tip, rez_nume, rez_adresa, rez_oras, rez_jduet, rez_codPostal, rez_comentariu, isDeleted, isFavorite);
+              console.log("Datele primite de la server aferente adresei:", rez_tip, rez_nume, rez_adresa, rez_oras, rez_jduet, rez_codPostal, rez_comentariu, isDeleted, isFavorite);
               adreseItems.push({
                 nume: rez_nume,
                 tipitem: rez_tip,

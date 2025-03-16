@@ -44,7 +44,7 @@ const NotitePage = ({ derivedKey, items, fetchItems }) => {
                 {/* ✅ Ascunde secțiunea de titlu, sortare și vizualizare dacă un item este selectat */}
                 {gestioneazaParolaItem === null && (
                     <>
-                        <h2 className="font-bold text-2xl text-center mt-3">Parolele mele</h2>
+                        <h2 className="font-bold text-2xl text-center mt-3">Notițe</h2>
                         <div className="flex flex-row aliniere_custom justify-between items-center mx-6 mt-0">
                             {/*Sectiunea de vizualizare a datelor */}
                             <div className="flex space-x-2">

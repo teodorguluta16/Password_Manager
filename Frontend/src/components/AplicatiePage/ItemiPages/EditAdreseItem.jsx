@@ -12,15 +12,16 @@ const Istoric = [
     { operatie: "Actualizare Notita", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
 ]
 
-const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
+const EditAdreseItem = ({ item, setGestioneazaAdresaItem }) => {
+    console.log(item.nume);
     const [itemNume, setItemNume] = useState(item.nume);
-    const [date, setItemData] = useState(item.dataExpirare);
-    const [numarCard, setNumarCard] = useState(item.numarCard);
-    const [posesorCard, setPosesorCard] = useState(item.posesorCard);
+    const [adresaItem, setAdresa] = useState(item.adresa);
+    const [orasItem, setOras] = useState(item.oras);
+    const [judetItem, setJudet] = useState(item.judet);
+    const [codPostal, serCodPostal] = useState(item.codPostal);
 
-    console.log(date);
     const [note, setItemNote] = useState(item.comentariu);
-    const [deEditat, setdeEditat] = useState({ nume: false, note: false, numarCard: false });
+    const [deEditat, setdeEditat] = useState({ nume: false, note: false, adresaItem: false, orasItem: false });
 
     const [esteCopiat, setEsteCopiat] = useState(false);
     const copieContinut = (text) => {
@@ -97,7 +98,7 @@ const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
                 <div className="flex items-center justify-between pb-3 mt-6">
                     {/* Butoanele pe stânga */}
                     <div className="flex items-center space-x-4">
-                        <button onClick={() => setGestioneazaCardItem(null)} className="py-1 px-1 cursor-pointer rounded-lg">
+                        <button onClick={() => setGestioneazaAdresaItem(null)} className="py-1 px-1 cursor-pointer rounded-lg">
                             <FaArrowLeft className="w-6 h-6 hover:text-blue-600 transition-all duration-300 ease-in-out" />
                         </button>
                         <button onClick={salveazaToateModificarile} className="py-1 px-1 cursor-pointer rounded-lg">
@@ -123,58 +124,75 @@ const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
                         <div className="grid sm:grid-cols-2 lg:gap-x-36 grid-cols-1 gap-6 mt-6">
                             <div className="flex flex-col">
                                 <div className="flex flex-row">
-                                    <p className="font-medium mr-2 ml-2">Data Expirare:</p>
-                                    {deEditat.date ? (
-                                        <input
-                                            type="date"
-                                            value={date}
-                                            onChange={(e) => setItemData(e.target.value)}
-                                            className="border border-gray-300 rounded-lg px-2 py-1"
-                                        />
-                                    ) : (
-                                        <span className="text-gray-800 font-semibold">
-                                            {(() => {
-                                                const [month, year] = date.split("/"); // Separă luna și anul
-                                                const fullYear = parseInt(year.length === 2 ? "20" + year : year, 10); // Adaugă 20 la anul dacă are doar două cifre
-                                                const formattedDate = new Date(fullYear, parseInt(month) - 1, 1); // Setează ziua la 1 pentru a evita erorile
-                                                return formattedDate.toLocaleDateString('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                                            })()}
-                                        </span>
-                                    )}
+
                                 </div>
                                 <div className="ml-2">
-                                    {/* Numar card*/}
-                                    <div className="flex items-center mt-6 border-b border-gray-300 pb-2 w-full max-w-[400px]">
-                                        <p className="font-medium text-gray-700">Număr: </p>
-                                        {deEditat.numarCard ? (
-                                            <input type="text" value={numarCard} onChange={(e) => setItemUsername(e.target.value)} className="border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
+                                    {/* Adrese*/}
+                                    <div className="flex items-center mt-2 border-b border-gray-300 pb-2 w-full max-w-[400px]">
+                                        <p className="font-medium text-gray-700">Adresa: </p>
+                                        {deEditat.adresaItem ? (
+                                            <input type="text" value={adresaItem} onChange={(e) => setItemUsername(e.target.value)} className="border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
                                         ) : (
-                                            <span className="ml-3 text-gray-800">{numarCard}</span>
+                                            <span className="ml-3 text-gray-800">{adresaItem}</span>
                                         )}
                                         {/* Butonul de copiere Username */}
-                                        <button onClick={() => copieContinut(numarCard)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
+                                        <button onClick={() => copieContinut(adresaItem)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
                                             <FaCopy />
                                         </button>
 
-                                        <button onClick={() => setdeEditat({ ...deEditat, numarCard: !deEditat.numarCard })} className="ml-3 text-gray-500 hover:text-blue-500">
-                                            {deEditat.numarCard ? <FaSave /> : <FaEdit />}
+                                        <button onClick={() => setdeEditat({ ...deEditat, adresaItem: !deEditat.adresaItem })} className="ml-3 text-gray-500 hover:text-blue-500">
+                                            {deEditat.adresaItem ? <FaSave /> : <FaEdit />}
                                         </button>
                                     </div>
-                                    {/* Posesor Card*/}
-                                    <div className="flex items-center mt-6 border-b border-gray-300 pb-2 w-full max-w-[400px]">
-                                        <p className="font-medium text-gray-700">Posesor: </p>
-                                        {deEditat.posesorCard ? (
-                                            <input type="text" value={posesorCard} onChange={(e) => setItemUsername(e.target.value)} className=" ml-3 border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
+                                    {/* Oras*/}
+                                    <div className="flex items-center mt-2 border-b border-gray-300 pb-2 w-full max-w-[400px]">
+                                        <p className="font-medium text-gray-700">Oraș: </p>
+                                        {deEditat.orasItem ? (
+                                            <input type="text" value={orasItem} onChange={(e) => setItemUsername(e.target.value)} className=" ml-3 border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
                                         ) : (
-                                            <span className="ml-3 text-gray-800">{posesorCard}</span>
+                                            <span className="ml-3 text-gray-800">{orasItem}</span>
                                         )}
                                         {/* Butonul de copiere Username */}
-                                        <button onClick={() => copieContinut(posesorCard)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
+                                        <button onClick={() => copieContinut(orasItem)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
                                             <FaCopy />
                                         </button>
 
-                                        <button onClick={() => setdeEditat({ ...deEditat, posesorCard: !deEditat.posesorCard })} className="ml-3 text-gray-500 hover:text-blue-500">
-                                            {deEditat.posesorCard ? <FaSave /> : <FaEdit />}
+                                        <button onClick={() => setdeEditat({ ...deEditat, orasItem: !deEditat.orasItem })} className="ml-3 text-gray-500 hover:text-blue-500">
+                                            {deEditat.orasItem ? <FaSave /> : <FaEdit />}
+                                        </button>
+                                    </div>
+                                    {/*Judet*/}
+                                    <div className="flex items-center mt-2 border-b border-gray-300 pb-2 w-full max-w-[400px]">
+                                        <p className="font-medium text-gray-700">Județ: </p>
+                                        {deEditat.judetItem ? (
+                                            <input type="text" value={judetItem} onChange={(e) => setItemUsername(e.target.value)} className=" ml-3 border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
+                                        ) : (
+                                            <span className="ml-3 text-gray-800">{judetItem}</span>
+                                        )}
+                                        {/* Butonul de copiere Username */}
+                                        <button onClick={() => copieContinut(judetItem)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
+                                            <FaCopy />
+                                        </button>
+
+                                        <button onClick={() => setdeEditat({ ...deEditat, judetItem: !deEditat.judetItem })} className="ml-3 text-gray-500 hover:text-blue-500">
+                                            {deEditat.judetItem ? <FaSave /> : <FaEdit />}
+                                        </button>
+                                    </div>
+                                    {/*Cod Postal */}
+                                    <div className="flex items-center mt-2 border-b border-gray-300 pb-2 w-full max-w-[400px]">
+                                        <p className="font-medium text-gray-700">Cod Poștal: </p>
+                                        {deEditat.codPostal ? (
+                                            <input type="text" value={codPostal} onChange={(e) => setItemUsername(e.target.value)} className=" ml-3 border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
+                                        ) : (
+                                            <span className="ml-3 text-gray-800">{codPostal}</span>
+                                        )}
+                                        {/* Butonul de copiere Username */}
+                                        <button onClick={() => copieContinut(codPostal)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
+                                            <FaCopy />
+                                        </button>
+
+                                        <button onClick={() => setdeEditat({ ...deEditat, codPostal: !deEditat.codPostal })} className="ml-3 text-gray-500 hover:text-blue-500">
+                                            {deEditat.codPostal ? <FaSave /> : <FaEdit />}
                                         </button>
                                     </div>
                                 </div>
@@ -263,4 +281,4 @@ const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
     );
 };
 
-export default EditCarduriItem;
+export default EditAdreseItem;

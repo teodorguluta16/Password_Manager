@@ -12,7 +12,7 @@ const Istoric = [
     { operatie: "Actualizare Notita", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
 ]
 
-const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
+const VizualizareCardGroupItem = ({ item, setGestioneazaCardItem }) => {
     const [itemNume, setItemNume] = useState(item.nume);
     const [date, setItemData] = useState(item.dataExpirare);
     const [numarCard, setNumarCard] = useState(item.numarCard);
@@ -94,7 +94,7 @@ const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
         <>
             <div className="px-4 mb-2 ">
                 {/* Bara de sus cu butoane și titlu centrat */}
-                <div className="flex items-center justify-between pb-3 mt-6">
+                <div className="flex items-center justify-between pb-3 mt-2">
                     {/* Butoanele pe stânga */}
                     <div className="flex items-center space-x-4">
                         <button onClick={() => setGestioneazaCardItem(null)} className="py-1 px-1 cursor-pointer rounded-lg">
@@ -263,4 +263,4 @@ const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
     );
 };
 
-export default EditCarduriItem;
+export default VizualizareCardGroupItem;
