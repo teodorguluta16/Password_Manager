@@ -4,20 +4,44 @@ import ArrowBack from "../../../assets/website/back.png"
 import "../../../App.css"
 
 import { FaEye, FaEyeSlash, FaCopy, FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
-const Istoric = [
-    { operatie: "Actualizare Parola", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Username", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare URL", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Titlu", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Notita", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-]
+import { criptareDate } from "../../FunctiiDate/FunctiiDefinite";
+
 
 const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
+
+    const [initialValues, setInitialValues] = useState({
+        nume: item.nume,
+        username: item.username,
+        parola: item.parola,
+        url: item.url,
+        comentariu: item.comentariu,
+    });
+
+    console.log(item.istoric);
+
+    const [istoric, setIstoric] = useState(item.istoric); // Inițializează corect istoricul
+
+    console.log("Tipul lui istoric:", typeof item.istoric);
+    console.log("Conținutul lui istoric:", istoric);
+    let parsedIstoric = [];
+
+    try {
+        parsedIstoric = JSON.parse(item.istoric); // ✅ Parsăm stringul JSON într-un array
+        if (!Array.isArray(parsedIstoric)) {
+            parsedIstoric = []; // Dacă parsarea nu dă un array, îl resetăm
+        }
+    } catch (error) {
+        console.error("Eroare la parsarea istoricului:", error);
+        parsedIstoric = []; // Dacă apare o eroare, inițializăm un array gol
+    }
+
+
     const [itemNume, setItemNume] = useState(item.nume);
     const [userName, setItemUsername] = useState(item.username);
     const [parolaName, setItemParola] = useState(item.parola);
     const [urlNume, setItemUrl] = useState(item.url);
     const [note, setItemNote] = useState(item.comentariu);
+    const importedKey = item.importedKey;
     const [deEditat, setdeEditat] = useState({ nume: false, username: false, parola: false, url: false, note: false });
 
     const [esteCopiat, setEsteCopiat] = useState(false);
@@ -39,10 +63,6 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
         setCreatedDate(formattedDate);
         setModifiedDate(formattedDate);
     }, [item.created_at, item.modified_at]);
-
-    const [createdBy, setCreatedBy] = useState("Alice");
-
-    const [modifiedBy, setModifiedBy] = useState("Bob");
 
     const [afisIstoric, setAfisIstoric] = useState(true);
 
@@ -77,16 +97,99 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                 console.error('Error fetching items:', error);
             }
         };
-
-
-
         fetchItems();
     }, []);
 
     const salveazaToateModificarile = async () => {
+        let modificari = [];
+
         try {
-            const requestData = { uidItem, itemNume, userName, parolaName, urlNume, note };
-            // ca sa le modific trebuie iarasi sa le criptez la loc si sa le trimit la fel ca la aduagare item
+            if (itemNume !== initialValues.nume) {
+                modificari.push("Nume");
+            }
+            if (userName !== initialValues.username) {
+                modificari.push("Username");
+            }
+            if (parolaName !== initialValues.parola) {
+                modificari.push("Parola");
+            }
+            if (urlNume !== initialValues.url) {
+                modificari.push("URL");
+            }
+            if (note !== initialValues.comentariu) {
+                modificari.push("Comentariu");
+            }
+            console.log("Modificarile noi:", itemNume, userName, parolaName, urlNume, note);
+            if (modificari.length === 0) {
+                console.log("Nicio modificare detectată.");
+                return;
+            }
+
+            const now = new Date();
+            const dataCurenta = now.toLocaleDateString();
+            const oraCurenta = now.toLocaleTimeString();
+
+            const nouIstoric = {
+                operatie: `Actualizare Date: ${modificari.join(", ")}`,
+                data: dataCurenta,
+                time: oraCurenta,
+            };
+
+            console.log("Nou Istoric:", nouIstoric);
+
+            console.log("istoric vechi", istoric);
+
+            const istoricActualizat = [...parsedIstoric, nouIstoric];
+            console.log("Istoricul actualizat: ", istoricActualizat);
+
+            setIstoric(istoricActualizat);
+
+
+            // criptare elemente
+            const enc_Tip = await criptareDate("password", importedKey);
+            const enc_NumeItem = await criptareDate(itemNume, importedKey);
+            const enc_UrlItem = await criptareDate(urlNume, importedKey);
+            const enc_UsernameItem = await criptareDate(userName, importedKey);
+            const enc_ParolaItem = await criptareDate(parolaName, importedKey);
+            const enc_ComentariuItem = await criptareDate(note, importedKey);
+            const enc_IstoricItem = await criptareDate(JSON.stringify(istoricActualizat), importedKey);
+
+            const jsonItem = {
+                metadata: {
+                    created_at: item.created_at,
+                    modified_at: new Date().toISOString(),
+                    version: 2
+                },
+                data: {
+                    tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag, },
+                    nume: { iv: enc_NumeItem.iv, encData: enc_NumeItem.encData, tag: enc_NumeItem.tag },
+                    url: { iv: enc_UrlItem.iv, encData: enc_UrlItem.encData, tag: enc_UrlItem.tag },
+                    username: { iv: enc_UsernameItem.iv, encData: enc_UsernameItem.encData, tag: enc_UsernameItem.tag },
+                    parola: { iv: enc_ParolaItem.iv, encData: enc_ParolaItem.encData, tag: enc_ParolaItem.tag },
+                    comentariu: { iv: enc_ComentariuItem.iv, encData: enc_ComentariuItem.encData, tag: enc_ComentariuItem.tag },
+                    istoric: { iv: enc_IstoricItem.iv, encData: enc_IstoricItem.encData, tag: enc_IstoricItem.tag }
+
+                },
+            };
+
+            const response = await fetch("http://localhost:9000/api/updateItem", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    id_item: uidItem,
+                    continut: jsonItem,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Eroare la actualizare");
+            }
+
+            console.log("Item actualizat cu succes!");
+
 
         } catch (error) {
             console.error('Error during the request:', error);
@@ -186,13 +289,13 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                                     </button>
                                 </div>
                             </div>
-                            <div className="space-y-4">
+                            <div className="space-y-4 w-full">
                                 {/*Campul de URL */}
                                 <div className="flex itmes-center mt-6">
                                     <div className="flex flex-col  lg:ml-4">
                                         <h3 className="font-medium">Adresa URL:</h3>
                                         {deEditat.url ? (
-                                            <input type="text" value={urlNume} onChange={(e) => setItemUrl(e.target.value)} className="border boder-gray-300 rounded-lg py-1 "></input>
+                                            <input type="text" value={urlNume} onChange={(e) => setItemUrl(e.target.value)} className="border boder-gray-300 rounded-lg p-2 w-[250px]"></input>
                                         ) : (
                                             <span onClick={() => accesUrl(urlNume)} className="text-blue-500 cursor-pointer hover:underline">{urlNume}</span>
                                         )}
@@ -213,7 +316,7 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                                     <div className="ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{createdDate}</span>
-                                            {createdBy && <span className="text-gray-500 italic">by ionut@@@ {createdBy}</span>}
+
                                         </div>
                                     </div>
                                 </div>
@@ -228,7 +331,6 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                                     <div className="ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{modifiedDate}</span>
-                                            {modifiedBy && <span className="text-gray-500 italic">by ionut@ionut {modifiedBy}</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -242,22 +344,26 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                         <div className="flex flex-col space-y-1 ">
                             <h3 className="font-medium">Istoric Modificari:</h3>
                             <h2 className="text-gray-700 cursor-pointer hover:underline text-gray-400" onClick={() => setAfisIstoric(!afisIstoric)}>{afisIstoric ? 'Ascunde' : 'Afiseaza'}</h2>
-                            {afisIstoric && (<div>{Istoric.length > 0 ? (<div className="h-48 sm:w-1/2 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
-                                {Istoric.map((it, index) => (
-                                    <div key={index} className="py-1 mx-2">
-                                        <span className="font-semibold">{it.operatie}</span>
-                                        <div className="flex space-x-2">
-                                            <span className="text-sm">{it.data}</span>
-                                            <span className="text-sm">{it.time}</span>
-                                            <span className="text-sm italic text-gray-600">by {it.modifiedby}</span>
+                            {afisIstoric && (
+                                <div>
+                                    {Array.isArray(parsedIstoric) && parsedIstoric.length > 0 ? (
+                                        <div className="h-48 sm:w-1/2 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
+                                            {parsedIstoric.map((it, index) => (
+                                                <div key={index} className="py-1 mx-2">
+                                                    <span className="font-semibold">{it.operatie}</span>
+                                                    <div className="flex space-x-2">
+                                                        <span className="text-sm">{it.data}</span>
+                                                        <span className="text-sm">{it.time}</span>
+                                                    </div>
+                                                    <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
+                                                </div>
+                                            ))}
                                         </div>
-
-                                        <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
-                                    </div>
-                                ))}
-                            </div>
-                            ) : (<p className="text-gray-600">Istoric Gol</p>
-                            )}</div>)}
+                                    ) : (
+                                        <p className="text-gray-600">Istoric Gol</p>
+                                    )}
+                                </div>
+                            )}
 
 
                         </div>

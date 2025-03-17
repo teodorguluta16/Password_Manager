@@ -132,6 +132,33 @@ protectedRouter.post('/addItem', async (req, res) => {
     }
 });
 
+protectedRouter.put('/updateItem', async (req, res) => {
+    const { id_item, continut } = req.body;
+    const userId = req.user.sub;
+
+    if (!id_item || !continut) {
+        console.log("E incomplet");
+        return res.status(400).json({ message: "ID-ul item-ului și conținutul trebuie furnizate" });
+    }
+
+    try {
+        const result = await client.query(`UPDATE Itemi SET continut = $1 WHERE id_item = $2 AND id_owner = $3 RETURNING id_item`,
+            [continut, id_item, userId]);
+
+        if (result.rowCount === 0) {
+            console.log("Item-ul nu a fost găsit sau nu aparține utilizatorului");
+            return res.status(404).json({ message: "Item-ul nu există sau nu ai permisiunea de a-l modifica" });
+        }
+
+        console.log("Item actualizat cu succes! ID-ul item-ului:", id_item);
+        res.status(200).json({ message: "Item actualizat cu succes", id_item });
+    } catch (error) {
+        console.error('Eroare la actualizarea item-ului:', error);
+        res.status(500).send();
+    }
+});
+
+
 protectedRouter.patch('/stergeItem', async (req, res) => {
     const { id_item } = req.body;
     const userId = req.user.sub;

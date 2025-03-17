@@ -77,14 +77,13 @@ const AplicatiePage = () => {
       try {
         const response = await fetch('http://localhost:9000/api/auth/validateToken', {
           method: 'GET',
-          credentials: "include" // ✅ Trimite cookie-ul cu tokenul
+          credentials: "include"
         });
 
         if (response.ok) {
           const data = await response.json();
           console.log("Utilizator autentificat:", data);
 
-          // ✅ Extrage inițialele utilizatorului din răspunsul serverului
           if (data.name) {
             const [firstName, lastName] = data.name.split(' ');
             setInitiale(`${firstName.charAt(0)}${lastName.charAt(0)}`);
@@ -175,12 +174,12 @@ const AplicatiePage = () => {
     try {
       const response = await fetch('http://localhost:9000/api/auth/logout', {
         method: 'POST',
-        credentials: 'include', // ✅ Asigură-te că trimiți cookie-urile
+        credentials: 'include',
       });
 
       if (response.ok) {
         console.log("Deconectare reușită!");
-        window.location.href = '/login'; // ✅ Redirecționează la pagina de login
+        window.location.href = '/login';
       } else {
         console.error("Eroare la deconectare");
       }
@@ -285,8 +284,19 @@ const AplicatiePage = () => {
               const tagHex7 = dataObject2.data.comentariu.tag;
               const rez_comentariu = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
 
-              console.log("Datele primite de la server aferente parolei:", rez_tip, rez_nume, rez_url, rez_username, rez_parola, rez_comentariu, isDeleted, isFavorite);
+              let ivHex8 = null, encDataHex8 = null, tagHex8 = null, rez_istoric = null;
+              console.log(dataObject2);
+              if (dataObject2.data.istoric) {
+                ivHex8 = dataObject2.data.istoric.iv;
+                encDataHex8 = dataObject2.data.istoric.encData;
+                tagHex8 = dataObject2.data.istoric.tag;
+                rez_istoric = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
+
+              }
+
+              console.log("Datele primite de la server aferente parolei:", rez_tip, rez_nume, rez_url, rez_username, rez_parola, rez_comentariu, isDeleted, isFavorite, rez_istoric);
               paroleItems.push({
+                importedKey: importedKey,
                 nume: rez_nume,
                 tipitem: rez_tip,
                 username: rez_username,
@@ -299,10 +309,12 @@ const AplicatiePage = () => {
                 id_owner: id_owner,
                 id_item: id_item,
                 isDeleted: isDeleted,
-                isFavorite: isFavorite
+                isFavorite: isFavorite,
+                istoric: rez_istoric
               });
 
               fetchedItems.push({
+                importedKey: importedKey,
                 nume: rez_nume,
                 tipitem: rez_tip,
                 username: rez_username,
@@ -315,11 +327,13 @@ const AplicatiePage = () => {
                 id_owner: id_owner,
                 id_item: id_item,
                 isDeleted: isDeleted,
-                isFavorite: isFavorite
+                isFavorite: isFavorite,
+                istoric: rez_istoric
               });
 
               if (isFavorite) {
                 favoriteItems.push({
+                  importedKey: importedKey,
                   nume: rez_nume,
                   tipitem: rez_tip,
                   username: rez_username,
@@ -332,7 +346,8 @@ const AplicatiePage = () => {
                   id_owner: id_owner,
                   id_item: id_item,
                   isDeleted: isDeleted,
-                  isFavorite: isFavorite
+                  isFavorite: isFavorite,
+                  istoric: rez_istoric
                 });
               }
 
@@ -366,6 +381,7 @@ const AplicatiePage = () => {
               const rez_ppkKey = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
 
               remoteItems.push({
+                importedKey: importedKey,
                 nume: rez_nume,
                 tipitem: rez_tip,
                 username: rez_username,
@@ -382,6 +398,7 @@ const AplicatiePage = () => {
               });
 
               fetchedItems.push({
+                importedKey: importedKey,
                 nume: rez_nume,
                 tipitem: rez_tip,
                 username: rez_username,
@@ -398,6 +415,7 @@ const AplicatiePage = () => {
               });
               if (isFavorite) {
                 favoriteItems.push({
+                  importedKey: importedKey,
                   nume: rez_nume,
                   tipitem: rez_tip,
                   username: rez_username,
@@ -434,8 +452,19 @@ const AplicatiePage = () => {
               const tagHex7 = dataObject2.data.comentariu.tag;
               const rez_comentariu = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
 
-              console.log("Datele primite de la server aferente parolei:", rez_tip, rez_nume, rez_data, rez_comentariu, isDeleted, isFavorite);
+              let ivHex8 = null, encDataHex8 = null, tagHex8 = null, rez_istoric = null;
+              if (dataObject2.data.istoric) {
+                ivHex8 = dataObject2.data.istoric.iv;
+                encDataHex8 = dataObject2.data.istoric.encData;
+                tagHex8 = dataObject2.data.istoric.tag;
+                rez_istoric = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
+
+              }
+
+
+              console.log("Datele primite de la server aferente parolei:", rez_tip, rez_nume, rez_data, rez_comentariu, isDeleted, isFavorite, rez_istoric);
               notiteItems.push({
+                importedKey: importedKey,
                 nume: rez_nume,
                 tipitem: rez_tip,
                 data: rez_data,
@@ -446,10 +475,12 @@ const AplicatiePage = () => {
                 id_owner: id_owner,
                 id_item: id_item,
                 isDeleted: isDeleted,
-                isFavorite: isFavorite
+                isFavorite: isFavorite,
+                istoric: rez_istoric
               });
 
               fetchedItems.push({
+                importedKey: importedKey,
                 nume: rez_nume,
                 tipitem: rez_tip,
                 data: rez_data,
@@ -460,11 +491,13 @@ const AplicatiePage = () => {
                 id_owner: id_owner,
                 id_item: id_item,
                 isDeleted: isDeleted,
-                isFavorite: isFavorite
+                isFavorite: isFavorite,
+                istoric: rez_istoric
               });
 
               if (isFavorite) {
                 favoriteItems.push({
+                  importedKey: importedKey,
                   nume: rez_nume,
                   tipitem: rez_tip,
                   data: rez_data,
@@ -475,7 +508,8 @@ const AplicatiePage = () => {
                   id_owner: id_owner,
                   id_item: id_item,
                   isDeleted: isDeleted,
-                  isFavorite: isFavorite
+                  isFavorite: isFavorite,
+                  istoric: rez_istoric
                 });
               }
 
@@ -513,6 +547,7 @@ const AplicatiePage = () => {
 
               console.log("Datele primite de la server aferente cardului:", rez_tip, rez_nume, rez_numarCard, rez_posesorCard, rez_comentariu, rez_dataExpirare, isDeleted, isFavorite);
               carduriItems.push({
+                importedKey: importedKey,
                 nume: rez_nume,
                 tipitem: rez_tip,
                 numarCard: rez_numarCard,
@@ -529,6 +564,7 @@ const AplicatiePage = () => {
               });
 
               fetchedItems.push({
+                importedKey: importedKey,
                 nume: rez_nume,
                 tipitem: rez_tip,
                 numarCard: rez_numarCard,
@@ -546,6 +582,7 @@ const AplicatiePage = () => {
 
               if (isFavorite) {
                 favoriteItems.push({
+                  importedKey: importedKey,
                   nume: rez_nume,
                   tipitem: rez_tip,
                   numarCard: rez_numarCard,
@@ -601,6 +638,7 @@ const AplicatiePage = () => {
 
               console.log("Datele primite de la server aferente adresei:", rez_tip, rez_nume, rez_adresa, rez_oras, rez_jduet, rez_codPostal, rez_comentariu, isDeleted, isFavorite);
               adreseItems.push({
+                importedKey: importedKey,
                 nume: rez_nume,
                 tipitem: rez_tip,
                 adresa: rez_adresa,
@@ -618,6 +656,7 @@ const AplicatiePage = () => {
               });
 
               fetchedItems.push({
+                importedKey: importedKey,
                 nume: rez_nume,
                 tipitem: rez_tip,
                 adresa: rez_adresa,
@@ -636,6 +675,7 @@ const AplicatiePage = () => {
 
               if (isFavorite) {
                 favoriteItems.push({
+                  importedKey: importedKey,
                   nume: rez_nume,
                   tipitem: rez_tip,
                   adresa: rez_adresa,
