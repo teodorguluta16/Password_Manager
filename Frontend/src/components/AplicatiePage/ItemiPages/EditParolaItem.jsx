@@ -125,12 +125,12 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                         <div className="grid sm:grid-cols-2 lg:gap-x-36 grid-cols-1 gap-6">
                             <div className="w-full flex flex-col space-y-6">
                                 {/* Usernameul de la parola*/}
-                                <div className="flex items-center mt-6 border-b border-gray-300 pb-2 w-full max-w-[400px]">
+                                <div className="flex items-center mt-6 border-b border-gray-300 pb-2 w-full">
                                     <p className="font-medium text-gray-700">Username: </p>
                                     {deEditat.username ? (
                                         <input type="text" value={userName} onChange={(e) => setItemUsername(e.target.value)} className=" ml-3 border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
                                     ) : (
-                                        <span className="ml-3 text-gray-800">{userName}</span>
+                                        <span className="ml-3 text-gray-800 overflow-x-auto whitespace-nowrap px-2 py-1 rounded-lg">{userName}</span>
                                     )}
                                     {/* Butonul de copiere Username */}
                                     <button onClick={() => copieContinut(userName)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
@@ -141,8 +141,8 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                                         {deEditat.username ? <FaSave /> : <FaEdit />}
                                     </button>
                                 </div>
-                                {/*Campul de parola*/}
-                                <div className="flex items-center mt-6 border-b border-gray-300 pb-2 w-full max-w-[400px]">
+                                {/* Campul de parola */}
+                                <div className="flex items-center mt-6 border-b border-gray-300 pb-2 w-full">
                                     <p className="font-medium text-gray-700 w-20">Parola:</p>
 
                                     {deEditat.parola ? (
@@ -150,16 +150,16 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                                             type="password"
                                             value={parolaName}
                                             onChange={(e) => setItemParola(e.target.value)}
-                                            className="ml-3 border border-gray-300 rounded-lg px-2 py-1 w-full max-w-[250px] truncate"
+                                            className="ml-3 border border-gray-300 rounded-lg px-2 py-1 w-full"
                                         />
                                     ) : (
-                                        <span className="ml-3 text-gray-800 w-full max-w-[250px] truncate overflow-hidden">
+                                        <div className="ml-3 w-full overflow-x-auto whitespace-nowrap  px-2 py-1 rounded-lg">
                                             {showParola ? parolaName : '*'.repeat(parolaName.length)}
-                                        </span>
+                                        </div>
                                     )}
 
                                     {/* Butonul de Afisare Parola */}
-                                    <button onClick={() => setShowParola(!showParola)} className="ml-3 text-gray-500 hover:text-blue-500 transition">
+                                    <button onClick={() => setShowParola(!showParola)} className="ml-3 text-gray-500 hover:text-blue-500 transition duration-300 ease-in-out">
                                         {showParola ? <FaEyeSlash /> : <FaEye />}
                                     </button>
 
