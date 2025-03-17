@@ -96,7 +96,7 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
         <>
             <div className="px-4 mb-2 ">
                 {/* Bara de sus cu butoane și titlu centrat */}
-                <div className="flex items-center justify-between pb-3 mt-3">
+                <div className="flex items-center justify-between pb-3 mt-6">
                     {/* Butoanele pe stânga */}
                     <div className="flex items-center space-x-4">
                         <button onClick={() => setGestioneazaParolaItem(null)} className="py-1 px-1 cursor-pointer rounded-lg">

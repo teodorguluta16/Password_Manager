@@ -1,9 +1,8 @@
 import React from "react";
 import { useState, useEffect } from 'react';
-import ArrowBack from "../../../assets/website/back.png"
 import "../../../App.css"
 
-import { FaEye, FaEyeSlash, FaCopy, FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaCopy, FaArrowLeft } from 'react-icons/fa';
 const Istoric = [
     { operatie: "Actualizare Parola", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
     { operatie: "Actualizare Username", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
@@ -17,10 +16,8 @@ const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
     const [userName, setItemUsername] = useState(item.username);
     const [parolaName, setItemParola] = useState(item.parola);
     const [hostNume, setItemHost] = useState(item.host);
-    console.log(hostNume);
     const [ppkKey, setPPKkey] = useState(item.ppkKey);
     const [privateKey, sePrivateKey] = useState(item.privateKey);
-    const [deEditat, setdeEditat] = useState({ nume: false, username: false, parola: false, url: false, ppkKey: false });
 
     const [esteCopiat, setEsteCopiat] = useState(false);
     const copieContinut = (text) => {
@@ -42,12 +39,7 @@ const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
         setModifiedDate(formattedDate);
     }, [item.created_at, item.modified_at]);
 
-    const [createdBy, setCreatedBy] = useState("Alice");
-
-    const [modifiedBy, setModifiedBy] = useState("Bob");
-
     const [afisIstoric, setAfisIstoric] = useState(true);
-
     const [ownerNume, setOwnerNume] = useState("");
     const [ownerPrenume, setOwnerPrenume] = useState("");
 
@@ -77,26 +69,8 @@ const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
         fetchItems();
     }, []);
 
-    const salveazaToateModificarile = async () => {
-        try {
-            const requestData = { uidItem, itemNume, userName, parolaName, hostNume, ppkKey };
-            // ca sa le modific trebuie iarasi sa le criptez la loc si sa le trimit la fel ca la aduagare item
-
-        } catch (error) {
-            console.error('Error during the request:', error);
-        }
-    }
-
     const [isLocalServerRunning, setIsLocalServerRunning] = useState(false);
-    const [selectedTerminal, setSelectedTerminal] = useState("putty"); // Default: PuTTY
-
-    // 🔹 State pentru gestionarea conexiunilor salvate
-    const [savedConnections, setSavedConnections] = useState([]); // Lista de conexiuni SSH salvate
-    const [selectedHost, setSelectedHost] = useState(""); // IP/host selectat
-    const [username, setUsername] = useState(""); // Username completat automat
-    const [password, setPassword] = useState(""); // Parolă completată automat
-
-    // 🔹 Verifică dacă serverul local rulează
+    const [selectedTerminal, setSelectedTerminal] = useState("putty");
     const checkLocalServer = async () => {
         try {
             const response = await fetch("http://localhost:3001/ping");
@@ -106,16 +80,9 @@ const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
         }
     };
 
-    // 🔹 Încarcă lista de conexiuni salvate la inițializarea componentei
     useEffect(() => {
         checkLocalServer().then(setIsLocalServerRunning);
-
-        //fetch("http://localhost:3001/saved-connections")
-        //    .then((res) => res.json())
-        //    .then((data) => setSavedConnections(data));
     }, []);
-
-    // 🔹 Funcția pentru lansarea SSH cu terminalul selectat
     const launchSSH = async () => {
 
         const requestBody = {
@@ -182,21 +149,12 @@ const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                         <button onClick={() => setGestioneazaRemoteItem(null)} className="py-1 px-1 cursor-pointer rounded-lg">
                             <FaArrowLeft className="w-6 h-6 hover:text-blue-600 transition-all duration-300 ease-in-out" />
                         </button>
-                        <button onClick={salveazaToateModificarile} className="py-1 px-1 cursor-pointer rounded-lg">
-                            <FaSave className="w-6 h-6 hover:text-green-600 transition-all duration-300 ease-in-out" />
-                        </button>
+
                     </div>
                     <div className="flex-1 text-center">
-                        {deEditat.nume ? (
-                            <input
-                                type="text"
-                                value={itemNume}
-                                onChange={(e) => setItemNume(e.target.value)}
-                                className="px-2 py-1 text-xl font-semibold text-center"
-                            />
-                        ) : (
-                            <h2 className="font-semibold text-3xl">{itemNume}</h2>
-                        )}
+
+                        <h2 className="font-semibold text-3xl">{itemNume}</h2>
+
                     </div>
                 </div>
                 <div>
@@ -224,7 +182,6 @@ const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                             </button>
                         )}
                     </div>
-
                 </div>
                 <div className="custom-height4 overflow-y-auto">
                     <div className="flex flex-col  lg:flex-row mt-2">
@@ -234,51 +191,26 @@ const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                                 <div className="flex itmes-center mt-6">
                                     <div className="flex flex-col lg:flex-row">
                                         <h3 className="font-medium">Hostname/IP :</h3>
-                                        {deEditat.host ? (
-                                            <input type="text" value={hostNume} onChange={(e) => setItemHost(e.target.value)} className="lg:ml-3 border boder-gray-300 rounded-lg py-1 "></input>
-                                        ) : (
-                                            <span className="lg:ml-3 text-blue-500 cursor-pointer hover:underline">{hostNume}</span>
-                                        )}
-                                        <button onClick={() => setdeEditat({ ...deEditat, host: !deEditat.host })} className="lg:ml-3 text-gray-500 hover:text-blue-500 transition">
-                                            {deEditat.host ? <FaSave /> : <FaEdit />}
-                                        </button>
+                                        <span className="lg:ml-3 text-blue-500 cursor-pointer hover:underline">{hostNume}</span>
                                     </div>
-
                                 </div>
                                 {/* Usernameul de la parola*/}
                                 <div className="flex items-center mt-6 border-b border-gray-300 pb-2 w-full max-w-[400px]">
                                     <p className="font-medium text-gray-700">Username: </p>
-                                    {deEditat.username ? (
-                                        <input type="text" value={userName} onChange={(e) => setItemUsername(e.target.value)} className=" ml-3 border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
-                                    ) : (
-                                        <span className="ml-3 text-gray-800">{userName}</span>
-                                    )}
+
+                                    <span className="ml-3 text-gray-800">{userName}</span>
+
                                     {/* Butonul de copiere Username */}
                                     <button onClick={() => copieContinut(userName)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
                                         <FaCopy />
-                                    </button>
-
-                                    <button onClick={() => setdeEditat({ ...deEditat, username: !deEditat.username })} className="ml-3 text-gray-500 hover:text-blue-500">
-                                        {deEditat.username ? <FaSave /> : <FaEdit />}
                                     </button>
                                 </div>
                                 {/*Campul de parola*/}
                                 <div className="flex items-center mt-6 border-b border-gray-300 pb-2 w-full max-w-[400px]">
                                     <p className="font-medium text-gray-700 w-20">Parola:</p>
-
-                                    {deEditat.parola ? (
-                                        <input
-                                            type="password"
-                                            value={parolaName}
-                                            onChange={(e) => setItemParola(e.target.value)}
-                                            className="ml-3 border border-gray-300 rounded-lg px-2 py-1 w-full max-w-[250px] truncate"
-                                        />
-                                    ) : (
-                                        <span className="ml-3 text-gray-800 w-full max-w-[250px] truncate overflow-hidden">
-                                            {showParola ? parolaName : '*'.repeat(parolaName.length)}
-                                        </span>
-                                    )}
-
+                                    <span className="ml-3 text-gray-800 w-full max-w-[250px] truncate overflow-hidden">
+                                        {showParola ? parolaName : '*'.repeat(parolaName.length)}
+                                    </span>
                                     {/* Butonul de Afisare Parola */}
                                     <button onClick={() => setShowParola(!showParola)} className="ml-3 text-gray-500 hover:text-blue-500 transition">
                                         {showParola ? <FaEyeSlash /> : <FaEye />}
@@ -287,11 +219,6 @@ const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                                     {/* Butonul de copiere */}
                                     <button onClick={() => copieContinut(parolaName)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
                                         <FaCopy />
-                                    </button>
-
-                                    {/* Butonul de editare */}
-                                    <button onClick={() => setdeEditat({ ...deEditat, parola: !deEditat.parola })} className="ml-3 text-gray-500 hover:text-blue-500">
-                                        {deEditat.parola ? <FaSave /> : <FaEdit />}
                                     </button>
                                 </div>
                                 {/*Istoric */}
@@ -319,7 +246,6 @@ const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
 
                                     </div>
                                 </div>
-
                             </div>
                             <div className="space-y-4 lg:mt-4">
                                 {/* UID-ul itemului */}
@@ -333,7 +259,6 @@ const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                                     <div className="ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{createdDate}</span>
-                                            {createdBy && <span className="text-gray-500 italic">by ionut@@@ {createdBy}</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -348,7 +273,6 @@ const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                                     <div className="ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{modifiedDate}</span>
-                                            {modifiedBy && <span className="text-gray-500 italic">by ionut@ionut {modifiedBy}</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -363,8 +287,6 @@ const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                                     </button>
                                 </div>
                             </div>
-
-
                         </div>
                     </div>
 

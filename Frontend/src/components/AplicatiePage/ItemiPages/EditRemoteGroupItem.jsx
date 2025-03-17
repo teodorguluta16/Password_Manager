@@ -174,7 +174,7 @@ const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
 
     return (
         <>
-            <div className="px-6 mb-2 ">
+            <div className="px-2 mb-2 ">
                 {/* Bara de sus cu butoane și titlu centrat */}
                 <div className="flex items-center justify-between pb-3 mt-4">
                     {/* Butoanele pe stânga */}

@@ -96,7 +96,7 @@ const EditAdreseGroupItem = ({ item, setGestioneazaAdresaItem }) => {
         <>
             <div className="px-4 mb-2 ">
                 {/* Bara de sus cu butoane și titlu centrat */}
-                <div className="flex items-center justify-between pb-3 mt-6">
+                <div className="flex items-center justify-between pb-3 mt-2">
                     {/* Butoanele pe stânga */}
                     <div className="flex items-center space-x-4">
                         <button onClick={() => setGestioneazaAdresaItem(null)} className="py-1 px-1 cursor-pointer rounded-lg">

@@ -1,6 +1,5 @@
 import React from "react";
 import { useState, useEffect } from 'react';
-import ArrowBack from "../../../assets/website/back.png"
 import "../../../App.css"
 
 import { FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
@@ -157,7 +156,6 @@ const VizualizareNotitaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                                     <div className="lg:ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{createdDate}</span>
-                                            {createdBy && <span className="text-gray-500 italic">by ionut@@@ {createdBy}</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -172,7 +170,6 @@ const VizualizareNotitaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                                     <div className="lg:ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{modifiedDate}</span>
-                                            {modifiedBy && <span className="text-gray-500 italic">by ionut@ionut {modifiedBy}</span>}
                                         </div>
                                     </div>
                                 </div>
