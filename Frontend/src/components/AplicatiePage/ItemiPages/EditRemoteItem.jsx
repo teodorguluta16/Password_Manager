@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import ArrowBack from "../../../assets/website/back.png"
 import "../../../App.css"
 
-import { FaEye, FaEyeSlash, FaCopy, FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
 const Istoric = [
     { operatie: "Actualizare Parola", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
     { operatie: "Actualizare Username", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
@@ -19,15 +19,7 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
     const [hostNume, setItemHost] = useState(item.host);
     console.log(hostNume);
     const [ppkKey, setPPKkey] = useState(item.ppkKey);
-    const [privateKey, sePrivateKey] = useState(item.privateKey);
     const [deEditat, setdeEditat] = useState({ nume: false, username: false, parola: false, url: false, ppkKey: false });
-
-    const [esteCopiat, setEsteCopiat] = useState(false);
-    const copieContinut = (text) => {
-        navigator.clipboard.writeText(text);
-        setIsCopied(true);
-        setTimeout(() => setEsteCopiat(false), 2000);
-    }
 
     const [showParola, setShowParola] = useState(false);
 
@@ -42,12 +34,7 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
         setModifiedDate(formattedDate);
     }, [item.created_at, item.modified_at]);
 
-    const [createdBy, setCreatedBy] = useState("Alice");
-
-    const [modifiedBy, setModifiedBy] = useState("Bob");
-
     const [afisIstoric, setAfisIstoric] = useState(true);
-
     const [ownerNume, setOwnerNume] = useState("");
     const [ownerPrenume, setOwnerPrenume] = useState("");
 
@@ -88,13 +75,7 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
     }
 
     const [isLocalServerRunning, setIsLocalServerRunning] = useState(false);
-    const [selectedTerminal, setSelectedTerminal] = useState("putty"); // Default: PuTTY
-
-    // 🔹 State pentru gestionarea conexiunilor salvate
-    const [savedConnections, setSavedConnections] = useState([]); // Lista de conexiuni SSH salvate
-    const [selectedHost, setSelectedHost] = useState(""); // IP/host selectat
-    const [username, setUsername] = useState(""); // Username completat automat
-    const [password, setPassword] = useState(""); // Parolă completată automat
+    const [selectedTerminal, setSelectedTerminal] = useState("putty");
 
     // 🔹 Verifică dacă serverul local rulează
     const checkLocalServer = async () => {
@@ -253,10 +234,6 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
                                     ) : (
                                         <span className="ml-3 text-gray-800">{userName}</span>
                                     )}
-                                    {/* Butonul de copiere Username */}
-                                    <button onClick={() => copieContinut(userName)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                        <FaCopy />
-                                    </button>
 
                                     <button onClick={() => setdeEditat({ ...deEditat, username: !deEditat.username })} className="ml-3 text-gray-500 hover:text-blue-500">
                                         {deEditat.username ? <FaSave /> : <FaEdit />}
@@ -282,11 +259,6 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
                                     {/* Butonul de Afisare Parola */}
                                     <button onClick={() => setShowParola(!showParola)} className="ml-3 text-gray-500 hover:text-blue-500 transition">
                                         {showParola ? <FaEyeSlash /> : <FaEye />}
-                                    </button>
-
-                                    {/* Butonul de copiere */}
-                                    <button onClick={() => copieContinut(parolaName)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                        <FaCopy />
                                     </button>
 
                                     {/* Butonul de editare */}
@@ -333,7 +305,6 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
                                     <div className="ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{createdDate}</span>
-                                            {createdBy && <span className="text-gray-500 italic">by ionut@@@ {createdBy}</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -348,7 +319,6 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
                                     <div className="ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{modifiedDate}</span>
-                                            {modifiedBy && <span className="text-gray-500 italic">by ionut@ionut {modifiedBy}</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -363,8 +333,6 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
                                     </button>
                                 </div>
                             </div>
-
-
                         </div>
                     </div>
 

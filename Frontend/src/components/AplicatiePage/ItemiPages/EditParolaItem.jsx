@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import ArrowBack from "../../../assets/website/back.png"
 import "../../../App.css"
 
-import { FaEye, FaEyeSlash, FaCopy, FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
 import { criptareDate } from "../../FunctiiDate/FunctiiDefinite";
 
 
@@ -43,13 +43,6 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
     const [note, setItemNote] = useState(item.comentariu);
     const importedKey = item.importedKey;
     const [deEditat, setdeEditat] = useState({ nume: false, username: false, parola: false, url: false, note: false });
-
-    const [esteCopiat, setEsteCopiat] = useState(false);
-    const copieContinut = (text) => {
-        navigator.clipboard.writeText(text);
-        setIsCopied(true);
-        setTimeout(() => setEsteCopiat(false), 2000);
-    }
 
     const [showParola, setShowParola] = useState(false);
 
@@ -235,10 +228,7 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                                     ) : (
                                         <span className="ml-3 text-gray-800 overflow-x-auto whitespace-nowrap px-2 py-1 rounded-lg">{userName}</span>
                                     )}
-                                    {/* Butonul de copiere Username */}
-                                    <button onClick={() => copieContinut(userName)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                        <FaCopy />
-                                    </button>
+
 
                                     <button onClick={() => setdeEditat({ ...deEditat, username: !deEditat.username })} className="ml-3 text-gray-500 hover:text-blue-500">
                                         {deEditat.username ? <FaSave /> : <FaEdit />}
@@ -264,11 +254,6 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                                     {/* Butonul de Afisare Parola */}
                                     <button onClick={() => setShowParola(!showParola)} className="ml-3 text-gray-500 hover:text-blue-500 transition duration-300 ease-in-out">
                                         {showParola ? <FaEyeSlash /> : <FaEye />}
-                                    </button>
-
-                                    {/* Butonul de copiere */}
-                                    <button onClick={() => copieContinut(parolaName)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                        <FaCopy />
                                     </button>
 
                                     {/* Butonul de editare */}

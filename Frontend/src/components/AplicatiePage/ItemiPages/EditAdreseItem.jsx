@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import ArrowBack from "../../../assets/website/back.png"
 import "../../../App.css"
 
-import { FaEdit, FaSave, FaArrowLeft, FaCopy } from 'react-icons/fa';
+import { FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
 const Istoric = [
     { operatie: "Actualizare Parola", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
     { operatie: "Actualizare Username", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
@@ -23,15 +23,6 @@ const EditAdreseItem = ({ item, setGestioneazaAdresaItem }) => {
     const [note, setItemNote] = useState(item.comentariu);
     const [deEditat, setdeEditat] = useState({ nume: false, note: false, adresaItem: false, orasItem: false });
 
-    const [esteCopiat, setEsteCopiat] = useState(false);
-    const copieContinut = (text) => {
-        navigator.clipboard.writeText(text);
-        setIsCopied(true);
-        setTimeout(() => setEsteCopiat(false), 2000);
-    }
-
-    const [showParola, setShowParola] = useState(false);
-
     const [uidItem, setUidItem] = useState(item.id_item);
     const [createdDate, setCreatedDate] = useState("");
     const [modifiedDate, setModifiedDate] = useState("");
@@ -43,12 +34,7 @@ const EditAdreseItem = ({ item, setGestioneazaAdresaItem }) => {
         setModifiedDate(formattedDate);
     }, [item.created_at, item.modified_at]);
 
-    const [createdBy, setCreatedBy] = useState("Alice");
-
-    const [modifiedBy, setModifiedBy] = useState("Bob");
-
     const [afisIstoric, setAfisIstoric] = useState(true);
-
     const [ownerNume, setOwnerNume] = useState("");
     const [ownerPrenume, setOwnerPrenume] = useState("");
 
@@ -135,11 +121,6 @@ const EditAdreseItem = ({ item, setGestioneazaAdresaItem }) => {
                                         ) : (
                                             <span className="ml-3 text-gray-800">{adresaItem}</span>
                                         )}
-                                        {/* Butonul de copiere Username */}
-                                        <button onClick={() => copieContinut(adresaItem)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                            <FaCopy />
-                                        </button>
-
                                         <button onClick={() => setdeEditat({ ...deEditat, adresaItem: !deEditat.adresaItem })} className="ml-3 text-gray-500 hover:text-blue-500">
                                             {deEditat.adresaItem ? <FaSave /> : <FaEdit />}
                                         </button>
@@ -152,11 +133,6 @@ const EditAdreseItem = ({ item, setGestioneazaAdresaItem }) => {
                                         ) : (
                                             <span className="ml-3 text-gray-800">{orasItem}</span>
                                         )}
-                                        {/* Butonul de copiere Username */}
-                                        <button onClick={() => copieContinut(orasItem)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                            <FaCopy />
-                                        </button>
-
                                         <button onClick={() => setdeEditat({ ...deEditat, orasItem: !deEditat.orasItem })} className="ml-3 text-gray-500 hover:text-blue-500">
                                             {deEditat.orasItem ? <FaSave /> : <FaEdit />}
                                         </button>
@@ -169,11 +145,6 @@ const EditAdreseItem = ({ item, setGestioneazaAdresaItem }) => {
                                         ) : (
                                             <span className="ml-3 text-gray-800">{judetItem}</span>
                                         )}
-                                        {/* Butonul de copiere Username */}
-                                        <button onClick={() => copieContinut(judetItem)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                            <FaCopy />
-                                        </button>
-
                                         <button onClick={() => setdeEditat({ ...deEditat, judetItem: !deEditat.judetItem })} className="ml-3 text-gray-500 hover:text-blue-500">
                                             {deEditat.judetItem ? <FaSave /> : <FaEdit />}
                                         </button>
@@ -186,18 +157,12 @@ const EditAdreseItem = ({ item, setGestioneazaAdresaItem }) => {
                                         ) : (
                                             <span className="ml-3 text-gray-800">{codPostal}</span>
                                         )}
-                                        {/* Butonul de copiere Username */}
-                                        <button onClick={() => copieContinut(codPostal)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                            <FaCopy />
-                                        </button>
 
                                         <button onClick={() => setdeEditat({ ...deEditat, codPostal: !deEditat.codPostal })} className="ml-3 text-gray-500 hover:text-blue-500">
                                             {deEditat.codPostal ? <FaSave /> : <FaEdit />}
                                         </button>
                                     </div>
                                 </div>
-
-
 
                                 {/*Note/Mentiuni*/}
                                 <div className="ml-2 mt-4">
@@ -225,7 +190,6 @@ const EditAdreseItem = ({ item, setGestioneazaAdresaItem }) => {
                                     <div className="lg:ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{createdDate}</span>
-                                            {createdBy && <span className="text-gray-500 italic">by ionut@@@ {createdBy}</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -240,7 +204,6 @@ const EditAdreseItem = ({ item, setGestioneazaAdresaItem }) => {
                                     <div className="lg:ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{modifiedDate}</span>
-                                            {modifiedBy && <span className="text-gray-500 italic">by ionut@ionut {modifiedBy}</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -270,8 +233,6 @@ const EditAdreseItem = ({ item, setGestioneazaAdresaItem }) => {
                             </div>
                             ) : (<p className="text-gray-600">Istoric Gol</p>
                             )}</div>)}
-
-
                         </div>
                     </div>
                 </div>

@@ -38,13 +38,6 @@ const EditNotitaItem = ({ item, setGestioneazaParolaItem }) => {
     const [note, setItemNote] = useState(item.comentariu);
     const [deEditat, setdeEditat] = useState({ nume: false, date: false, note: false });
 
-    const [esteCopiat, setEsteCopiat] = useState(false);
-    const copieContinut = (text) => {
-        navigator.clipboard.writeText(text);
-        setIsCopied(true);
-        setTimeout(() => setEsteCopiat(false), 2000);
-    }
-
     const [uidItem, setUidItem] = useState(item.id_item);
     const [createdDate, setCreatedDate] = useState("");
     const [modifiedDate, setModifiedDate] = useState("");
@@ -187,7 +180,7 @@ const EditNotitaItem = ({ item, setGestioneazaParolaItem }) => {
                             <FaSave className="w-6 h-6 hover:text-green-600 transition-all duration-300 ease-in-out" />
                         </button>
                     </div>
-                    <div className="flex-1 text-center">
+                    <div className="flex-1 flex-row text-center">
                         {deEditat.nume ? (
                             <input
                                 type="text"
@@ -198,8 +191,8 @@ const EditNotitaItem = ({ item, setGestioneazaParolaItem }) => {
                         ) : (
                             <h2 className="font-semibold text-3xl">{itemNume}</h2>
                         )}
-                        <button onClick={() => setdeEditat({ ...deEditat, nume: !deEditat.nume })} className="text-gray-500 hover:text-blue-500 transition">
-                            {deEditat.nume ? <FaSave /> : <FaEdit />}
+                        <button onClick={() => setdeEditat({ ...deEditat, nume: !deEditat.nume })} className="text-gray-500 hover:text-blue-500 transition mt-2">
+                            {deEditat.nume ? <FaSave className="ml-2" /> : <FaEdit />}
                         </button>
                     </div>
                 </div>
@@ -220,7 +213,7 @@ const EditNotitaItem = ({ item, setGestioneazaParolaItem }) => {
                                     ) : (
                                         <span className="text-gray-800 font-semibold">{new Date(date).toLocaleDateString('ro-RO')}</span>
                                     )}
-                                    <button onClick={() => setdeEditat({ ...deEditat, date: !deEditat.date })} className="text-gray-500 hover:text-blue-500 transition">
+                                    <button onClick={() => setdeEditat({ ...deEditat, date: !deEditat.date })} className="text-gray-500 hover:text-blue-500 transition ml-2">
                                         {deEditat.date ? <FaSave /> : <FaEdit />}
                                     </button>
                                 </div>
@@ -272,7 +265,7 @@ const EditNotitaItem = ({ item, setGestioneazaParolaItem }) => {
                         </div>
                     </div>
                     {/*Istoric */}
-                    <div className='w-full  custom_top_istoric mt-5 px-2'>
+                    <div className='w-full  custom_top_istoric mt-5 sm:px-2'>
                         <div className="flex flex-col space-y-1 ">
                             <h3 className="font-medium">Istoric Modificari:</h3>
                             <h2 className="text-gray-700 cursor-pointer hover:underline text-gray-400" onClick={() => setAfisIstoric(!afisIstoric)}>{afisIstoric ? 'Ascunde' : 'Afiseaza'}</h2>

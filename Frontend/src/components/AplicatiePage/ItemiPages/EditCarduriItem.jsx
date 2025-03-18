@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import ArrowBack from "../../../assets/website/back.png"
 import "../../../App.css"
 
-import { FaEdit, FaSave, FaArrowLeft, FaCopy } from 'react-icons/fa';
+import { FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
 const Istoric = [
     { operatie: "Actualizare Parola", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
     { operatie: "Actualizare Username", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
@@ -22,15 +22,6 @@ const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
     const [note, setItemNote] = useState(item.comentariu);
     const [deEditat, setdeEditat] = useState({ nume: false, note: false, numarCard: false });
 
-    const [esteCopiat, setEsteCopiat] = useState(false);
-    const copieContinut = (text) => {
-        navigator.clipboard.writeText(text);
-        setIsCopied(true);
-        setTimeout(() => setEsteCopiat(false), 2000);
-    }
-
-    const [showParola, setShowParola] = useState(false);
-
     const [uidItem, setUidItem] = useState(item.id_item);
     const [createdDate, setCreatedDate] = useState("");
     const [modifiedDate, setModifiedDate] = useState("");
@@ -42,12 +33,7 @@ const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
         setModifiedDate(formattedDate);
     }, [item.created_at, item.modified_at]);
 
-    const [createdBy, setCreatedBy] = useState("Alice");
-
-    const [modifiedBy, setModifiedBy] = useState("Bob");
-
     const [afisIstoric, setAfisIstoric] = useState(true);
-
     const [ownerNume, setOwnerNume] = useState("");
     const [ownerPrenume, setOwnerPrenume] = useState("");
 
@@ -75,9 +61,6 @@ const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
                 console.error('Error fetching items:', error);
             }
         };
-
-
-
         fetchItems();
     }, []);
 
@@ -115,6 +98,9 @@ const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
                         ) : (
                             <h2 className="font-semibold text-3xl">{itemNume}</h2>
                         )}
+                        <button onClick={() => setdeEditat({ ...deEditat, nume: !deEditat.nume })} className="ml-3 text-gray-500 hover:text-blue-500">
+                            {deEditat.nume ? <FaSave /> : <FaEdit />}
+                        </button>
                     </div>
                 </div>
 
@@ -141,6 +127,9 @@ const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
                                             })()}
                                         </span>
                                     )}
+                                    <button onClick={() => setdeEditat({ ...deEditat, date: !deEditat.date })} className="ml-3 text-gray-500 hover:text-blue-500">
+                                        {deEditat.date ? <FaSave /> : <FaEdit />}
+                                    </button>
                                 </div>
                                 <div className="ml-2">
                                     {/* Numar card*/}
@@ -151,10 +140,6 @@ const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
                                         ) : (
                                             <span className="ml-3 text-gray-800">{numarCard}</span>
                                         )}
-                                        {/* Butonul de copiere Username */}
-                                        <button onClick={() => copieContinut(numarCard)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                            <FaCopy />
-                                        </button>
 
                                         <button onClick={() => setdeEditat({ ...deEditat, numarCard: !deEditat.numarCard })} className="ml-3 text-gray-500 hover:text-blue-500">
                                             {deEditat.numarCard ? <FaSave /> : <FaEdit />}
@@ -168,18 +153,12 @@ const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
                                         ) : (
                                             <span className="ml-3 text-gray-800">{posesorCard}</span>
                                         )}
-                                        {/* Butonul de copiere Username */}
-                                        <button onClick={() => copieContinut(posesorCard)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                            <FaCopy />
-                                        </button>
 
                                         <button onClick={() => setdeEditat({ ...deEditat, posesorCard: !deEditat.posesorCard })} className="ml-3 text-gray-500 hover:text-blue-500">
                                             {deEditat.posesorCard ? <FaSave /> : <FaEdit />}
                                         </button>
                                     </div>
                                 </div>
-
-
 
                                 {/*Note/Mentiuni*/}
                                 <div className="ml-2 mt-4">
@@ -207,7 +186,6 @@ const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
                                     <div className="lg:ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{createdDate}</span>
-                                            {createdBy && <span className="text-gray-500 italic">by ionut@@@ {createdBy}</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -222,13 +200,10 @@ const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
                                     <div className="lg:ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{modifiedDate}</span>
-                                            {modifiedBy && <span className="text-gray-500 italic">by ionut@ionut {modifiedBy}</span>}
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-
                         </div>
                     </div>
                     {/*Istoric */}
