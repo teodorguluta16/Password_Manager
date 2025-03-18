@@ -380,6 +380,16 @@ const AplicatiePage = () => {
               const tagHex7 = dataObject2.data.ppkKey.tag;
               const rez_ppkKey = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
 
+              let ivHex8 = null, encDataHex8 = null, tagHex8 = null, rez_istoric = null;
+              console.log(dataObject2);
+              if (dataObject2.data.istoric) {
+                ivHex8 = dataObject2.data.istoric.iv;
+                encDataHex8 = dataObject2.data.istoric.encData;
+                tagHex8 = dataObject2.data.istoric.tag;
+                rez_istoric = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
+
+              }
+
               remoteItems.push({
                 importedKey: importedKey,
                 nume: rez_nume,
@@ -394,7 +404,8 @@ const AplicatiePage = () => {
                 id_owner: id_owner,
                 id_item: id_item,
                 isDeleted: isDeleted,
-                isFavorite: isFavorite
+                isFavorite: isFavorite,
+                istoric: rez_istoric
               });
 
               fetchedItems.push({
@@ -411,7 +422,8 @@ const AplicatiePage = () => {
                 id_owner: id_owner,
                 id_item: id_item,
                 isDeleted: isDeleted,
-                isFavorite: isFavorite
+                isFavorite: isFavorite,
+                istoric: rez_istoric
               });
               if (isFavorite) {
                 favoriteItems.push({
@@ -428,7 +440,8 @@ const AplicatiePage = () => {
                   id_owner: id_owner,
                   id_item: id_item,
                   isDeleted: isDeleted,
-                  isFavorite: isFavorite
+                  isFavorite: isFavorite,
+                  istoric: rez_istoric
                 });
               }
 
@@ -461,7 +474,6 @@ const AplicatiePage = () => {
 
               }
 
-
               console.log("Datele primite de la server aferente parolei:", rez_tip, rez_nume, rez_data, rez_comentariu, isDeleted, isFavorite, rez_istoric);
               notiteItems.push({
                 importedKey: importedKey,
@@ -476,7 +488,7 @@ const AplicatiePage = () => {
                 id_item: id_item,
                 isDeleted: isDeleted,
                 isFavorite: isFavorite,
-                istoric: rez_istoric
+                istoric: rez_istoric,
               });
 
               fetchedItems.push({
@@ -545,6 +557,16 @@ const AplicatiePage = () => {
               const tagHex7 = dataObject2.data.comentariu.tag;
               const rez_comentariu = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
 
+              let ivHex8 = null, encDataHex8 = null, tagHex8 = null, rez_istoric = null;
+              console.log(dataObject2);
+              if (dataObject2.data.istoric) {
+                ivHex8 = dataObject2.data.istoric.iv;
+                encDataHex8 = dataObject2.data.istoric.encData;
+                tagHex8 = dataObject2.data.istoric.tag;
+                rez_istoric = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
+
+              }
+
               console.log("Datele primite de la server aferente cardului:", rez_tip, rez_nume, rez_numarCard, rez_posesorCard, rez_comentariu, rez_dataExpirare, isDeleted, isFavorite);
               carduriItems.push({
                 importedKey: importedKey,
@@ -560,7 +582,8 @@ const AplicatiePage = () => {
                 id_owner: id_owner,
                 id_item: id_item,
                 isDeleted: isDeleted,
-                isFavorite: isFavorite
+                isFavorite: isFavorite,
+                istoric: rez_istoric
               });
 
               fetchedItems.push({
@@ -577,7 +600,8 @@ const AplicatiePage = () => {
                 id_owner: id_owner,
                 id_item: id_item,
                 isDeleted: isDeleted,
-                isFavorite: isFavorite
+                isFavorite: isFavorite,
+                istoric: rez_istoric
               });
 
               if (isFavorite) {
@@ -595,7 +619,8 @@ const AplicatiePage = () => {
                   id_owner: id_owner,
                   id_item: id_item,
                   isDeleted: isDeleted,
-                  isFavorite: isFavorite
+                  isFavorite: isFavorite,
+                  istoric: rez_istoric
                 });
               }
 
@@ -636,6 +661,16 @@ const AplicatiePage = () => {
               const tagHex8 = dataObject2.data.comentariu.tag;
               const rez_comentariu = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
 
+              let ivHex9 = null, encDataHex9 = null, tagHex9 = null, rez_istoric = null;
+              console.log(dataObject2);
+              if (dataObject2.data.istoric) {
+                ivHex9 = dataObject2.data.istoric.iv;
+                encDataHex9 = dataObject2.data.istoric.encData;
+                tagHex9 = dataObject2.data.istoric.tag;
+                rez_istoric = await decriptareDate(encDataHex9, ivHex9, tagHex9, importedKey);
+
+              }
+
               console.log("Datele primite de la server aferente adresei:", rez_tip, rez_nume, rez_adresa, rez_oras, rez_jduet, rez_codPostal, rez_comentariu, isDeleted, isFavorite);
               adreseItems.push({
                 importedKey: importedKey,
@@ -652,7 +687,8 @@ const AplicatiePage = () => {
                 id_owner: id_owner,
                 id_item: id_item,
                 isDeleted: isDeleted,
-                isFavorite: isFavorite
+                isFavorite: isFavorite,
+                istoric: rez_istoric
               });
 
               fetchedItems.push({
@@ -670,7 +706,8 @@ const AplicatiePage = () => {
                 id_owner: id_owner,
                 id_item: id_item,
                 isDeleted: isDeleted,
-                isFavorite: isFavorite
+                isFavorite: isFavorite,
+                istoric: rez_istoric
               });
 
               if (isFavorite) {
@@ -689,10 +726,10 @@ const AplicatiePage = () => {
                   id_owner: id_owner,
                   id_item: id_item,
                   isDeleted: isDeleted,
-                  isFavorite: isFavorite
+                  isFavorite: isFavorite,
+                  istoric: rez_istoric
                 });
               }
-
             }
 
           } catch (error) {

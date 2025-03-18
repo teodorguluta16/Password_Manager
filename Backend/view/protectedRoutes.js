@@ -231,6 +231,7 @@ protectedRouter.get('/getOwner', async (req, res) => {
     }
 });
 
+
 // rute grupuri
 
 protectedRouter.post('/addGrup', async (req, res) => {
@@ -568,6 +569,38 @@ protectedRouter.get('/getEncryptedPrivateKeyGrup', async (req, res) => {
     }
 });
 
+protectedRouter.post('/grupuri/getOwnerItem', async (req, res) => {
+    const { uidItem } = req.body;
+    console.log("id-ul item: ", uidItem);
+    try {
+        // 🔹 Pasul 1: Obține `id_owner` din tabela `Itemi`
+        const ownerResult = await client.query("SELECT id_owner FROM Itemi WHERE id_item = $1;", [uidItem]);
+
+        if (ownerResult.rows.length === 0) {
+            return res.status(404).json({ message: "Itemul nu există sau nu are un proprietar asociat." });
+        }
+
+        const idOwner = ownerResult.rows[0].id_owner;
+
+        console.log("ID-ul proprietarului:", idOwner);
+
+        // 🔹 Pasul 2: Obține numele și prenumele utilizatorului
+        const userResult = await client.query("SELECT nume, prenume FROM utilizatori WHERE id = $1;", [idOwner]);
+
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ message: "Proprietarul nu a fost găsit." });
+        }
+
+        console.log("Proprietarul găsit:", userResult.rows[0]);
+
+        res.status(200).json(userResult.rows[0]); // Returnează numele și prenumele
+    }
+    catch (error) {
+        console.error('Eroare:', error);
+        res.status(500).json({ message: "Eroare internă a serverului." });
+    }
+});
+
 
 
 // utilizator
@@ -583,7 +616,7 @@ protectedRouter.get('/utilizator/getUserId', async (req, res) => {
 })
 
 protectedRouter.get('/getUserSimmetricKey', async (req, res) => {
-    const userId = req.user.sub; // ✅ Acum `userId` este extras automat din `accessToken`
+    const userId = req.user.sub;
     try {
         const result = await client.query(`SELECT encode(encryptedsimmetrickey, 'hex') AS encryptedsimmetrickey
             FROM Utilizatori WHERE id = $1`, [userId]);

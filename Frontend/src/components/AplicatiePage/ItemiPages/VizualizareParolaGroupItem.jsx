@@ -49,18 +49,20 @@ const VizualizareParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
     useEffect(() => {
         const fetchItems = async () => {
             try {
-                const response = await fetch('http://localhost:9000/api/getOwner', {
-                    method: 'GET',
+                const response = await fetch('http://localhost:9000/api/grupuri/getOwnerItem', {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
+                    body: JSON.stringify({ uidItem }),
                     credentials: "include"
                 });
 
                 if (response.ok) {
                     const data = await response.json();
-                    setOwnerNume(data[0].nume);
-                    setOwnerPrenume(data[0].prenume);
+                    console.log(data);
+                    setOwnerNume(data.nume);
+                    setOwnerPrenume(data.prenume);
                 } else {
                     console.error('Failed to fetch items', response.statusText);
                 }
