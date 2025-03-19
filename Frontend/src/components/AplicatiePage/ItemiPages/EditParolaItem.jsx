@@ -169,20 +169,17 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                credentials: "include",
                 body: JSON.stringify({
                     id_item: uidItem,
                     continut: jsonItem,
                 }),
+                credentials: "include",
             });
 
             if (!response.ok) {
                 throw new Error("Eroare la actualizare");
             }
-
             console.log("Item actualizat cu succes!");
-
-
         } catch (error) {
             console.error('Error during the request:', error);
         }

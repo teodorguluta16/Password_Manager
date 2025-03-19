@@ -1,32 +1,46 @@
 import React from "react";
 import { useState, useEffect } from 'react';
-import ArrowBack from "../../../assets/website/back.png"
 import "../../../App.css"
+import { criptareDate } from "../../FunctiiDate/FunctiiDefinite";
 
-import { FaEye, FaEyeSlash, FaCopy, FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
-const Istoric = [
-    { operatie: "Actualizare Parola", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Username", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare URL", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Titlu", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Notita", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-]
+import { FaEye, FaEyeSlash, FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
 
 const EditParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
+
+    const [initialValues, setInitialValues] = useState({
+        nume: item.nume,
+        username: item.username,
+        parola: item.parola,
+        url: item.url,
+        comentariu: item.comentariu,
+    });
+
+    console.log(item.istoric);
+
+    const [istoric, setIstoric] = useState(item.istoric);
+
+    console.log("Tipul lui istoric:", typeof item.istoric);
+    console.log("Conținutul lui istoric:", istoric);
+    let parsedIstoric = [];
+
+    try {
+        parsedIstoric = JSON.parse(item.istoric);
+        if (!Array.isArray(parsedIstoric)) {
+            parsedIstoric = [];
+        }
+    } catch (error) {
+        console.error("Eroare la parsarea istoricului:", error);
+        parsedIstoric = [];
+    }
+
     console.log("Itemul este: ", item);
+    const importedKey = item.importedKey;
     const [itemNume, setItemNume] = useState(item.nume);
     const [userName, setItemUsername] = useState(item.username);
     const [parolaName, setItemParola] = useState(item.parola);
     const [urlNume, setItemUrl] = useState(item.url);
     const [note, setItemNote] = useState(item.comentariu);
     const [deEditat, setdeEditat] = useState({ nume: false, username: false, parola: false, url: false, note: false });
-
-    const [esteCopiat, setEsteCopiat] = useState(false);
-    const copieContinut = (text) => {
-        navigator.clipboard.writeText(text);
-        setIsCopied(true);
-        setTimeout(() => setEsteCopiat(false), 2000);
-    }
 
     const [showParola, setShowParola] = useState(false);
 
@@ -79,10 +93,98 @@ const EditParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
     }, []);
 
     const salveazaToateModificarile = async () => {
-        try {
-            const requestData = { uidItem, itemNume, userName, parolaName, urlNume, note };
-            // ca sa le modific trebuie iarasi sa le criptez la loc si sa le trimit la fel ca la aduagare item
+        let modificari = [];
 
+        try {
+            if (itemNume !== initialValues.nume) {
+                modificari.push("Nume");
+            }
+            if (userName !== initialValues.username) {
+                modificari.push("Username");
+            }
+            if (parolaName !== initialValues.parola) {
+                modificari.push("Parola");
+            }
+            if (urlNume !== initialValues.url) {
+                modificari.push("URL");
+            }
+            if (note !== initialValues.comentariu) {
+                modificari.push("Comentariu");
+            }
+            console.log("Modificarile noi:", itemNume, userName, parolaName, urlNume, note);
+            if (modificari.length === 0) {
+                console.log("Nicio modificare detectată.");
+                return;
+            }
+
+            const now = new Date();
+            const dataCurenta = now.toLocaleDateString();
+            const oraCurenta = now.toLocaleTimeString();
+
+            const nouIstoric = {
+                operatie: `Actualizare Date: ${modificari.join(", ")}`,
+                data: dataCurenta,
+                time: oraCurenta,
+            };
+
+            console.log("Nou Istoric:", nouIstoric);
+
+            console.log("istoric vechi", istoric);
+
+            const istoricActualizat = [...parsedIstoric, nouIstoric];
+            console.log("Istoricul actualizat: ", istoricActualizat);
+
+            setIstoric(istoricActualizat);
+
+            // criptez itemul respectiv cu cheia
+            const enc_Tip = await criptareDate("password", importedKey);
+            const enc_NumeItem = await criptareDate(itemNume, importedKey);
+            const enc_UrlItem = await criptareDate(urlNume, importedKey);
+            const enc_UsernameItem = await criptareDate(userName, importedKey);
+            const enc_ParolaItem = await criptareDate(parolaName, importedKey);
+            const enc_ComentariuItem = await criptareDate(note, importedKey);
+            const enc_IstoricItem = await criptareDate(JSON.stringify(istoricActualizat), importedKey);
+
+            const jsonItem = {
+                metadata: {
+                    created_at: item.created_at,
+                    modified_at: new Date().toISOString(),
+                    version: 2
+                },
+                data: {
+                    tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag, },
+                    nume: { iv: enc_NumeItem.iv, encData: enc_NumeItem.encData, tag: enc_NumeItem.tag },
+                    url: { iv: enc_UrlItem.iv, encData: enc_UrlItem.encData, tag: enc_UrlItem.tag },
+                    username: { iv: enc_UsernameItem.iv, encData: enc_UsernameItem.encData, tag: enc_UsernameItem.tag },
+                    parola: { iv: enc_ParolaItem.iv, encData: enc_ParolaItem.encData, tag: enc_ParolaItem.tag },
+                    comentariu: { iv: enc_ComentariuItem.iv, encData: enc_ComentariuItem.encData, tag: enc_ComentariuItem.tag },
+                    istoric: { iv: enc_IstoricItem.iv, encData: enc_IstoricItem.encData, tag: enc_IstoricItem.tag }
+                },
+            };
+
+            const requestBody = {
+                id_item: uidItem,
+                continut: jsonItem
+            };
+
+            try {
+                const response = await fetch('http://localhost:9000/api/grupuri/updateGroupItem', {
+                    method: "PUT",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody),
+                    credentials: "include"
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Eroare la server:", errorText);
+                    return;
+                }
+            } catch (error) {
+                console.error("Eroare la trimitere", error);
+            }
         } catch (error) {
             console.error('Error during the request:', error);
         }
@@ -159,19 +261,32 @@ const EditParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                                         {deEditat.parola ? <FaSave /> : <FaEdit />}
                                     </button>
                                 </div>
+                                {/*Note/Mentiuni*/}
+                                <div className="mt-6">
+                                    <h3 className="font-medium">Note/Mentiuni:</h3>
+                                    {deEditat.note ? (
+                                        <textarea value={note} onChange={(e) => setItemNote(e.target.value)} className=" h-auto min-h-24 max-h-48 mt-3 w-full border border-gray-400 border-2 rounded-lg mr-2"></textarea>
+                                    ) : (
+                                        <p className="mt-2 text rounded-lg w-full h-auto break-words max-h-48 overflow-auto">{note}</p>
+                                    )}
+                                    <button onClick={() => setdeEditat({ ...deEditat, note: !deEditat.note })} className="text-gray-500 hover:text-blue-500 transition">
+                                        {deEditat.note ? <FaSave /> : <FaEdit />}
+                                    </button>
+                                </div>
 
                             </div>
+
                             <div className="space-y-4">
                                 {/*Campul de URL */}
                                 <div className="flex itmes-center mt-6">
-                                    <div className="flex flex-col lg:flex-row lg:ml-4">
+                                    <div className="flex flex-col lg:ml-4">
                                         <h3 className="font-medium">Adresa URL:</h3>
                                         {deEditat.url ? (
-                                            <input type="text" value={urlNume} onChange={(e) => setItemUrl(e.target.value)} className="lg:ml-3 border boder-gray-300 rounded-lg py-1 "></input>
+                                            <input type="text" value={urlNume} onChange={(e) => setItemUrl(e.target.value)} className="border px-2 py-1 border-2 boder-gray-700 rounded-lg py-1 "></input>
                                         ) : (
-                                            <span onClick={() => accesUrl(urlNume)} className="lg:ml-3 text-blue-500 cursor-pointer hover:underline">{urlNume}</span>
+                                            <span onClick={() => accesUrl(urlNume)} className="text-blue-500 cursor-pointer hover:underline">{urlNume}</span>
                                         )}
-                                        <button onClick={() => setdeEditat({ ...deEditat, url: !deEditat.url })} className="lg:ml-3 text-gray-500 hover:text-blue-500 transition">
+                                        <button onClick={() => setdeEditat({ ...deEditat, url: !deEditat.url })} className="text-gray-500 hover:text-blue-500 transition">
                                             {deEditat.url ? <FaSave /> : <FaEdit />}
                                         </button>
                                     </div>
@@ -182,24 +297,10 @@ const EditParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                                     <h3 className="font-medium">Record ID:</h3>
                                     <span className="lg:ml-3 text-blue-500">{uidItem}</span>
                                 </div>
-                            </div>
-                            {/*Note/Mentiuni*/}
-                            <div className="mt-6">
-                                <h3 className="font-medium">Note/Mentiuni:</h3>
-                                {deEditat.note ? (
-                                    <textarea value={note} onChange={(e) => setItemNote(e.target.value)} className=" h-auto min-h-12 max-h-48 mt-3 w-full border border-gray-400 border-2 rounded-lg mr-2"></textarea>
-                                ) : (
-                                    <p className="mt-2 text rounded-lg w-full h-auto">{note}</p>
-                                )}
-                                <button onClick={() => setdeEditat({ ...deEditat, note: !deEditat.note })} className="text-gray-500 hover:text-blue-500 transition">
-                                    {deEditat.note ? <FaSave /> : <FaEdit />}
-                                </button>
-                            </div>
-                            <div className="space-y-1 sm:space-y-4">
                                 {/* Data creării și cine a creat */}
                                 <div className="flex flex-col lg:flex-row lg:ml-4">
                                     <h3 className="font-medium">Creat:</h3>
-                                    <div className="">
+                                    <div className="lg:ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{createdDate}</span>
 
@@ -209,14 +310,14 @@ const EditParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                                 {/* Proprietar */}
                                 <div className="flex flex-col lg:flex-row lg:ml-4">
                                     <h3 className="font-medium">Proprietar:</h3>
-                                    <span className="text-gray-700">{`${ownerNume} ${ownerPrenume}`}</span>
+                                    <span className="text-gray-700 lg:ml-2">{`${ownerNume} ${ownerPrenume}`}</span>
                                 </div>
                                 {/* Data modificării și cine a modificat */}
                                 <div className="flex flex-col lg:flex-row lg:ml-4">
                                     <h3 className="font-medium">Modificat:</h3>
                                     <div className="">
                                         <div className="space-x-2">
-                                            <span className="text-gray-700">{modifiedDate}</span>
+                                            <span className="text-gray-700 lg:ml-2">{modifiedDate}</span>
 
                                         </div>
                                     </div>
@@ -229,28 +330,29 @@ const EditParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                         <div className="flex flex-col space-y-1 ">
                             <h3 className="font-medium">Istoric Modificari:</h3>
                             <h2 className="text-gray-700 cursor-pointer hover:underline text-gray-400" onClick={() => setAfisIstoric(!afisIstoric)}>{afisIstoric ? 'Ascunde' : 'Afiseaza'}</h2>
-                            {afisIstoric && (<div>{Istoric.length > 0 ? (<div className="h-48 sm:w-1/2 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
-                                {Istoric.map((it, index) => (
-                                    <div key={index} className="py-1 mx-2">
-                                        <span className="font-semibold">{it.operatie}</span>
-                                        <div className="flex space-x-2">
-                                            <span className="text-sm">{it.data}</span>
-                                            <span className="text-sm">{it.time}</span>
-                                            <span className="text-sm italic text-gray-600">by {it.modifiedby}</span>
+                            {afisIstoric && (
+                                <div>
+                                    {Array.isArray(parsedIstoric) && parsedIstoric.length > 0 ? (
+                                        <div className="h-48 sm:w-1/2 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
+                                            {parsedIstoric.map((it, index) => (
+                                                <div key={index} className="py-1 mx-2">
+                                                    <span className="font-semibold">{it.operatie}</span>
+                                                    <div className="flex space-x-2">
+                                                        <span className="text-sm">{it.data}</span>
+                                                        <span className="text-sm">{it.time}</span>
+                                                    </div>
+                                                    <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
+                                                </div>
+                                            ))}
                                         </div>
-
-                                        <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
-                                    </div>
-                                ))}
-                            </div>
-                            ) : (<p className="text-gray-600">Istoric Gol</p>
-                            )}</div>)}
-
-
+                                    ) : (
+                                        <p className="text-gray-600">Istoric Gol</p>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
-
             </div>
         </>
     );
