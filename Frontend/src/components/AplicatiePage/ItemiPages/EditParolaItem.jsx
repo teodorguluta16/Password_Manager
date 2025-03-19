@@ -19,22 +19,21 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
 
     console.log(item.istoric);
 
-    const [istoric, setIstoric] = useState(item.istoric); // Inițializează corect istoricul
+    const [istoric, setIstoric] = useState(item.istoric);
 
     console.log("Tipul lui istoric:", typeof item.istoric);
     console.log("Conținutul lui istoric:", istoric);
     let parsedIstoric = [];
 
     try {
-        parsedIstoric = JSON.parse(item.istoric); // ✅ Parsăm stringul JSON într-un array
+        parsedIstoric = JSON.parse(item.istoric);
         if (!Array.isArray(parsedIstoric)) {
-            parsedIstoric = []; // Dacă parsarea nu dă un array, îl resetăm
+            parsedIstoric = [];
         }
     } catch (error) {
         console.error("Eroare la parsarea istoricului:", error);
-        parsedIstoric = []; // Dacă apare o eroare, inițializăm un array gol
+        parsedIstoric = [];
     }
-
 
     const [itemNume, setItemNume] = useState(item.nume);
     const [userName, setItemUsername] = useState(item.username);
@@ -349,8 +348,6 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                                     )}
                                 </div>
                             )}
-
-
                         </div>
                     </div>
                 </div>

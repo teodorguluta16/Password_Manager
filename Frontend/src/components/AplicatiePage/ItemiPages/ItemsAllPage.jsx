@@ -10,6 +10,8 @@ import PopupStergeItem from "../Popup_uri/PopupStergeItem";
 import EditParolaItem from './EditParolaItem';
 import EditRemoteItem from './EditRemoteItem';
 import EditNotitaItem from './EditNotitaItem';
+import EditCarduriItem from "./EditCarduriItem";
+import EditAdreseItem from "./EditAdreseItem";
 
 const ItemsAllPage = ({ derivedKey, items, fetchItems }) => {
     const [key, setKey] = useState(derivedKey);
@@ -108,8 +110,14 @@ const ItemsAllPage = ({ derivedKey, items, fetchItems }) => {
                         {gestioneazaParolaItem.tipitem === "notita" && (
                             <EditNotitaItem item={gestioneazaParolaItem} setGestioneazaParolaItem={setGestioneazaParolaItem} />
                         )}
-                    </>
+                        {gestioneazaParolaItem.tipitem === "card" && (
+                            <EditCarduriItem item={gestioneazaParolaItem} setGestioneazaCardItem={setGestioneazaParolaItem} />
+                        )}
+                        {gestioneazaParolaItem.tipitem === "adresa" && (
+                            <EditAdreseItem item={gestioneazaParolaItem} setGestioneazaAdresaItem={setGestioneazaParolaItem} />
+                        )}
 
+                    </>
                 )}
 
                 {/*Popup de Stergere item */}

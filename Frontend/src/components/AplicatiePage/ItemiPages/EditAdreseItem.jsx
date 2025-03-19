@@ -1,27 +1,47 @@
 import React from "react";
 import { useState, useEffect } from 'react';
-import ArrowBack from "../../../assets/website/back.png"
 import "../../../App.css"
 
 import { FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
-const Istoric = [
-    { operatie: "Actualizare Parola", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Username", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare URL", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Titlu", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Notita", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-]
+import { criptareDate } from "../../FunctiiDate/FunctiiDefinite";
 
 const EditAdreseItem = ({ item, setGestioneazaAdresaItem }) => {
+    const [initialValues, setInitialValues] = useState({
+        nume: item.nume,
+        adresaItem: item.adresa,
+        orasItem: item.oras,
+        judetItem: item.judet,
+        codPostal: item.codPostal,
+        comentariu: item.comentariu,
+    });
+
+    console.log(item.istoric);
+
+    const [istoric, setIstoric] = useState(item.istoric); // Inițializează corect istoricul
+
+    console.log("Tipul lui istoric:", typeof item.istoric);
+    console.log("Conținutul lui istoric:", istoric);
+    let parsedIstoric = [];
+
+    try {
+        parsedIstoric = JSON.parse(item.istoric);
+        if (!Array.isArray(parsedIstoric)) {
+            parsedIstoric = [];
+        }
+    } catch (error) {
+        console.error("Eroare la parsarea istoricului:", error);
+        parsedIstoric = [];
+    }
+
     console.log(item.nume);
     const [itemNume, setItemNume] = useState(item.nume);
     const [adresaItem, setAdresa] = useState(item.adresa);
     const [orasItem, setOras] = useState(item.oras);
     const [judetItem, setJudet] = useState(item.judet);
-    const [codPostal, serCodPostal] = useState(item.codPostal);
+    const [codPostal, setCodPostal] = useState(item.codPostal);
 
     const [note, setItemNote] = useState(item.comentariu);
-    const [deEditat, setdeEditat] = useState({ nume: false, note: false, adresaItem: false, orasItem: false });
+    const [deEditat, setdeEditat] = useState({ nume: false, note: false, adresaItem: false, orasItem: false, judetItem: false, codPostal: false });
 
     const [uidItem, setUidItem] = useState(item.id_item);
     const [createdDate, setCreatedDate] = useState("");
@@ -37,7 +57,6 @@ const EditAdreseItem = ({ item, setGestioneazaAdresaItem }) => {
     const [afisIstoric, setAfisIstoric] = useState(true);
     const [ownerNume, setOwnerNume] = useState("");
     const [ownerPrenume, setOwnerPrenume] = useState("");
-
 
     useEffect(() => {
         const fetchItems = async () => {
@@ -62,16 +81,103 @@ const EditAdreseItem = ({ item, setGestioneazaAdresaItem }) => {
                 console.error('Error fetching items:', error);
             }
         };
-
-
-
         fetchItems();
     }, []);
 
+    const importedKey = item.importedKey;
     const salveazaToateModificarile = async () => {
+        let modificari = [];
+
         try {
-            //const requestData = { uidItem, itemNume, userName, parolaName, urlNume, note };
-            // ca sa le modific trebuie iarasi sa le criptez la loc si sa le trimit la fel ca la aduagare item
+            if (itemNume !== initialValues.nume) {
+                modificari.push("Nume");
+            }
+            if (adresaItem !== initialValues.adresa) {
+                modificari.push("Adresa");
+            }
+            if (orasItem !== initialValues.oras) {
+                modificari.push("Oras");
+            }
+            if (judetItem !== initialValues.judet) {
+                modificari.push("Judetul");
+            }
+            if (codPostal !== initialValues.codPostal) {
+                modificari.push("Codul Postal");
+            }
+            if (note !== initialValues.comentariu) {
+                modificari.push("Comentariu");
+            }
+            console.log("Modificarile noi:", itemNume, adresaItem, orasItem, judetItem, codPostal, note);
+            if (modificari.length === 0) {
+                console.log("Nicio modificare detectată.");
+                return;
+            }
+
+            const now = new Date();
+            const dataCurenta = now.toLocaleDateString();
+            const oraCurenta = now.toLocaleTimeString();
+
+            const nouIstoric = {
+                operatie: `Actualizare Date: ${modificari.join(", ")}`,
+                data: dataCurenta,
+                time: oraCurenta,
+            };
+
+            console.log("Nou Istoric:", nouIstoric);
+
+            console.log("istoric vechi", istoric);
+
+            const istoricActualizat = [...parsedIstoric, nouIstoric];
+            console.log("Istoricul actualizat: ", istoricActualizat);
+
+            setIstoric(istoricActualizat);
+
+            // criptare elemente
+            const enc_Tip = await criptareDate("adresa", importedKey);
+            const enc_NumeItem = await criptareDate(itemNume, importedKey);
+            const enc_AdnresaItem = await criptareDate(adresaItem, importedKey);
+            const enc_OrasItem = await criptareDate(orasItem, importedKey);
+            const enc_JudetItem = await criptareDate(judetItem, importedKey);
+            const enc_CodPostalItem = await criptareDate(codPostal, importedKey);
+            const enc_ComentariuItem = await criptareDate(note, importedKey);
+            const enc_IstoricItem = await criptareDate(JSON.stringify(istoricActualizat), importedKey);
+
+            const jsonItem = {
+                metadata: {
+                    created_at: item.created_at,
+                    modified_at: new Date().toISOString(),
+                    version: 2
+                },
+                data: {
+                    tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag, },
+                    nume: { iv: enc_NumeItem.iv, encData: enc_NumeItem.encData, tag: enc_NumeItem.tag },
+                    adresa: { iv: enc_AdnresaItem.iv, encData: enc_AdnresaItem.encData, tag: enc_AdnresaItem.tag },
+                    oras: { iv: enc_OrasItem.iv, encData: enc_OrasItem.encData, tag: enc_OrasItem.tag },
+                    judet: { iv: enc_JudetItem.iv, encData: enc_JudetItem.encData, tag: enc_JudetItem.tag },
+                    codPostal: { iv: enc_CodPostalItem.iv, encData: enc_CodPostalItem.encData, tag: enc_CodPostalItem.tag },
+                    comentariu: { iv: enc_ComentariuItem.iv, encData: enc_ComentariuItem.encData, tag: enc_ComentariuItem.tag },
+                    istoric: { iv: enc_IstoricItem.iv, encData: enc_IstoricItem.encData, tag: enc_IstoricItem.tag }
+                },
+            };
+
+            const response = await fetch("http://localhost:9000/api/updateItem", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    id_item: uidItem,
+                    continut: jsonItem,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Eroare la actualizare");
+            }
+
+            console.log("Item actualizat cu succes!");
+
 
         } catch (error) {
             console.error('Error during the request:', error);
@@ -117,7 +223,7 @@ const EditAdreseItem = ({ item, setGestioneazaAdresaItem }) => {
                                     <div className="flex items-center mt-2 border-b border-gray-300 pb-2 w-full max-w-[400px]">
                                         <p className="font-medium text-gray-700">Adresa: </p>
                                         {deEditat.adresaItem ? (
-                                            <input type="text" value={adresaItem} onChange={(e) => setItemUsername(e.target.value)} className="border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
+                                            <input type="text" value={adresaItem} onChange={(e) => setAdresa(e.target.value)} className="border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
                                         ) : (
                                             <span className="ml-3 text-gray-800">{adresaItem}</span>
                                         )}
@@ -129,7 +235,7 @@ const EditAdreseItem = ({ item, setGestioneazaAdresaItem }) => {
                                     <div className="flex items-center mt-2 border-b border-gray-300 pb-2 w-full max-w-[400px]">
                                         <p className="font-medium text-gray-700">Oraș: </p>
                                         {deEditat.orasItem ? (
-                                            <input type="text" value={orasItem} onChange={(e) => setItemUsername(e.target.value)} className=" ml-3 border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
+                                            <input type="text" value={orasItem} onChange={(e) => setOras(e.target.value)} className=" ml-3 border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
                                         ) : (
                                             <span className="ml-3 text-gray-800">{orasItem}</span>
                                         )}
@@ -141,7 +247,7 @@ const EditAdreseItem = ({ item, setGestioneazaAdresaItem }) => {
                                     <div className="flex items-center mt-2 border-b border-gray-300 pb-2 w-full max-w-[400px]">
                                         <p className="font-medium text-gray-700">Județ: </p>
                                         {deEditat.judetItem ? (
-                                            <input type="text" value={judetItem} onChange={(e) => setItemUsername(e.target.value)} className=" ml-3 border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
+                                            <input type="text" value={judetItem} onChange={(e) => setJudet(e.target.value)} className=" ml-3 border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
                                         ) : (
                                             <span className="ml-3 text-gray-800">{judetItem}</span>
                                         )}
@@ -153,7 +259,7 @@ const EditAdreseItem = ({ item, setGestioneazaAdresaItem }) => {
                                     <div className="flex items-center mt-2 border-b border-gray-300 pb-2 w-full max-w-[400px]">
                                         <p className="font-medium text-gray-700">Cod Poștal: </p>
                                         {deEditat.codPostal ? (
-                                            <input type="text" value={codPostal} onChange={(e) => setItemUsername(e.target.value)} className=" ml-3 border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
+                                            <input type="text" value={codPostal} onChange={(e) => setCodPostal(e.target.value)} className=" ml-3 border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
                                         ) : (
                                             <span className="ml-3 text-gray-800">{codPostal}</span>
                                         )}
@@ -217,26 +323,29 @@ const EditAdreseItem = ({ item, setGestioneazaAdresaItem }) => {
                         <div className="flex flex-col space-y-1 ">
                             <h3 className="font-medium">Istoric Modificari:</h3>
                             <h2 className="text-gray-700 cursor-pointer hover:underline text-gray-400" onClick={() => setAfisIstoric(!afisIstoric)}>{afisIstoric ? 'Ascunde' : 'Afiseaza'}</h2>
-                            {afisIstoric && (<div>{Istoric.length > 0 ? (<div className="h-48 sm:w-1/2 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
-                                {Istoric.map((it, index) => (
-                                    <div key={index} className="py-1 mx-2">
-                                        <span className="font-semibold">{it.operatie}</span>
-                                        <div className="flex space-x-2">
-                                            <span className="text-sm">{it.data}</span>
-                                            <span className="text-sm">{it.time}</span>
-                                            <span className="text-sm italic text-gray-600">by {it.modifiedby}</span>
+                            {afisIstoric && (
+                                <div>
+                                    {Array.isArray(parsedIstoric) && parsedIstoric.length > 0 ? (
+                                        <div className="h-48 sm:w-1/2 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
+                                            {parsedIstoric.map((it, index) => (
+                                                <div key={index} className="py-1 mx-2">
+                                                    <span className="font-semibold">{it.operatie}</span>
+                                                    <div className="flex space-x-2">
+                                                        <span className="text-sm">{it.data}</span>
+                                                        <span className="text-sm">{it.time}</span>
+                                                    </div>
+                                                    <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
+                                                </div>
+                                            ))}
                                         </div>
-
-                                        <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
-                                    </div>
-                                ))}
-                            </div>
-                            ) : (<p className="text-gray-600">Istoric Gol</p>
-                            )}</div>)}
+                                    ) : (
+                                        <p className="text-gray-600">Istoric Gol</p>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
-
             </div>
         </>
     );

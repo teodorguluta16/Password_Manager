@@ -1,18 +1,38 @@
 import React from "react";
 import { useState, useEffect } from 'react';
-import ArrowBack from "../../../assets/website/back.png"
 import "../../../App.css"
 
 import { FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
-const Istoric = [
-    { operatie: "Actualizare Parola", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Username", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare URL", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Titlu", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Notita", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-]
+import { criptareDate } from "../../FunctiiDate/FunctiiDefinite";
 
 const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
+
+    const [initialValues, setInitialValues] = useState({
+        nume: item.nume,
+        dataExpirare: item.dataExpirare,
+        numarCard: item.numarCard,
+        posesorCard: item.posesorCard,
+        comentariu: item.comentariu,
+    });
+
+    console.log(item.istoric);
+
+    const [istoric, setIstoric] = useState(item.istoric);
+
+    console.log("Tipul lui istoric:", typeof item.istoric);
+    console.log("Conținutul lui istoric:", istoric);
+    let parsedIstoric = [];
+
+    try {
+        parsedIstoric = JSON.parse(item.istoric);
+        if (!Array.isArray(parsedIstoric)) {
+            parsedIstoric = [];
+        }
+    } catch (error) {
+        console.error("Eroare la parsarea istoricului:", error);
+        parsedIstoric = [];
+    }
+
     const [itemNume, setItemNume] = useState(item.nume);
     const [date, setItemData] = useState(item.dataExpirare);
     const [numarCard, setNumarCard] = useState(item.numarCard);
@@ -20,7 +40,7 @@ const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
 
     console.log(date);
     const [note, setItemNote] = useState(item.comentariu);
-    const [deEditat, setdeEditat] = useState({ nume: false, note: false, numarCard: false });
+    const [deEditat, setdeEditat] = useState({ nume: false, note: false, numarCard: false, date: false, posesorCard: false });
 
     const [uidItem, setUidItem] = useState(item.id_item);
     const [createdDate, setCreatedDate] = useState("");
@@ -64,10 +84,96 @@ const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
         fetchItems();
     }, []);
 
+    const importedKey = item.importedKey;
     const salveazaToateModificarile = async () => {
+        let modificari = [];
+
         try {
-            //const requestData = { uidItem, itemNume, userName, parolaName, urlNume, note };
-            // ca sa le modific trebuie iarasi sa le criptez la loc si sa le trimit la fel ca la aduagare item
+            if (itemNume !== initialValues.nume) {
+                modificari.push("Nume");
+            }
+            if (date !== initialValues.dataExpirare) {
+                modificari.push("Data Expirare");
+            }
+            if (posesorCard !== initialValues.posesorCard) {
+                modificari.push("Posesor Card");
+            }
+            if (numarCard !== initialValues.numarCard) {
+                modificari.push("Numar Card");
+            }
+            if (note !== initialValues.comentariu) {
+                modificari.push("Comentariu");
+            }
+            console.log("Modificarile noi:", itemNume, date, posesorCard, numarCard, note);
+            if (modificari.length === 0) {
+                console.log("Nicio modificare detectată.");
+                return;
+            }
+
+            const now = new Date();
+            const dataCurenta = now.toLocaleDateString();
+            const oraCurenta = now.toLocaleTimeString();
+
+            const nouIstoric = {
+                operatie: `Actualizare Date: ${modificari.join(", ")}`,
+                data: dataCurenta,
+                time: oraCurenta,
+            };
+
+            console.log("Nou Istoric:", nouIstoric);
+
+            console.log("istoric vechi", istoric);
+
+            const istoricActualizat = [...parsedIstoric, nouIstoric];
+            console.log("Istoricul actualizat: ", istoricActualizat);
+
+            setIstoric(istoricActualizat);
+
+
+            // criptare elemente
+            const enc_Tip = await criptareDate("card", importedKey);
+            const enc_NumeItem = await criptareDate(itemNume, importedKey);
+            const enc_NumarItem = await criptareDate(numarCard, importedKey);
+            const enc_NumePosesorItem = await criptareDate(posesorCard, importedKey);
+            const enc_dataExpirareItem = await criptareDate(date, importedKey);
+            const enc_ComentariuItem = await criptareDate(note, importedKey);
+            const enc_IstoricItem = await criptareDate(JSON.stringify(istoricActualizat), importedKey);
+
+            const jsonItem = {
+                metadata: {
+                    created_at: item.created_at,
+                    modified_at: new Date().toISOString(),
+                    version: 2
+                },
+                data: {
+                    tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag, },
+                    nume: { iv: enc_NumeItem.iv, encData: enc_NumeItem.encData, tag: enc_NumeItem.tag },
+                    numarItem: { iv: enc_NumarItem.iv, encData: enc_NumarItem.encData, tag: enc_NumarItem.tag },
+                    numePosesor: { iv: enc_NumePosesorItem.iv, encData: enc_NumePosesorItem.encData, tag: enc_NumePosesorItem.tag },
+                    dataExpirare: { iv: enc_dataExpirareItem.iv, encData: enc_dataExpirareItem.encData, tag: enc_dataExpirareItem.tag },
+                    comentariu: { iv: enc_ComentariuItem.iv, encData: enc_ComentariuItem.encData, tag: enc_ComentariuItem.tag },
+                    istoric: { iv: enc_IstoricItem.iv, encData: enc_IstoricItem.encData, tag: enc_IstoricItem.tag }
+                },
+            };
+
+            const response = await fetch("http://localhost:9000/api/updateItem", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    id_item: uidItem,
+                    continut: jsonItem,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Eroare la actualizare");
+            }
+
+            console.log("Item actualizat cu succes!");
+
 
         } catch (error) {
             console.error('Error during the request:', error);
@@ -118,14 +224,7 @@ const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
                                             className="border border-gray-300 rounded-lg px-2 py-1"
                                         />
                                     ) : (
-                                        <span className="text-gray-800 font-semibold">
-                                            {(() => {
-                                                const [month, year] = date.split("/"); // Separă luna și anul
-                                                const fullYear = parseInt(year.length === 2 ? "20" + year : year, 10); // Adaugă 20 la anul dacă are doar două cifre
-                                                const formattedDate = new Date(fullYear, parseInt(month) - 1, 1); // Setează ziua la 1 pentru a evita erorile
-                                                return formattedDate.toLocaleDateString('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                                            })()}
-                                        </span>
+                                        <span className="text-gray-800 font-semibold">{new Date(date).toLocaleDateString('ro-RO')}</span>
                                     )}
                                     <button onClick={() => setdeEditat({ ...deEditat, date: !deEditat.date })} className="ml-3 text-gray-500 hover:text-blue-500">
                                         {deEditat.date ? <FaSave /> : <FaEdit />}
@@ -211,24 +310,26 @@ const EditCarduriItem = ({ item, setGestioneazaCardItem }) => {
                         <div className="flex flex-col space-y-1 ">
                             <h3 className="font-medium">Istoric Modificari:</h3>
                             <h2 className="text-gray-700 cursor-pointer hover:underline text-gray-400" onClick={() => setAfisIstoric(!afisIstoric)}>{afisIstoric ? 'Ascunde' : 'Afiseaza'}</h2>
-                            {afisIstoric && (<div>{Istoric.length > 0 ? (<div className="h-48 sm:w-1/2 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
-                                {Istoric.map((it, index) => (
-                                    <div key={index} className="py-1 mx-2">
-                                        <span className="font-semibold">{it.operatie}</span>
-                                        <div className="flex space-x-2">
-                                            <span className="text-sm">{it.data}</span>
-                                            <span className="text-sm">{it.time}</span>
-                                            <span className="text-sm italic text-gray-600">by {it.modifiedby}</span>
+                            {afisIstoric && (
+                                <div>
+                                    {Array.isArray(parsedIstoric) && parsedIstoric.length > 0 ? (
+                                        <div className="h-48 sm:w-1/2 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
+                                            {parsedIstoric.map((it, index) => (
+                                                <div key={index} className="py-1 mx-2">
+                                                    <span className="font-semibold">{it.operatie}</span>
+                                                    <div className="flex space-x-2">
+                                                        <span className="text-sm">{it.data}</span>
+                                                        <span className="text-sm">{it.time}</span>
+                                                    </div>
+                                                    <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
+                                                </div>
+                                            ))}
                                         </div>
-
-                                        <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
-                                    </div>
-                                ))}
-                            </div>
-                            ) : (<p className="text-gray-600">Istoric Gol</p>
-                            )}</div>)}
-
-
+                                    ) : (
+                                        <p className="text-gray-600">Istoric Gol</p>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

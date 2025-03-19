@@ -4,22 +4,43 @@ import ArrowBack from "../../../assets/website/back.png"
 import "../../../App.css"
 
 import { FaEye, FaEyeSlash, FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
-const Istoric = [
-    { operatie: "Actualizare Parola", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Username", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare URL", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Titlu", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Notita", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-]
+import { criptareDate } from "../../FunctiiDate/FunctiiDefinite";
 
 const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
+
+    const [initialValues, setInitialValues] = useState({
+        nume: item.nume,
+        username: item.username,
+        parola: item.parola,
+        host: item.host,
+        ppkKey: item.ppkKey,
+    });
+
+    console.log(item.istoric);
+
+    const [istoric, setIstoric] = useState(item.istoric);
+
+    console.log("Tipul lui istoric:", typeof item.istoric);
+    console.log("Conținutul lui istoric:", istoric);
+    let parsedIstoric = [];
+
+    try {
+        parsedIstoric = JSON.parse(item.istoric);
+        if (!Array.isArray(parsedIstoric)) {
+            parsedIstoric = [];
+        }
+    } catch (error) {
+        console.error("Eroare la parsarea istoricului:", error);
+        parsedIstoric = [];
+    }
+
     const [itemNume, setItemNume] = useState(item.nume);
     const [userName, setItemUsername] = useState(item.username);
     const [parolaName, setItemParola] = useState(item.parola);
     const [hostNume, setItemHost] = useState(item.host);
     console.log(hostNume);
     const [ppkKey, setPPKkey] = useState(item.ppkKey);
-    const [deEditat, setdeEditat] = useState({ nume: false, username: false, parola: false, url: false, ppkKey: false });
+    const [deEditat, setdeEditat] = useState({ itemNume: false, username: false, parolaName: false, hostNume: false, ppkKey: false });
 
     const [showParola, setShowParola] = useState(false);
 
@@ -64,10 +85,97 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
         fetchItems();
     }, []);
 
+    const importedKey = item.importedKey;
     const salveazaToateModificarile = async () => {
+        let modificari = [];
+
         try {
-            const requestData = { uidItem, itemNume, userName, parolaName, hostNume, ppkKey };
-            // ca sa le modific trebuie iarasi sa le criptez la loc si sa le trimit la fel ca la aduagare item
+            if (itemNume !== initialValues.nume) {
+                modificari.push("Nume");
+            }
+            if (userName !== initialValues.username) {
+                modificari.push("Username");
+            }
+            if (parolaName !== initialValues.parola) {
+                modificari.push("Parola");
+            }
+            if (hostNume !== initialValues.hostNume) {
+                modificari.push("Host");
+            }
+            if (ppkKey !== initialValues.ppkKey) {
+                modificari.push("Cheia PPK");
+            }
+            console.log("Modificarile noi:", itemNume, userName, parolaName, hostNume, ppkKey);
+            if (modificari.length === 0) {
+                console.log("Nicio modificare detectată.");
+                return;
+            }
+
+            const now = new Date();
+            const dataCurenta = now.toLocaleDateString();
+            const oraCurenta = now.toLocaleTimeString();
+
+            const nouIstoric = {
+                operatie: `Actualizare Date: ${modificari.join(", ")}`,
+                data: dataCurenta,
+                time: oraCurenta,
+            };
+
+            console.log("Nou Istoric:", nouIstoric);
+
+            console.log("istoric vechi", istoric);
+
+            const istoricActualizat = [...parsedIstoric, nouIstoric];
+            console.log("Istoricul actualizat: ", istoricActualizat);
+
+            setIstoric(istoricActualizat);
+
+
+            // criptare elemente
+            const enc_Tip = await criptareDate("remoteConnexion", importedKey);
+            const enc_NumeItem = await criptareDate(itemNume, importedKey);
+            const enc_UsernameItem = await criptareDate(userName, importedKey);
+            const enc_ParolaItem = await criptareDate(parolaName, importedKey);
+            const enc_IstoricItem = await criptareDate(JSON.stringify(istoricActualizat), importedKey);
+            const enc_Hostitem = await criptareDate(hostNume, importedKey);
+            const enc_PPKkey = await criptareDate(ppkKey, importedKey);
+
+            const jsonItem = {
+                metadata: {
+                    created_at: item.created_at,
+                    modified_at: new Date().toISOString(),
+                    version: 2
+                },
+                data: {
+                    tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag, },
+                    nume: { iv: enc_NumeItem.iv, encData: enc_NumeItem.encData, tag: enc_NumeItem.tag },
+                    username: { iv: enc_UsernameItem.iv, encData: enc_UsernameItem.encData, tag: enc_UsernameItem.tag },
+                    parola: { iv: enc_ParolaItem.iv, encData: enc_ParolaItem.encData, tag: enc_ParolaItem.tag },
+                    host: { iv: enc_Hostitem.iv, encData: enc_Hostitem.encData, tag: enc_Hostitem.tag },
+                    ppkKey: { iv: enc_PPKkey.iv, encData: enc_PPKkey.encData, tag: enc_PPKkey.tag },
+                    istoric: { iv: enc_IstoricItem.iv, encData: enc_IstoricItem.encData, tag: enc_IstoricItem.tag }
+
+                },
+            };
+
+            const response = await fetch("http://localhost:9000/api/updateItem", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    id_item: uidItem,
+                    continut: jsonItem,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Eroare la actualizare");
+            }
+
+            console.log("Item actualizat cu succes!");
+
 
         } catch (error) {
             console.error('Error during the request:', error);
@@ -152,6 +260,14 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
             console.error("❌ Eroare la descărcare");
         }
     }
+
+    const handleFileUpload = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setPPKkey(file);
+            setdeEditat({ ...deEditat, cheiePPK: false });
+        }
+    };
 
     return (
         <>
@@ -243,7 +359,7 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
                                 <div className="flex items-center mt-6 border-b border-gray-300 pb-2 w-full max-w-[400px]">
                                     <p className="font-medium text-gray-700 w-20">Parola:</p>
 
-                                    {deEditat.parola ? (
+                                    {deEditat.parolaName ? (
                                         <input
                                             type="password"
                                             value={parolaName}
@@ -262,8 +378,8 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
                                     </button>
 
                                     {/* Butonul de editare */}
-                                    <button onClick={() => setdeEditat({ ...deEditat, parola: !deEditat.parola })} className="ml-3 text-gray-500 hover:text-blue-500">
-                                        {deEditat.parola ? <FaSave /> : <FaEdit />}
+                                    <button onClick={() => setdeEditat({ ...deEditat, parolaName: !deEditat.parolaName })} className="ml-3 text-gray-500 hover:text-blue-500">
+                                        {deEditat.parolaName ? <FaSave /> : <FaEdit />}
                                     </button>
                                 </div>
                                 {/*Istoric */}
@@ -271,22 +387,26 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
                                     <div className="flex flex-col space-y-1 ">
                                         <h3 className="font-medium">Istoric Modificari:</h3>
                                         <h2 className="text-gray-700 cursor-pointer hover:underline text-gray-400" onClick={() => setAfisIstoric(!afisIstoric)}>{afisIstoric ? 'Ascunde' : 'Afiseaza'}</h2>
-                                        {afisIstoric && (<div>{Istoric.length > 0 ? (<div className="h-48 w-full overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
-                                            {Istoric.map((it, index) => (
-                                                <div key={index} className="py-1 mx-2">
-                                                    <span className="font-semibold">{it.operatie}</span>
-                                                    <div className="flex space-x-2">
-                                                        <span className="text-sm">{it.data}</span>
-                                                        <span className="text-sm">{it.time}</span>
-                                                        <span className="text-sm italic text-gray-600">by {it.modifiedby}</span>
+                                        {afisIstoric && (
+                                            <div>
+                                                {Array.isArray(parsedIstoric) && parsedIstoric.length > 0 ? (
+                                                    <div className="h-48  overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
+                                                        {parsedIstoric.map((it, index) => (
+                                                            <div key={index} className="py-1 mx-2">
+                                                                <span className="font-semibold">{it.operatie}</span>
+                                                                <div className="flex space-x-2">
+                                                                    <span className="text-sm">{it.data}</span>
+                                                                    <span className="text-sm">{it.time}</span>
+                                                                </div>
+                                                                <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
+                                                            </div>
+                                                        ))}
                                                     </div>
-
-                                                    <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        ) : (<p className="text-gray-600">Istoric Gol</p>
-                                        )}</div>)}
+                                                ) : (
+                                                    <p className="text-gray-600">Istoric Gol</p>
+                                                )}
+                                            </div>
+                                        )}
 
 
                                     </div>
@@ -325,12 +445,49 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
                                 {/*Cheia PPK*/}
                                 <div className="mt-6">
                                     <h3 className="font-medium">Cheia Privată:</h3>
-                                    <button
-                                        onClick={handleDownload}
-                                        className="bg-orange-400 text-white px-4 py-2 rounded-md hover:bg-orange-600 mt-2"
-                                    >
-                                        Descarcă Cheia
-                                    </button>
+                                    <div className="flex sm:flex-row flex-col">
+                                        <div className="mt-2">
+                                            <button
+                                                onClick={handleDownload}
+                                                className="bg-orange-400 text-white px-2 py-2 rounded-md hover:bg-orange-600 mt-2"
+                                            >
+                                                Descarcă Cheia
+                                            </button>
+                                        </div>
+                                        {/* Buton pentru editarea/inserarea unei noi chei PPK */}
+                                        <div className="mt-2">
+                                            {deEditat.ppkKey ? (
+                                                <input
+                                                    type="file"
+                                                    accept=".ppk"
+                                                    onChange={handleFileUpload}
+                                                    className="ml-3 border border-gray-300 rounded-lg px-2 py-1 w-full max-w-[250px]"
+                                                />
+                                            ) : (
+                                                <span className="sm:ml-3 sm:mt-2 text-gray-800 w-full max-w-[250px] truncate overflow-hidden">
+                                                    {ppkKey ? ppkKey.name : "Nicio cheie încărcată"}
+                                                </span>
+                                            )}
+
+                                            {/* Butonul pentru schimbarea cheii PPK */}
+                                            <button
+                                                onClick={() => document.getElementById("fileInputPPK").click()}
+                                                className="sm:ml-3 sm:mt-2 bg-blue-500 text-white px-2 py-2 rounded-md hover:bg-blue-600 transition"
+                                            >
+                                                Schimbă Cheia
+                                            </button>
+
+                                            {/* Input ascuns pentru încărcarea fișierului */}
+                                            <input
+                                                id="fileInputPPK"
+                                                type="file"
+                                                accept=".ppk"
+                                                onChange={handleFileUpload}
+                                                className="hidden"
+                                            />
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
