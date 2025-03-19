@@ -1,25 +1,44 @@
 import React from "react";
 import { useState, useEffect } from 'react';
-import ArrowBack from "../../../assets/website/back.png"
 import "../../../App.css"
-
+import { criptareDate } from "../../FunctiiDate/FunctiiDefinite";
 import { FaEye, FaEyeSlash, FaCopy, FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
-const Istoric = [
-    { operatie: "Actualizare Parola", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Username", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare URL", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Titlu", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Notita", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-]
 
 const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
+
+    const [initialValues, setInitialValues] = useState({
+        nume: item.nume,
+        username: item.username,
+        parola: item.parola,
+        host: item.host,
+        ppkKey: item.ppkKey,
+    });
+
+    console.log(item.istoric);
+
+    const [istoric, setIstoric] = useState(item.istoric);
+
+    console.log("Tipul lui istoric:", typeof item.istoric);
+    console.log("Conținutul lui istoric:", istoric);
+    let parsedIstoric = [];
+
+    try {
+        parsedIstoric = JSON.parse(item.istoric);
+        if (!Array.isArray(parsedIstoric)) {
+            parsedIstoric = [];
+        }
+    } catch (error) {
+        console.error("Eroare la parsarea istoricului:", error);
+        parsedIstoric = [];
+    }
+    const importedKey = item.importedKey;
+
     const [itemNume, setItemNume] = useState(item.nume);
     const [userName, setItemUsername] = useState(item.username);
     const [parolaName, setItemParola] = useState(item.parola);
     const [hostNume, setItemHost] = useState(item.host);
     console.log(hostNume);
     const [ppkKey, setPPKkey] = useState(item.ppkKey);
-    const [privateKey, sePrivateKey] = useState(item.privateKey);
     const [deEditat, setdeEditat] = useState({ nume: false, username: false, parola: false, url: false, ppkKey: false });
 
     const [esteCopiat, setEsteCopiat] = useState(false);
@@ -41,10 +60,6 @@ const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
         setCreatedDate(formattedDate);
         setModifiedDate(formattedDate);
     }, [item.created_at, item.modified_at]);
-
-    const [createdBy, setCreatedBy] = useState("Alice");
-
-    const [modifiedBy, setModifiedBy] = useState("Bob");
 
     const [afisIstoric, setAfisIstoric] = useState(true);
 
@@ -78,9 +93,100 @@ const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
     }, []);
 
     const salveazaToateModificarile = async () => {
+        let modificari = [];
+
         try {
-            const requestData = { uidItem, itemNume, userName, parolaName, hostNume, ppkKey };
-            // ca sa le modific trebuie iarasi sa le criptez la loc si sa le trimit la fel ca la aduagare item
+            if (itemNume !== initialValues.nume) {
+                modificari.push("Nume");
+            }
+            if (userName !== initialValues.username) {
+                modificari.push("Username");
+            }
+            if (parolaName !== initialValues.parola) {
+                modificari.push("Parola");
+            }
+            if (hostNume !== initialValues.hostNume) {
+                modificari.push("Host");
+            }
+            if (ppkKey !== initialValues.ppkKey) {
+                modificari.push("Cheia PPK");
+            }
+            console.log("Modificarile noi:", itemNume, userName, parolaName, hostNume, ppkKey);
+            if (modificari.length === 0) {
+                console.log("Nicio modificare detectată.");
+                return;
+            }
+
+            const now = new Date();
+            const dataCurenta = now.toLocaleDateString();
+            const oraCurenta = now.toLocaleTimeString();
+
+            const nouIstoric = {
+                operatie: `Actualizare Date: ${modificari.join(", ")}`,
+                data: dataCurenta,
+                time: oraCurenta,
+            };
+
+            console.log("Nou Istoric:", nouIstoric);
+
+            console.log("istoric vechi", istoric);
+
+            const istoricActualizat = [...parsedIstoric, nouIstoric];
+            console.log("Istoricul actualizat: ", istoricActualizat);
+
+            setIstoric(istoricActualizat);
+
+
+            // criptare elemente
+            const enc_Tip = await criptareDate("remoteConnexion", importedKey);
+            const enc_NumeItem = await criptareDate(itemNume, importedKey);
+            const enc_UsernameItem = await criptareDate(userName, importedKey);
+            const enc_ParolaItem = await criptareDate(parolaName, importedKey);
+            const enc_IstoricItem = await criptareDate(JSON.stringify(istoricActualizat), importedKey);
+            const enc_Hostitem = await criptareDate(hostNume, importedKey);
+            const enc_PPKkey = await criptareDate(ppkKey, importedKey);
+
+            const jsonItem = {
+                metadata: {
+                    created_at: item.created_at,
+                    modified_at: new Date().toISOString(),
+                    version: 2
+                },
+                data: {
+                    tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag, },
+                    nume: { iv: enc_NumeItem.iv, encData: enc_NumeItem.encData, tag: enc_NumeItem.tag },
+                    username: { iv: enc_UsernameItem.iv, encData: enc_UsernameItem.encData, tag: enc_UsernameItem.tag },
+                    parola: { iv: enc_ParolaItem.iv, encData: enc_ParolaItem.encData, tag: enc_ParolaItem.tag },
+                    host: { iv: enc_Hostitem.iv, encData: enc_Hostitem.encData, tag: enc_Hostitem.tag },
+                    ppkKey: { iv: enc_PPKkey.iv, encData: enc_PPKkey.encData, tag: enc_PPKkey.tag },
+                    istoric: { iv: enc_IstoricItem.iv, encData: enc_IstoricItem.encData, tag: enc_IstoricItem.tag }
+
+                },
+            };
+
+            const requestBody = {
+                id_item: uidItem,
+                continut: jsonItem
+            };
+
+            try {
+                const response = await fetch('http://localhost:9000/api/grupuri/updateGroupItem', {
+                    method: "PUT",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody),
+                    credentials: "include"
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Eroare la server:", errorText);
+                    return;
+                }
+            } catch (error) {
+                console.error("Eroare la trimitere", error);
+            }
 
         } catch (error) {
             console.error('Error during the request:', error);
@@ -88,13 +194,8 @@ const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
     }
 
     const [isLocalServerRunning, setIsLocalServerRunning] = useState(false);
-    const [selectedTerminal, setSelectedTerminal] = useState("putty"); // Default: PuTTY
+    const [selectedTerminal, setSelectedTerminal] = useState("putty");
 
-    // 🔹 State pentru gestionarea conexiunilor salvate
-    const [savedConnections, setSavedConnections] = useState([]); // Lista de conexiuni SSH salvate
-    const [selectedHost, setSelectedHost] = useState(""); // IP/host selectat
-    const [username, setUsername] = useState(""); // Username completat automat
-    const [password, setPassword] = useState(""); // Parolă completată automat
 
     // 🔹 Verifică dacă serverul local rulează
     const checkLocalServer = async () => {
@@ -197,6 +298,9 @@ const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                         ) : (
                             <h2 className="font-semibold text-3xl">{itemNume}</h2>
                         )}
+                        <button onClick={() => setdeEditat({ ...deEditat, nume: !deEditat.nume })} className="lg:ml-3 text-gray-500 hover:text-blue-500 transition">
+                            {deEditat.nume ? <FaSave /> : <FaEdit />}
+                        </button>
                     </div>
                 </div>
                 <div>
@@ -253,10 +357,6 @@ const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                                     ) : (
                                         <span className="ml-3 text-gray-800">{userName}</span>
                                     )}
-                                    {/* Butonul de copiere Username */}
-                                    <button onClick={() => copieContinut(userName)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                        <FaCopy />
-                                    </button>
 
                                     <button onClick={() => setdeEditat({ ...deEditat, username: !deEditat.username })} className="ml-3 text-gray-500 hover:text-blue-500">
                                         {deEditat.username ? <FaSave /> : <FaEdit />}
@@ -284,11 +384,6 @@ const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                                         {showParola ? <FaEyeSlash /> : <FaEye />}
                                     </button>
 
-                                    {/* Butonul de copiere */}
-                                    <button onClick={() => copieContinut(parolaName)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                        <FaCopy />
-                                    </button>
-
                                     {/* Butonul de editare */}
                                     <button onClick={() => setdeEditat({ ...deEditat, parola: !deEditat.parola })} className="ml-3 text-gray-500 hover:text-blue-500">
                                         {deEditat.parola ? <FaSave /> : <FaEdit />}
@@ -299,24 +394,26 @@ const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                                     <div className="flex flex-col space-y-1 ">
                                         <h3 className="font-medium">Istoric Modificari:</h3>
                                         <h2 className="text-gray-700 cursor-pointer hover:underline text-gray-400" onClick={() => setAfisIstoric(!afisIstoric)}>{afisIstoric ? 'Ascunde' : 'Afiseaza'}</h2>
-                                        {afisIstoric && (<div>{Istoric.length > 0 ? (<div className="h-48 w-full overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
-                                            {Istoric.map((it, index) => (
-                                                <div key={index} className="py-1 mx-2">
-                                                    <span className="font-semibold">{it.operatie}</span>
-                                                    <div className="flex space-x-2">
-                                                        <span className="text-sm">{it.data}</span>
-                                                        <span className="text-sm">{it.time}</span>
-                                                        <span className="text-sm italic text-gray-600">by {it.modifiedby}</span>
+                                        {afisIstoric && (
+                                            <div>
+                                                {Array.isArray(parsedIstoric) && parsedIstoric.length > 0 ? (
+                                                    <div className="h-48  overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
+                                                        {parsedIstoric.map((it, index) => (
+                                                            <div key={index} className="py-1 mx-2">
+                                                                <span className="font-semibold">{it.operatie}</span>
+                                                                <div className="flex space-x-2">
+                                                                    <span className="text-sm">{it.data}</span>
+                                                                    <span className="text-sm">{it.time}</span>
+                                                                </div>
+                                                                <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
+                                                            </div>
+                                                        ))}
                                                     </div>
-
-                                                    <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        ) : (<p className="text-gray-600">Istoric Gol</p>
-                                        )}</div>)}
-
-
+                                                ) : (
+                                                    <p className="text-gray-600">Istoric Gol</p>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -333,7 +430,6 @@ const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                                     <div className="ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{createdDate}</span>
-                                            {createdBy && <span className="text-gray-500 italic">by ionut@@@ {createdBy}</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -348,7 +444,6 @@ const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                                     <div className="ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{modifiedDate}</span>
-                                            {modifiedBy && <span className="text-gray-500 italic">by ionut@ionut {modifiedBy}</span>}
                                         </div>
                                     </div>
                                 </div>

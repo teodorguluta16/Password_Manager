@@ -1,29 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import "../../../App.css"
-import { FaEye, FaEyeSlash, FaCopy, FaArrowLeft } from 'react-icons/fa';
-
-const Istoric = [
-    { operatie: "Actualizare Parola", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Username", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare URL", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Titlu", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Notita", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-]
+import { FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
 
 const VizualizareParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
+    console.log(item.istoric);
+
+    const [istoric, setIstoric] = useState(item.istoric);
+
+    console.log("Tipul lui istoric:", typeof item.istoric);
+    console.log("Conținutul lui istoric:", istoric);
+    let parsedIstoric = [];
+
+    try {
+        parsedIstoric = JSON.parse(item.istoric);
+        if (!Array.isArray(parsedIstoric)) {
+            parsedIstoric = [];
+        }
+    } catch (error) {
+        console.error("Eroare la parsarea istoricului:", error);
+        parsedIstoric = [];
+    }
+
     const [uidItem, setUidItem] = useState(item.id_item);
     const [itemNume, setItemNume] = useState(item.nume);
     const [userName, setItemUsername] = useState(item.username);
     const [parolaName, setItemParola] = useState(item.parola);
     const [urlNume, setItemUrl] = useState(item.url);
     const [note, setItemNote] = useState(item.comentariu);
-    const [esteCopiat, setEsteCopiat] = useState(false);
-
-    const copieContinut = (text) => {
-        navigator.clipboard.writeText(text);
-        setEsteCopiat(true);
-        setTimeout(() => setEsteCopiat(false), 2000);
-    }
 
     const [showParola, setShowParola] = useState(false);
     const [createdDate, setCreatedDate] = useState("");
@@ -85,9 +88,7 @@ const VizualizareParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                         </button>
                     </div>
                     <div className="flex-1 text-center">
-
                         <h2 className="font-semibold text-3xl">{itemNume}</h2>
-
                     </div>
                 </div>
 
@@ -98,45 +99,23 @@ const VizualizareParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                                 {/* Usernameul de la parola*/}
                                 <div className="flex items-center mt-6 border-b border-gray-300 pb-2 w-full max-w-[400px]">
                                     <p className="font-medium text-gray-700">Username: </p>
-
                                     <span className="ml-3 text-gray-800">{userName}</span>
-
-                                    {/* Butonul de copiere Username */}
-                                    <button onClick={() => copieContinut(userName)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                        <FaCopy />
-                                    </button>
-
-
                                 </div>
                                 {/*Campul de parola*/}
                                 <div className="flex items-center mt-6 border-b border-gray-300 pb-2 w-full max-w-[400px]">
                                     <p className="font-medium text-gray-700 w-20">Parola:</p>
-
-
                                     <span className="ml-3 text-gray-800 w-full max-w-[250px] truncate overflow-hidden">
                                         {showParola ? parolaName : '*'.repeat(parolaName.length)}
                                     </span>
-
-
                                     {/* Butonul de Afisare Parola */}
                                     <button onClick={() => setShowParola(!showParola)} className="ml-3 text-gray-500 hover:text-blue-500 transition">
                                         {showParola ? <FaEyeSlash /> : <FaEye />}
                                     </button>
-
-                                    {/* Butonul de copiere */}
-                                    <button onClick={() => copieContinut(parolaName)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                        <FaCopy />
-                                    </button>
-
-
                                 </div>
                                 {/*Note/Mentiuni*/}
                                 <div className="mt-6">
                                     <h3 className="font-medium">Note/Mentiuni:</h3>
-
                                     <p className="mt-2 text rounded-lg w-full h-auto">{note}</p>
-
-
                                 </div>
                             </div>
                             <div className="space-y-4">
@@ -144,10 +123,7 @@ const VizualizareParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                                 <div className="flex itmes-center mt-6">
                                     <div className="flex flex-col  lg:ml-4">
                                         <h3 className="font-medium">Adresa URL:</h3>
-
                                         <span onClick={() => accesUrl(urlNume)} className="text-blue-500 cursor-pointer hover:underline">{urlNume}</span>
-
-
                                     </div>
 
                                 </div>
@@ -181,8 +157,6 @@ const VizualizareParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                                     </div>
                                 </div>
                             </div>
-
-
                         </div>
                     </div>
                     {/*Istoric */}
@@ -190,23 +164,26 @@ const VizualizareParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                         <div className="flex flex-col space-y-1 ">
                             <h3 className="font-medium">Istoric Modificari:</h3>
                             <h2 className="text-gray-700 cursor-pointer hover:underline text-gray-400" onClick={() => setAfisIstoric(!afisIstoric)}>{afisIstoric ? 'Ascunde' : 'Afiseaza'}</h2>
-                            {afisIstoric && (<div>{Istoric.length > 0 ? (<div className="h-48 sm:w-1/2 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
-                                {Istoric.map((it, index) => (
-                                    <div key={index} className="py-1 mx-2">
-                                        <span className="font-semibold">{it.operatie}</span>
-                                        <div className="flex space-x-2">
-                                            <span className="text-sm">{it.data}</span>
-                                            <span className="text-sm">{it.time}</span>
-                                            <span className="text-sm italic text-gray-600">by {it.modifiedby}</span>
+                            {afisIstoric && (
+                                <div>
+                                    {Array.isArray(parsedIstoric) && parsedIstoric.length > 0 ? (
+                                        <div className="h-48 sm:w-1/2 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
+                                            {parsedIstoric.map((it, index) => (
+                                                <div key={index} className="py-1 mx-2">
+                                                    <span className="font-semibold">{it.operatie}</span>
+                                                    <div className="flex space-x-2">
+                                                        <span className="text-sm">{it.data}</span>
+                                                        <span className="text-sm">{it.time}</span>
+                                                    </div>
+                                                    <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
+                                                </div>
+                                            ))}
                                         </div>
-
-                                        <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
-                                    </div>
-                                ))}
-                            </div>
-                            ) : (<p className="text-gray-600">Istoric Gol</p>
-                            )}</div>)}
-
+                                    ) : (
+                                        <p className="text-gray-600">Istoric Gol</p>
+                                    )}
+                                </div>
+                            )}
 
                         </div>
                     </div>

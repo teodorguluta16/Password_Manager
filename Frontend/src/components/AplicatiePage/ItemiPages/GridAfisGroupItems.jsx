@@ -75,9 +75,11 @@ const GridAfisGroupItems = ({ items, setGestioneazaItem, setStergeItem, setItemi
                         )}
                         {(item.tipitem === "notita" || item.tipitem === "adresa" || item.tipitem === "card") && (
                             <>
-                                <button onClick={(e) => { e.stopPropagation(); setStergeItem(true); setItemid(item) }} className=" absolute mt-36 right-2 border border-white bg-white rounded-lg px-2 py-1 hover:bg-red-400">
-                                    <img src={DeleteIcon} alt="Delete Logo" className="w-5 h-5" />
-                                </button>
+                                {item.id_owner === id_current_user && (
+                                    <button onClick={(e) => { e.stopPropagation(); setStergeItem(true); setItemid(item); }} className="absolute mt-36 right-2 border border-white bg-white rounded-lg px-2 py-1 hover:bg-red-400">
+                                        <img src={DeleteIcon} alt="Delete Logo" className="w-5 h-5" />
+                                    </button>
+                                )}
                             </>
 
                         )}

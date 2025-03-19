@@ -1,19 +1,37 @@
 import React from "react";
 import { useState, useEffect } from 'react';
-import ArrowBack from "../../../assets/website/back.png"
 import "../../../App.css"
 
-import { FaEye, FaEyeSlash, FaCopy, FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
-const Istoric = [
-    { operatie: "Actualizare Parola", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Username", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare URL", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Titlu", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Notita", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-]
+import { FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
+import { criptareDate } from "../../FunctiiDate/FunctiiDefinite";
 
 const EditCardGroupItem = ({ item, setGestioneazaCardItem }) => {
+    const [initialValues, setInitialValues] = useState({
+        nume: item.nume,
+        dataExpirare: item.dataExpirare,
+        numarCard: item.numarCard,
+        posesorCard: item.posesorCard,
+        comentariu: item.comentariu,
+    });
 
+    console.log(item.istoric);
+
+    const [istoric, setIstoric] = useState(item.istoric);
+
+    console.log("Tipul lui istoric:", typeof item.istoric);
+    console.log("Conținutul lui istoric:", istoric);
+    let parsedIstoric = [];
+
+    try {
+        parsedIstoric = JSON.parse(item.istoric);
+        if (!Array.isArray(parsedIstoric)) {
+            parsedIstoric = [];
+        }
+    } catch (error) {
+        console.error("Eroare la parsarea istoricului:", error);
+        parsedIstoric = [];
+    }
+    const importedKey = item.importedKey;
     const [itemNume, setItemNume] = useState(item.nume);
     const [date, setItemData] = useState(item.dataExpirare);
     const [numarCard, setNumarCard] = useState(item.numarCard);
@@ -21,16 +39,7 @@ const EditCardGroupItem = ({ item, setGestioneazaCardItem }) => {
 
     console.log(date);
     const [note, setItemNote] = useState(item.comentariu);
-    const [deEditat, setdeEditat] = useState({ nume: false, note: false, numarCard: false });
-
-    const [esteCopiat, setEsteCopiat] = useState(false);
-    const copieContinut = (text) => {
-        navigator.clipboard.writeText(text);
-        setIsCopied(true);
-        setTimeout(() => setEsteCopiat(false), 2000);
-    }
-
-    const [showParola, setShowParola] = useState(false);
+    const [deEditat, setdeEditat] = useState({ nume: false, note: false, numarCard: false, date: false, posesorCard: false });
 
     const [uidItem, setUidItem] = useState(item.id_item);
     const [createdDate, setCreatedDate] = useState("");
@@ -42,10 +51,6 @@ const EditCardGroupItem = ({ item, setGestioneazaCardItem }) => {
         setCreatedDate(formattedDate);
         setModifiedDate(formattedDate);
     }, [item.created_at, item.modified_at]);
-
-    const [createdBy, setCreatedBy] = useState("Alice");
-
-    const [modifiedBy, setModifiedBy] = useState("Bob");
 
     const [afisIstoric, setAfisIstoric] = useState(true);
 
@@ -83,10 +88,99 @@ const EditCardGroupItem = ({ item, setGestioneazaCardItem }) => {
     }, []);
 
     const salveazaToateModificarile = async () => {
-        try {
-            //const requestData = { uidItem, itemNume, userName, parolaName, urlNume, note };
-            // ca sa le modific trebuie iarasi sa le criptez la loc si sa le trimit la fel ca la aduagare item
+        let modificari = [];
 
+        try {
+            if (itemNume !== initialValues.nume) {
+                modificari.push("Nume");
+            }
+            if (date !== initialValues.dataExpirare) {
+                modificari.push("Data Expirare");
+            }
+            if (posesorCard !== initialValues.posesorCard) {
+                modificari.push("Posesor Card");
+            }
+            if (numarCard !== initialValues.numarCard) {
+                modificari.push("Numar Card");
+            }
+            if (note !== initialValues.comentariu) {
+                modificari.push("Comentariu");
+            }
+            console.log("Modificarile noi:", itemNume, date, posesorCard, numarCard, note);
+            if (modificari.length === 0) {
+                console.log("Nicio modificare detectată.");
+                return;
+            }
+
+            const now = new Date();
+            const dataCurenta = now.toLocaleDateString();
+            const oraCurenta = now.toLocaleTimeString();
+
+            const nouIstoric = {
+                operatie: `Actualizare Date: ${modificari.join(", ")}`,
+                data: dataCurenta,
+                time: oraCurenta,
+            };
+
+            console.log("Nou Istoric:", nouIstoric);
+
+            console.log("istoric vechi", istoric);
+
+            const istoricActualizat = [...parsedIstoric, nouIstoric];
+            console.log("Istoricul actualizat: ", istoricActualizat);
+
+            setIstoric(istoricActualizat);
+
+
+            // criptare elemente
+            const enc_Tip = await criptareDate("card", importedKey);
+            const enc_NumeItem = await criptareDate(itemNume, importedKey);
+            const enc_NumarItem = await criptareDate(numarCard, importedKey);
+            const enc_NumePosesorItem = await criptareDate(posesorCard, importedKey);
+            const enc_dataExpirareItem = await criptareDate(date, importedKey);
+            const enc_ComentariuItem = await criptareDate(note, importedKey);
+            const enc_IstoricItem = await criptareDate(JSON.stringify(istoricActualizat), importedKey);
+
+            const jsonItem = {
+                metadata: {
+                    created_at: item.created_at,
+                    modified_at: new Date().toISOString(),
+                    version: 2
+                },
+                data: {
+                    tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag, },
+                    nume: { iv: enc_NumeItem.iv, encData: enc_NumeItem.encData, tag: enc_NumeItem.tag },
+                    numarItem: { iv: enc_NumarItem.iv, encData: enc_NumarItem.encData, tag: enc_NumarItem.tag },
+                    numePosesor: { iv: enc_NumePosesorItem.iv, encData: enc_NumePosesorItem.encData, tag: enc_NumePosesorItem.tag },
+                    dataExpirare: { iv: enc_dataExpirareItem.iv, encData: enc_dataExpirareItem.encData, tag: enc_dataExpirareItem.tag },
+                    comentariu: { iv: enc_ComentariuItem.iv, encData: enc_ComentariuItem.encData, tag: enc_ComentariuItem.tag },
+                    istoric: { iv: enc_IstoricItem.iv, encData: enc_IstoricItem.encData, tag: enc_IstoricItem.tag }
+                },
+            };
+
+            const requestBody = {
+                id_item: uidItem,
+                continut: jsonItem
+            };
+
+            try {
+                const response = await fetch('http://localhost:9000/api/grupuri/updateGroupItem', {
+                    method: "PUT",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody),
+                    credentials: "include"
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("Eroare la server:", errorText);
+                    return;
+                }
+            } catch (error) {
+                console.error("Eroare la trimitere", error);
+            }
         } catch (error) {
             console.error('Error during the request:', error);
         }
@@ -116,6 +210,9 @@ const EditCardGroupItem = ({ item, setGestioneazaCardItem }) => {
                         ) : (
                             <h2 className="font-semibold text-3xl">{itemNume}</h2>
                         )}
+                        <button onClick={() => setdeEditat({ ...deEditat, nume: !deEditat.nume })} className="ml-3 text-gray-500 hover:text-blue-500">
+                            {deEditat.nume ? <FaSave /> : <FaEdit />}
+                        </button>
                     </div>
                 </div>
 
@@ -142,21 +239,19 @@ const EditCardGroupItem = ({ item, setGestioneazaCardItem }) => {
                                             })()}
                                         </span>
                                     )}
+                                    <button onClick={() => setdeEditat({ ...deEditat, date: !deEditat.date })} className="ml-3 text-gray-500 hover:text-blue-500">
+                                        {deEditat.date ? <FaSave /> : <FaEdit />}
+                                    </button>
                                 </div>
                                 <div className="ml-2">
                                     {/* Numar card*/}
                                     <div className="flex items-center mt-6 border-b border-gray-300 pb-2 w-full max-w-[400px]">
                                         <p className="font-medium text-gray-700">Număr: </p>
                                         {deEditat.numarCard ? (
-                                            <input type="text" value={numarCard} onChange={(e) => setItemUsername(e.target.value)} className="border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
+                                            <input type="text" value={numarCard} onChange={(e) => setNumarCard(e.target.value)} className="border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
                                         ) : (
                                             <span className="ml-3 text-gray-800">{numarCard}</span>
                                         )}
-                                        {/* Butonul de copiere Username */}
-                                        <button onClick={() => copieContinut(numarCard)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                            <FaCopy />
-                                        </button>
-
                                         <button onClick={() => setdeEditat({ ...deEditat, numarCard: !deEditat.numarCard })} className="ml-3 text-gray-500 hover:text-blue-500">
                                             {deEditat.numarCard ? <FaSave /> : <FaEdit />}
                                         </button>
@@ -165,15 +260,10 @@ const EditCardGroupItem = ({ item, setGestioneazaCardItem }) => {
                                     <div className="flex items-center mt-6 border-b border-gray-300 pb-2 w-full max-w-[400px]">
                                         <p className="font-medium text-gray-700">Posesor: </p>
                                         {deEditat.posesorCard ? (
-                                            <input type="text" value={posesorCard} onChange={(e) => setItemUsername(e.target.value)} className=" ml-3 border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
+                                            <input type="text" value={posesorCard} onChange={(e) => setPosesorCard(e.target.value)} className=" ml-3 border border-gray-300 rounded-lg px-2 py-1 w-3/4"></input>
                                         ) : (
                                             <span className="ml-3 text-gray-800">{posesorCard}</span>
                                         )}
-                                        {/* Butonul de copiere Username */}
-                                        <button onClick={() => copieContinut(posesorCard)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                            <FaCopy />
-                                        </button>
-
                                         <button onClick={() => setdeEditat({ ...deEditat, posesorCard: !deEditat.posesorCard })} className="ml-3 text-gray-500 hover:text-blue-500">
                                             {deEditat.posesorCard ? <FaSave /> : <FaEdit />}
                                         </button>
@@ -208,7 +298,6 @@ const EditCardGroupItem = ({ item, setGestioneazaCardItem }) => {
                                     <div className="lg:ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{createdDate}</span>
-                                            {createdBy && <span className="text-gray-500 italic">by ionut@@@ {createdBy}</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -223,7 +312,6 @@ const EditCardGroupItem = ({ item, setGestioneazaCardItem }) => {
                                     <div className="lg:ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{modifiedDate}</span>
-                                            {modifiedBy && <span className="text-gray-500 italic">by ionut@ionut {modifiedBy}</span>}
                                         </div>
                                     </div>
                                 </div>
@@ -237,22 +325,26 @@ const EditCardGroupItem = ({ item, setGestioneazaCardItem }) => {
                         <div className="flex flex-col space-y-1 ">
                             <h3 className="font-medium">Istoric Modificari:</h3>
                             <h2 className="text-gray-700 cursor-pointer hover:underline text-gray-400" onClick={() => setAfisIstoric(!afisIstoric)}>{afisIstoric ? 'Ascunde' : 'Afiseaza'}</h2>
-                            {afisIstoric && (<div>{Istoric.length > 0 ? (<div className="h-48 sm:w-1/2 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
-                                {Istoric.map((it, index) => (
-                                    <div key={index} className="py-1 mx-2">
-                                        <span className="font-semibold">{it.operatie}</span>
-                                        <div className="flex space-x-2">
-                                            <span className="text-sm">{it.data}</span>
-                                            <span className="text-sm">{it.time}</span>
-                                            <span className="text-sm italic text-gray-600">by {it.modifiedby}</span>
+                            {afisIstoric && (
+                                <div>
+                                    {Array.isArray(parsedIstoric) && parsedIstoric.length > 0 ? (
+                                        <div className="h-48 sm:w-1/2 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
+                                            {parsedIstoric.map((it, index) => (
+                                                <div key={index} className="py-1 mx-2">
+                                                    <span className="font-semibold">{it.operatie}</span>
+                                                    <div className="flex space-x-2">
+                                                        <span className="text-sm">{it.data}</span>
+                                                        <span className="text-sm">{it.time}</span>
+                                                    </div>
+                                                    <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
+                                                </div>
+                                            ))}
                                         </div>
-
-                                        <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
-                                    </div>
-                                ))}
-                            </div>
-                            ) : (<p className="text-gray-600">Istoric Gol</p>
-                            )}</div>)}
+                                    ) : (
+                                        <p className="text-gray-600">Istoric Gol</p>
+                                    )}
+                                </div>
+                            )}
 
 
                         </div>

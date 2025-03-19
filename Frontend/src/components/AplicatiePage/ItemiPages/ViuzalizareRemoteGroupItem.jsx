@@ -1,30 +1,32 @@
 import React from "react";
 import { useState, useEffect } from 'react';
 import "../../../App.css"
-
 import { FaEye, FaEyeSlash, FaCopy, FaArrowLeft } from 'react-icons/fa';
-const Istoric = [
-    { operatie: "Actualizare Parola", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Username", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare URL", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Titlu", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Notita", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-]
 
 const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
+    console.log(item.istoric);
+
+    const [istoric, setIstoric] = useState(item.istoric);
+
+    console.log("Tipul lui istoric:", typeof item.istoric);
+    console.log("Conținutul lui istoric:", istoric);
+    let parsedIstoric = [];
+
+    try {
+        parsedIstoric = JSON.parse(item.istoric);
+        if (!Array.isArray(parsedIstoric)) {
+            parsedIstoric = [];
+        }
+    } catch (error) {
+        console.error("Eroare la parsarea istoricului:", error);
+        parsedIstoric = [];
+    }
+
     const [itemNume, setItemNume] = useState(item.nume);
     const [userName, setItemUsername] = useState(item.username);
     const [parolaName, setItemParola] = useState(item.parola);
     const [hostNume, setItemHost] = useState(item.host);
     const [ppkKey, setPPKkey] = useState(item.ppkKey);
-    const [privateKey, sePrivateKey] = useState(item.privateKey);
-
-    const [esteCopiat, setEsteCopiat] = useState(false);
-    const copieContinut = (text) => {
-        navigator.clipboard.writeText(text);
-        setIsCopied(true);
-        setTimeout(() => setEsteCopiat(false), 2000);
-    }
 
     const [showParola, setShowParola] = useState(false);
 
@@ -46,19 +48,20 @@ const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
     useEffect(() => {
         const fetchItems = async () => {
             try {
-                const response = await fetch('http://localhost:9000/api/getOwner', {
-                    method: 'GET',
+                const response = await fetch('http://localhost:9000/api/grupuri/getOwnerItem', {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
+                    body: JSON.stringify({ uidItem }),
                     credentials: "include"
                 });
 
                 if (response.ok) {
                     const data = await response.json();
                     console.log("Datele primite de la server: ", data);
-                    setOwnerNume(data[0].nume);
-                    setOwnerPrenume(data[0].prenume);
+                    setOwnerNume(data.nume);
+                    setOwnerPrenume(data.prenume);
                 } else {
                     console.error('Failed to fetch items', response.statusText);
                 }
@@ -149,12 +152,9 @@ const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                         <button onClick={() => setGestioneazaRemoteItem(null)} className="py-1 px-1 cursor-pointer rounded-lg">
                             <FaArrowLeft className="w-6 h-6 hover:text-blue-600 transition-all duration-300 ease-in-out" />
                         </button>
-
                     </div>
                     <div className="flex-1 text-center">
-
                         <h2 className="font-semibold text-3xl">{itemNume}</h2>
-
                     </div>
                 </div>
                 <div>
@@ -197,13 +197,7 @@ const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                                 {/* Usernameul de la parola*/}
                                 <div className="flex items-center mt-6 border-b border-gray-300 pb-2 w-full max-w-[400px]">
                                     <p className="font-medium text-gray-700">Username: </p>
-
                                     <span className="ml-3 text-gray-800">{userName}</span>
-
-                                    {/* Butonul de copiere Username */}
-                                    <button onClick={() => copieContinut(userName)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                        <FaCopy />
-                                    </button>
                                 </div>
                                 {/*Campul de parola*/}
                                 <div className="flex items-center mt-6 border-b border-gray-300 pb-2 w-full max-w-[400px]">
@@ -215,35 +209,32 @@ const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                                     <button onClick={() => setShowParola(!showParola)} className="ml-3 text-gray-500 hover:text-blue-500 transition">
                                         {showParola ? <FaEyeSlash /> : <FaEye />}
                                     </button>
-
-                                    {/* Butonul de copiere */}
-                                    <button onClick={() => copieContinut(parolaName)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                        <FaCopy />
-                                    </button>
                                 </div>
                                 {/*Istoric */}
                                 <div className='w-full  custom_top_istoric mt-5'>
                                     <div className="flex flex-col space-y-1 ">
                                         <h3 className="font-medium">Istoric Modificari:</h3>
                                         <h2 className="text-gray-700 cursor-pointer hover:underline text-gray-400" onClick={() => setAfisIstoric(!afisIstoric)}>{afisIstoric ? 'Ascunde' : 'Afiseaza'}</h2>
-                                        {afisIstoric && (<div>{Istoric.length > 0 ? (<div className="h-48 w-full overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
-                                            {Istoric.map((it, index) => (
-                                                <div key={index} className="py-1 mx-2">
-                                                    <span className="font-semibold">{it.operatie}</span>
-                                                    <div className="flex space-x-2">
-                                                        <span className="text-sm">{it.data}</span>
-                                                        <span className="text-sm">{it.time}</span>
-                                                        <span className="text-sm italic text-gray-600">by {it.modifiedby}</span>
+                                        {afisIstoric && (
+                                            <div>
+                                                {Array.isArray(parsedIstoric) && parsedIstoric.length > 0 ? (
+                                                    <div className="h-48 sm:w-1/2 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
+                                                        {parsedIstoric.map((it, index) => (
+                                                            <div key={index} className="py-1 mx-2">
+                                                                <span className="font-semibold">{it.operatie}</span>
+                                                                <div className="flex space-x-2">
+                                                                    <span className="text-sm">{it.data}</span>
+                                                                    <span className="text-sm">{it.time}</span>
+                                                                </div>
+                                                                <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
+                                                            </div>
+                                                        ))}
                                                     </div>
-
-                                                    <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        ) : (<p className="text-gray-600">Istoric Gol</p>
-                                        )}</div>)}
-
-
+                                                ) : (
+                                                    <p className="text-gray-600">Istoric Gol</p>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

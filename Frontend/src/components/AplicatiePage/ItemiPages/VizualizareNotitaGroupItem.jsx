@@ -1,30 +1,31 @@
 import React from "react";
 import { useState, useEffect } from 'react';
 import "../../../App.css"
-
 import { FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
-const Istoric = [
-    { operatie: "Actualizare Parola", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Username", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare URL", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Titlu", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Notita", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-]
 
 const VizualizareNotitaGroupItem = ({ item, setGestioneazaParolaItem }) => {
+    console.log(item.istoric);
+
+    const [istoric, setIstoric] = useState(item.istoric);
+
+    console.log("Tipul lui istoric:", typeof item.istoric);
+    console.log("Conținutul lui istoric:", istoric);
+    let parsedIstoric = [];
+
+    try {
+        parsedIstoric = JSON.parse(item.istoric);
+        if (!Array.isArray(parsedIstoric)) {
+            parsedIstoric = [];
+        }
+    } catch (error) {
+        console.error("Eroare la parsarea istoricului:", error);
+        parsedIstoric = [];
+    }
+
     const [itemNume, setItemNume] = useState(item.nume);
     const [date, setItemData] = useState(item.data);
     const [note, setItemNote] = useState(item.comentariu);
     const [deEditat, setdeEditat] = useState({ nume: false, note: false });
-
-    const [esteCopiat, setEsteCopiat] = useState(false);
-    const copieContinut = (text) => {
-        navigator.clipboard.writeText(text);
-        setIsCopied(true);
-        setTimeout(() => setEsteCopiat(false), 2000);
-    }
-
-    const [showParola, setShowParola] = useState(false);
 
     const [uidItem, setUidItem] = useState(item.id_item);
     const [createdDate, setCreatedDate] = useState("");
@@ -37,10 +38,6 @@ const VizualizareNotitaGroupItem = ({ item, setGestioneazaParolaItem }) => {
         setModifiedDate(formattedDate);
     }, [item.created_at, item.modified_at]);
 
-    const [createdBy, setCreatedBy] = useState("Alice");
-
-    const [modifiedBy, setModifiedBy] = useState("Bob");
-
     const [afisIstoric, setAfisIstoric] = useState(true);
 
     const [ownerNume, setOwnerNume] = useState("");
@@ -49,19 +46,20 @@ const VizualizareNotitaGroupItem = ({ item, setGestioneazaParolaItem }) => {
     useEffect(() => {
         const fetchItems = async () => {
             try {
-                const response = await fetch('http://localhost:9000/api/getOwner', {
-                    method: 'GET',
+                const response = await fetch('http://localhost:9000/api/grupuri/getOwnerItem', {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
+                    body: JSON.stringify({ uidItem }),
                     credentials: "include"
                 });
 
                 if (response.ok) {
                     const data = await response.json();
                     console.log("Datele primite de la server: ", data);
-                    setOwnerNume(data[0].nume);
-                    setOwnerPrenume(data[0].prenume);
+                    setOwnerNume(data.nume);
+                    setOwnerPrenume(data.prenume);
                 } else {
                     console.error('Failed to fetch items', response.statusText);
                 }
@@ -70,20 +68,9 @@ const VizualizareNotitaGroupItem = ({ item, setGestioneazaParolaItem }) => {
             }
         };
 
-
-
         fetchItems();
     }, []);
 
-    const salveazaToateModificarile = async () => {
-        try {
-            //const requestData = { uidItem, itemNume, userName, parolaName, urlNume, note };
-            // ca sa le modific trebuie iarasi sa le criptez la loc si sa le trimit la fel ca la aduagare item
-
-        } catch (error) {
-            console.error('Error during the request:', error);
-        }
-    }
     return (
         <>
             <div className="px-4 mb-2 ">
@@ -93,9 +80,6 @@ const VizualizareNotitaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                     <div className="flex items-center space-x-4">
                         <button onClick={() => setGestioneazaParolaItem(null)} className="py-1 px-1 cursor-pointer rounded-lg">
                             <FaArrowLeft className="w-6 h-6 hover:text-blue-600 transition-all duration-300 ease-in-out" />
-                        </button>
-                        <button onClick={salveazaToateModificarile} className="py-1 px-1 cursor-pointer rounded-lg">
-                            <FaSave className="w-6 h-6 hover:text-green-600 transition-all duration-300 ease-in-out" />
                         </button>
                     </div>
                     <div className="flex-1 text-center">
@@ -181,24 +165,26 @@ const VizualizareNotitaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                         <div className="flex flex-col space-y-1 ">
                             <h3 className="font-medium">Istoric Modificari:</h3>
                             <h2 className="text-gray-700 cursor-pointer hover:underline text-gray-400" onClick={() => setAfisIstoric(!afisIstoric)}>{afisIstoric ? 'Ascunde' : 'Afiseaza'}</h2>
-                            {afisIstoric && (<div>{Istoric.length > 0 ? (<div className="h-48 sm:w-1/2 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
-                                {Istoric.map((it, index) => (
-                                    <div key={index} className="py-1 mx-2">
-                                        <span className="font-semibold">{it.operatie}</span>
-                                        <div className="flex space-x-2">
-                                            <span className="text-sm">{it.data}</span>
-                                            <span className="text-sm">{it.time}</span>
-                                            <span className="text-sm italic text-gray-600">by {it.modifiedby}</span>
+                            {afisIstoric && (
+                                <div>
+                                    {Array.isArray(parsedIstoric) && parsedIstoric.length > 0 ? (
+                                        <div className="h-48 sm:w-1/2 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
+                                            {parsedIstoric.map((it, index) => (
+                                                <div key={index} className="py-1 mx-2">
+                                                    <span className="font-semibold">{it.operatie}</span>
+                                                    <div className="flex space-x-2">
+                                                        <span className="text-sm">{it.data}</span>
+                                                        <span className="text-sm">{it.time}</span>
+                                                    </div>
+                                                    <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
+                                                </div>
+                                            ))}
                                         </div>
-
-                                        <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
-                                    </div>
-                                ))}
-                            </div>
-                            ) : (<p className="text-gray-600">Istoric Gol</p>
-                            )}</div>)}
-
-
+                                    ) : (
+                                        <p className="text-gray-600">Istoric Gol</p>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

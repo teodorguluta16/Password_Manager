@@ -407,8 +407,6 @@ const EditRemoteItem = ({ item, setGestioneazaRemoteItem }) => {
                                                 )}
                                             </div>
                                         )}
-
-
                                     </div>
                                 </div>
 

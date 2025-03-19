@@ -1,17 +1,27 @@
 import React from "react";
 import { useState, useEffect } from 'react';
 import "../../../App.css"
-
 import { FaArrowLeft, FaCopy } from 'react-icons/fa';
-const Istoric = [
-    { operatie: "Actualizare Parola", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Username", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare URL", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Titlu", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-    { operatie: "Actualizare Notita", data: "11/11/2024", time: "12:03", modifiedby: "user123" },
-]
 
 const VizualizareAdresaGroupItem = ({ item, setGestioneazaAdresaItem }) => {
+    console.log(item.istoric);
+
+    const [istoric, setIstoric] = useState(item.istoric);
+
+    console.log("Tipul lui istoric:", typeof item.istoric);
+    console.log("Conținutul lui istoric:", istoric);
+    let parsedIstoric = [];
+
+    try {
+        parsedIstoric = JSON.parse(item.istoric);
+        if (!Array.isArray(parsedIstoric)) {
+            parsedIstoric = [];
+        }
+    } catch (error) {
+        console.error("Eroare la parsarea istoricului:", error);
+        parsedIstoric = [];
+    }
+
     console.log(item.nume);
     const [itemNume, setItemNume] = useState(item.nume);
     const [adresaItem, setAdresa] = useState(item.adresa);
@@ -51,19 +61,20 @@ const VizualizareAdresaGroupItem = ({ item, setGestioneazaAdresaItem }) => {
     useEffect(() => {
         const fetchItems = async () => {
             try {
-                const response = await fetch('http://localhost:9000/api/getOwner', {
-                    method: 'GET',
+                const response = await fetch('http://localhost:9000/api/grupuri/getOwnerItem', {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
+                    body: JSON.stringify({ uidItem }),
                     credentials: "include"
                 });
 
                 if (response.ok) {
                     const data = await response.json();
                     console.log("Datele primite de la server: ", data);
-                    setOwnerNume(data[0].nume);
-                    setOwnerPrenume(data[0].prenume);
+                    setOwnerNume(data.nume);
+                    setOwnerPrenume(data.prenume);
                 } else {
                     console.error('Failed to fetch items', response.statusText);
                 }
@@ -104,42 +115,22 @@ const VizualizareAdresaGroupItem = ({ item, setGestioneazaAdresaItem }) => {
                                     {/* Adrese*/}
                                     <div className="flex items-center mt-2 border-b border-gray-300 pb-2 w-full max-w-[400px]">
                                         <p className="font-medium text-gray-700">Adresa: </p>
-
                                         <span className="ml-3 text-gray-800">{adresaItem}</span>
-
-                                        {/* Butonul de copiere Username */}
-                                        <button onClick={() => copieContinut(adresaItem)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                            <FaCopy />
-                                        </button>
-
-
                                     </div>
                                     {/* Oras*/}
                                     <div className="flex items-center mt-2 border-b border-gray-300 pb-2 w-full max-w-[400px]">
                                         <p className="font-medium text-gray-700">Oraș: </p>
                                         <span className="ml-3 text-gray-800">{orasItem}</span>
-                                        {/* Butonul de copiere Username */}
-                                        <button onClick={() => copieContinut(orasItem)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                            <FaCopy />
-                                        </button>
                                     </div>
                                     {/*Judet*/}
                                     <div className="flex items-center mt-2 border-b border-gray-300 pb-2 w-full max-w-[400px]">
                                         <p className="font-medium text-gray-700">Județ: </p>
                                         <span className="ml-3 text-gray-800">{judetItem}</span>
-                                        {/* Butonul de copiere Username */}
-                                        <button onClick={() => copieContinut(judetItem)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                            <FaCopy />
-                                        </button>
                                     </div>
                                     {/*Cod Postal */}
                                     <div className="flex items-center mt-2 border-b border-gray-300 pb-2 w-full max-w-[400px]">
                                         <p className="font-medium text-gray-700">Cod Poștal: </p>
                                         <span className="ml-3 text-gray-800">{codPostal}</span>
-                                        {/* Butonul de copiere Username */}
-                                        <button onClick={() => copieContinut(codPostal)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                            <FaCopy />
-                                        </button>
                                     </div>
                                 </div>
 
@@ -189,24 +180,26 @@ const VizualizareAdresaGroupItem = ({ item, setGestioneazaAdresaItem }) => {
                         <div className="flex flex-col space-y-1 ">
                             <h3 className="font-medium">Istoric Modificari:</h3>
                             <h2 className="text-gray-700 cursor-pointer hover:underline text-gray-400" onClick={() => setAfisIstoric(!afisIstoric)}>{afisIstoric ? 'Ascunde' : 'Afiseaza'}</h2>
-                            {afisIstoric && (<div>{Istoric.length > 0 ? (<div className="h-48 sm:w-1/2 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
-                                {Istoric.map((it, index) => (
-                                    <div key={index} className="py-1 mx-2">
-                                        <span className="font-semibold">{it.operatie}</span>
-                                        <div className="flex space-x-2">
-                                            <span className="text-sm">{it.data}</span>
-                                            <span className="text-sm">{it.time}</span>
-                                            <span className="text-sm italic text-gray-600">by {it.modifiedby}</span>
+                            {afisIstoric && (
+                                <div>
+                                    {Array.isArray(parsedIstoric) && parsedIstoric.length > 0 ? (
+                                        <div className="h-48 sm:w-1/2 overflow-y-auto border rounded-lg shadow-lg border-gray-300 border-2 bg-white mt-2">
+                                            {parsedIstoric.map((it, index) => (
+                                                <div key={index} className="py-1 mx-2">
+                                                    <span className="font-semibold">{it.operatie}</span>
+                                                    <div className="flex space-x-2">
+                                                        <span className="text-sm">{it.data}</span>
+                                                        <span className="text-sm">{it.time}</span>
+                                                    </div>
+                                                    <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
+                                                </div>
+                                            ))}
                                         </div>
-
-                                        <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
-                                    </div>
-                                ))}
-                            </div>
-                            ) : (<p className="text-gray-600">Istoric Gol</p>
-                            )}</div>)}
-
-
+                                    ) : (
+                                        <p className="text-gray-600">Istoric Gol</p>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
