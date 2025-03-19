@@ -4,7 +4,7 @@ import { FaPlus } from 'react-icons/fa';
 import "../../../App.css"
 
 import { FaArrowLeft } from 'react-icons/fa';
-import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } from "../../FunctiiDate/FunctiiDefinite"
+import { decodeMainKey, decriptareDate } from "../../FunctiiDate/FunctiiDefinite"
 import PopupNewGrupItem from '../Popup_uri/PopupNewGrupItem.jsx'
 import PopupNewGrupParola from "../Popup_uri/PopupNewGrupParola.jsx";
 import PopupNewGrupNotita from "../Popup_uri/PopupNewGrupNotita.jsx";
@@ -26,6 +26,8 @@ import VizualizareAdresaGroupItem from "./VizualizareAdresaGroupItem.jsx";
 import VizualizareCardGroupItem from "./VizualizareCardGroupItem.jsx";
 import VizualizareNotitaGroupItem from "./VizualizareNotitaGroupItem.jsx";
 import VizualizareRemoteGroupItem from "./ViuzalizareRemoteGroupItem.jsx";
+
+
 
 function hexToString(hex) {
     let str = '';
@@ -105,6 +107,7 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
 
     const [stergeItem, setStergeItem] = useState(false);
     const [gestioneazaItem, setGestioneazaItem] = useState(null);
+
     const [tipAfisare, setTipAfisare] = useState("grid");
 
     const [items, setItems] = useState([]);
@@ -644,6 +647,8 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
                 {ShowRemotePopup && (<PopupNewGrupRemote setShowRemotePopup={setShowRemotePopup} derivedKey={key} idgrup={idgrup} />)}
 
             </div>
+            {/*Popup de Stergere item */}
+            {/*stergeItem && <PopupStergeItem setShowPopupStergeItem={setStergeItem} item={itemid} items={items} fetchItems={fetchItems} />*/}
         </>
     );
 };

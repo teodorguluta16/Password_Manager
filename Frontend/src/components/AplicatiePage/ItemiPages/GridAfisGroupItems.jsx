@@ -14,6 +14,41 @@ import DeleteIcon from "../../../assets/website/delete.png"
 
 // Aici afisez itemii in format pe coloane
 const GridAfisGroupItems = ({ items, setGestioneazaItem, setStergeItem, setItemid }) => {
+
+    const handlePassword = (e, item) => {
+        e.stopPropagation();
+        if (item.url) {
+            window.open(item.url, "_blank");
+        } else {
+            console.warn("URL indisponibil!");
+        }
+    };
+
+    const handleRemoteConnexion = async (e, item) => {
+        e.stopPropagation();
+        console.log(item.nume);
+
+        const requestBody = {
+            host: item.host,
+            user: item.username,
+            ppkKey: item.ppkKey,
+            terminal: "putty",
+        };
+
+        try {
+            const response = await fetch("http://localhost:3001/launch-ssh", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestBody),
+            });
+
+            const data = await response.json();
+            console.log(data.message);
+        } catch (error) {
+            console.error("Error launching SSH:", error);
+        }
+    };
+
     return (
         <div className="grid custom_grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-10 md:gap-12 ml-2 mr-2 px-8 sm:px-4 md:px-12 custom-height overflow-y-auto py-8 -mt-4">
             {items.map((item, index) => (
