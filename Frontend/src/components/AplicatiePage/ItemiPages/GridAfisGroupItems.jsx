@@ -9,11 +9,10 @@ import RemoteLogo from "../../../assets/website/remote-access.png"
 import AdressLogo from "../../../assets/website/map-and-location.png"
 
 import LaunchLogo from "../../../assets/website/launch.png"
-import FavoriteLogo from "../../../assets/website/favorite.png"
 import DeleteIcon from "../../../assets/website/delete.png"
 
 // Aici afisez itemii in format pe coloane
-const GridAfisGroupItems = ({ items, setGestioneazaItem, setStergeItem, setItemid }) => {
+const GridAfisGroupItems = ({ items, setGestioneazaItem, setStergeItem, setItemid, id_current_user }) => {
 
     const handlePassword = (e, item) => {
         e.stopPropagation();
@@ -66,9 +65,11 @@ const GridAfisGroupItems = ({ items, setGestioneazaItem, setStergeItem, setItemi
                                     className="absolute mt-6 right-2 border border-white bg-white rounded-lg px-2 py-1 hover:bg-blue-300">
                                     <img src={LaunchLogo} alt="Launch Logo" className="w-5 h-5" />
                                 </button>
-                                <button onClick={(e) => { e.stopPropagation(); setStergeItem(true); setItemid(item) }} className=" absolute mt-36 right-2 border border-white bg-white rounded-lg px-2 py-1 hover:bg-red-400">
-                                    <img src={DeleteIcon} alt="Delete Logo" className="w-5 h-5" />
-                                </button>
+                                {item.id_owner === id_current_user && (
+                                    <button onClick={(e) => { e.stopPropagation(); setStergeItem(true); setItemid(item); }} className="absolute mt-36 right-2 border border-white bg-white rounded-lg px-2 py-1 hover:bg-red-400">
+                                        <img src={DeleteIcon} alt="Delete Logo" className="w-5 h-5" />
+                                    </button>
+                                )}
                             </>
 
                         )}

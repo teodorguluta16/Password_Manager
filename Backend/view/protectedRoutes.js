@@ -593,15 +593,26 @@ protectedRouter.post('/grupuri/getOwnerItem', async (req, res) => {
 
         console.log("Proprietarul găsit:", userResult.rows[0]);
 
-        res.status(200).json(userResult.rows[0]); // Returnează numele și prenumele
+        res.status(200).json(userResult.rows[0]);
     }
     catch (error) {
         console.error('Eroare:', error);
         res.status(500).json({ message: "Eroare internă a serverului." });
     }
 });
-
-
+protectedRouter.delete('/grupuri/stergeItemGroupDefinitiv', async (req, res) => {
+    const { id_item, id_grup } = req.body;
+    try {
+        console.log("id-ul itemului de sters este: ", id_item);
+        console.log("id-ul grupului din care face parte este: ", id_grup);
+        await client.query(`DELETE FROM leggrupuriitemi WHERE id_item = $1 and id_grup=$2`, [id_item, id_grup]);
+        await client.query(`DELETE FROM itemi WHERE id_item = $1`, [id_item]);
+        return res.status(200).json({ message: 'Item sters!' });
+    } catch (error) {
+        console.error('Eroare:', error);
+        return res.status(500).json({ message: 'Eroare stergere item' });
+    }
+});
 
 // utilizator
 protectedRouter.get('/utilizator/getUserId', async (req, res) => {

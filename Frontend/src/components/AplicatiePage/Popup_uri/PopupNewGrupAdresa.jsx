@@ -19,7 +19,7 @@ function decryptWithPrivateKey(encryptedMessage, privateKey) {
     });
 }
 
-const PopupNewGrupAdresa = ({ setShowAdresaPopup, derivedKey, idgrup }) => {
+const PopupNewGrupAdresa = ({ setShowAdresaPopup, derivedKey, idgrup, fetchItems }) => {
     const [numeDestinatar, setNumeDestinatar] = useState("");
     const [adresa, setAdresa] = useState("");
     const [oras, setOras] = useState("");
@@ -234,6 +234,7 @@ const PopupNewGrupAdresa = ({ setShowAdresaPopup, derivedKey, idgrup }) => {
         } catch (error) {
             console.error("Eroare la criptarea datelor:", error);
         }
+        await fetchItems();
     };
 
     return (

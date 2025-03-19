@@ -19,7 +19,7 @@ function decryptWithPrivateKey(encryptedMessage, privateKey) {
     });
 }
 
-const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup }) => {
+const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems }) => {
     const [numeItem, setNumeItem] = useState('');
     const [urlItem, setUrlItem] = useState('');
     const [usernameItem, setUserNamItem] = useState('');
@@ -226,6 +226,7 @@ const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup }) => {
             //const decoded_key = await decodeMainKey(dec_key);
 
             //console.log("Elementul decriptat ar trebui sa fie: ", dec_tip);
+            await fetchItems();
 
         } catch (error) {
             console.error("Eroare la criptarea datelor:", error);

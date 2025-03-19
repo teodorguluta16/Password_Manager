@@ -11,6 +11,7 @@ import PopupNewGrupNotita from "../Popup_uri/PopupNewGrupNotita.jsx";
 import PopupNewGrupCard from "../Popup_uri/PopupNewGrupCard.jsx";
 import PopupNewGrupAdresa from "../Popup_uri/PopupNewGrupAdresa.jsx";
 import PopupNewGrupRemote from "../Popup_uri/PopupNewGrupRemote.jsx";
+import PopupStergeItemGroupDefinitiv from "../Popup_uri/PopupStergeItemGroupDefinitiv.jsx";
 
 import GridAfisGroupItems from "./GridAfisGroupItems";
 import forge from 'node-forge';
@@ -20,14 +21,11 @@ import EditCardGroupItem from "./EditCardGroupItem.jsx";
 import EditNotitaGroupItem from "./EditNotitaGroupItem.jsx";
 import EditRemoteGroupItem from "./EditRemoteGroupItem.jsx";
 
-
 import VizualizareParolaGroupItem from './VizualizareParolaGroupItem.jsx';
 import VizualizareAdresaGroupItem from "./VizualizareAdresaGroupItem.jsx";
 import VizualizareCardGroupItem from "./VizualizareCardGroupItem.jsx";
 import VizualizareNotitaGroupItem from "./VizualizareNotitaGroupItem.jsx";
 import VizualizareRemoteGroupItem from "./ViuzalizareRemoteGroupItem.jsx";
-
-
 
 function hexToString(hex) {
     let str = '';
@@ -111,6 +109,7 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
     const [tipAfisare, setTipAfisare] = useState("grid");
 
     const [items, setItems] = useState([]);
+    const [itemid, setItemid] = useState("");
 
     const fetchGroupsItems = async () => {
         try {
@@ -593,7 +592,7 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
                         {/*Ok1 */}
                     </div>
                 ) : tipAfisare === "grid" ? ( // daca nu e  niciun item selectat atunci afisez lista de itemi
-                    <GridAfisGroupItems items={items} setGestioneazaItem={setGestioneazaItem} setStergeItem={setStergeItem} />) : null
+                    <GridAfisGroupItems items={items} setGestioneazaItem={setGestioneazaItem} setStergeItem={setStergeItem} id_current_user={id_current_user} setItemid={setItemid} />) : null
 
                 ) : (
                     id_current_user === gestioneazaItem.id_owner ? (
@@ -640,15 +639,15 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
                 {/* Popup-ul care apare când este apăsat butonul */}
                 {popupVisible && (<PopupNewGrupItem setPopupVisible={setPopupVisible} setShowParolaPopup={setShowParolaPopup} setShowNotitaPopup={setShowNotitaPopup}
                     setShowCardPopup={setShowCardPopup} setShowAdresaPopup={setShowAdresaPopup} setShowRemotePopup={setShowRemotePopup} />)}
-                {ShowParolaPopup && (<PopupNewGrupParola setShowParolaPopup={setShowParolaPopup} derivedKey={key} idgrup={idgrup} />)}
-                {ShowNotitaPopup && (<PopupNewGrupNotita setShowNotitaPopup={setShowNotitaPopup} derivedKey={key} idgrup={idgrup} />)}
-                {ShowCardPopup && (<PopupNewGrupCard setShowCardPopup={setShowCardPopup} derivedKey={key} idgrup={idgrup} />)}
-                {ShowAdresaPopup && (<PopupNewGrupAdresa setShowAdresaPopup={setShowAdresaPopup} derivedKey={key} idgrup={idgrup} />)}
-                {ShowRemotePopup && (<PopupNewGrupRemote setShowRemotePopup={setShowRemotePopup} derivedKey={key} idgrup={idgrup} />)}
+                {ShowParolaPopup && (<PopupNewGrupParola setShowParolaPopup={setShowParolaPopup} derivedKey={key} idgrup={idgrup} fetchItems={fetchGroupsItems} />)}
+                {ShowNotitaPopup && (<PopupNewGrupNotita setShowNotitaPopup={setShowNotitaPopup} derivedKey={key} idgrup={idgrup} fetchItems={fetchGroupsItems} />)}
+                {ShowCardPopup && (<PopupNewGrupCard setShowCardPopup={setShowCardPopup} derivedKey={key} idgrup={idgrup} fetchItems={fetchGroupsItems} />)}
+                {ShowAdresaPopup && (<PopupNewGrupAdresa setShowAdresaPopup={setShowAdresaPopup} derivedKey={key} idgrup={idgrup} fetchItems={fetchGroupsItems} />)}
+                {ShowRemotePopup && (<PopupNewGrupRemote setShowRemotePopup={setShowRemotePopup} derivedKey={key} idgrup={idgrup} fetchItems={fetchGroupsItems} />)}
 
             </div>
             {/*Popup de Stergere item */}
-            {/*stergeItem && <PopupStergeItem setShowPopupStergeItem={setStergeItem} item={itemid} items={items} fetchItems={fetchItems} />*/}
+            {stergeItem && <PopupStergeItemGroupDefinitiv setShowPopupStergeItem={setStergeItem} item={itemid} items={items} fetchItems={fetchGroupsItems} idgrup={idgrup} />}
         </>
     );
 };

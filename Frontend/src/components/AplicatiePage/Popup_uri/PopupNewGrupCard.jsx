@@ -19,7 +19,7 @@ function decryptWithPrivateKey(encryptedMessage, privateKey) {
     });
 }
 
-const PopupNewGrupCard = ({ setShowCardPopup, derivedKey, idgrup }) => {
+const PopupNewGrupCard = ({ setShowCardPopup, derivedKey, idgrup, fetchItems }) => {
     const [numeBanca, setNumeBanca] = useState("");
     const [numarCard, setNumarCard] = useState("");
     const [numePosesor, setNumePosesor] = useState("");
@@ -230,6 +230,7 @@ const PopupNewGrupCard = ({ setShowCardPopup, derivedKey, idgrup }) => {
         } catch (error) {
             console.error("Eroare la criptarea datelor:", error);
         }
+        await fetchItems();
     };
 
     return (

@@ -41,10 +41,6 @@ const EditParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
         setModifiedDate(formattedDate);
     }, [item.created_at, item.modified_at]);
 
-    const [createdBy, setCreatedBy] = useState("Alice");
-
-    const [modifiedBy, setModifiedBy] = useState("Bob");
-
     const [afisIstoric, setAfisIstoric] = useState(true);
 
     const [ownerNume, setOwnerNume] = useState("");
@@ -78,8 +74,6 @@ const EditParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                 console.error('Error fetching items:', error);
             }
         };
-
-
 
         fetchItems();
     }, []);
@@ -133,10 +127,6 @@ const EditParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                                     ) : (
                                         <span className="ml-3 text-gray-800">{userName}</span>
                                     )}
-                                    {/* Butonul de copiere Username */}
-                                    <button onClick={() => copieContinut(userName)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                        <FaCopy />
-                                    </button>
 
                                     <button onClick={() => setdeEditat({ ...deEditat, username: !deEditat.username })} className="ml-3 text-gray-500 hover:text-blue-500">
                                         {deEditat.username ? <FaSave /> : <FaEdit />}
@@ -162,11 +152,6 @@ const EditParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                                     {/* Butonul de Afisare Parola */}
                                     <button onClick={() => setShowParola(!showParola)} className="ml-3 text-gray-500 hover:text-blue-500 transition">
                                         {showParola ? <FaEyeSlash /> : <FaEye />}
-                                    </button>
-
-                                    {/* Butonul de copiere */}
-                                    <button onClick={() => copieContinut(parolaName)} className="ml-3 text-gray-500 hover:text-blue-500 transition-all duration-300 ease-in-out">
-                                        <FaCopy />
                                     </button>
 
                                     {/* Butonul de editare */}
@@ -217,7 +202,7 @@ const EditParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                                     <div className="">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{createdDate}</span>
-                                            {createdBy && <span className="text-gray-500 italic">by ionut@@@ {createdBy}</span>}
+
                                         </div>
                                     </div>
                                 </div>
@@ -232,7 +217,7 @@ const EditParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                                     <div className="">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{modifiedDate}</span>
-                                            {modifiedBy && <span className="text-gray-500 italic">by ionut@ionut {modifiedBy}</span>}
+
                                         </div>
                                     </div>
                                 </div>

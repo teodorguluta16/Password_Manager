@@ -19,7 +19,7 @@ function decryptWithPrivateKey(encryptedMessage, privateKey) {
     });
 }
 
-const PopupNewGrupNotita = ({ setShowNotitaPopup, derivedKey, idgrup }) => {
+const PopupNewGrupNotita = ({ setShowNotitaPopup, derivedKey, idgrup, fetchItems }) => {
     const [numeItem, setNumeItem] = useState('');
     const [date, setDateItem] = useState('');
     const [comentariuItem, setComentariuItem] = useState('');
@@ -224,6 +224,7 @@ const PopupNewGrupNotita = ({ setShowNotitaPopup, derivedKey, idgrup }) => {
         } catch (error) {
             console.error("Eroare la criptarea datelor:", error);
         }
+        await fetchItems();
     };
 
     return (

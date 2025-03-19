@@ -18,7 +18,7 @@ function decryptWithPrivateKey(encryptedMessage, privateKey) {
     });
 }
 
-const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup }) => {
+const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup, fetchItems }) => {
     const [numeItem, setNumeItem] = useState('');
     const [hostItem, setHostItem] = useState('');
     const [usernameItem, setUserNamItem] = useState('');
@@ -285,6 +285,7 @@ const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup }) => {
         } catch (error) {
             console.error("Eroare la criptarea datelor:", error);
         }
+        await fetchItems();
     };
 
     return (
