@@ -37,8 +37,7 @@ import ItemiStersi from './ItemiPages/ItemiStersi';
 import RemoteWorkingPage from './ItemiPages/RemoteWorkingPage';
 
 import { getKeyFromIndexedDB } from "../FunctiiDate/ContextKeySimetrice";
-
-import { criptareDate, generateKey, decodeMainKey, decriptareDate } from "../FunctiiDate/FunctiiDefinite"
+import { decodeMainKey, decriptareDate } from "../FunctiiDate/FunctiiDefinite"
 
 function hexToString(hex) {
   let str = '';
@@ -47,6 +46,7 @@ function hexToString(hex) {
   }
   return str;
 }
+
 const AplicatiePage = () => {
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 640);
   const [meniuExtins, setExtins] = useState(!isSmallScreen);
@@ -70,6 +70,24 @@ const AplicatiePage = () => {
       }
     };
     loadKey();
+  }, []);
+
+  const syncKeyWithExtension = async () => {
+    try {
+      const key = await getKeyFromIndexedDB();
+      if (key) {
+        console.log("📤 Trimit cheia prin window.postMessage:", key);
+        window.postMessage({ type: "SYNC_DECRYPTION_KEY", key: key }, "*");
+      } else {
+        console.warn("⚠️ Nu există cheie în IndexedDB.");
+      }
+    } catch (error) {
+      console.error("❌ Eroare la trimiterea cheii:", error);
+    }
+  };
+
+  useEffect(() => {
+    syncKeyWithExtension();
   }, []);
 
   useEffect(() => {
