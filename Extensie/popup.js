@@ -257,19 +257,64 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-document.querySelectorAll('.item').forEach(item => {
-    item.addEventListener('click', function () {
-        showItemDetails('Item 1');
-    });
-});
 
-function showItemDetails(itemName) {
-    console.log('Item selectat:', itemName);
+// Funcția care arată detaliile parolei
+function showItemDetails(parola) {
+    const nume = parola.nume;
+    const username = parola.username;
+    const pass = parola.parola;
+    const url = parola.url;
+    console.log('Parola selectată:', nume, username, parola);
     document.getElementById('sectiuneNoua').style.display = 'none';
     document.getElementById('sectiuneDetalii').style.display = 'block';
-    document.getElementById('item-title').textContent = 'Detalii despre: ' + itemName;
-    document.getElementById('item-details').textContent = 'Aici vei găsi informații suplimentare despre ' + itemName + '.';
+
+    // Afișează detaliile despre parolă
+    document.getElementById('item-title').textContent = nume;
+    document.getElementById('item-details').innerHTML = `
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <strong style="font-size: medium;">Username:</strong>
+        <span style="font-size: small;">${username}</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 15px; margin-top: 15px;">
+        <strong style="font-size: medium;">Parola:</strong>
+        <span id="password-span" style="font-size: small;">********</span>
+        <button id="toggle-password" style="margin-left: 10px;margin-right: 10px; background-color:rgb(90, 187, 48);
+         color: white; border: none; border-radius: 5px; padding: 3px 3px; cursor: pointer;
+         transition: background-color 0.3s, transform 0.3s;">
+            Afișează
+        </button>
+    </div>
+     <div  style="display: flex; align-items: center; gap: 15px; margin-top: 15px;">
+        <strong style="font-size: medium;">Url:</strong>
+        <span style="font-size: small;">${url}</span>
+    </div>
+`;
+
+    document.getElementById('toggle-password').addEventListener('click', function () {
+        const passwordSpan = document.getElementById('password-span');
+        const password = pass; // `pass` este parola care a fost trecută anterior în variabila ta
+
+        if (passwordSpan.textContent === '********') {
+            passwordSpan.textContent = password; // Afișează parola
+            this.textContent = "Ascunde"; // Schimbă textul butonului
+        } else {
+            passwordSpan.textContent = '********'; // Ascunde parola
+            this.textContent = "Afisează"; // Schimbă textul butonului
+        }
+    });
+
+    // Adaugă stilul pentru hover
+    const button = document.getElementById('toggle-password');
+    button.addEventListener('mouseover', function () {
+        this.style.backgroundColor = 'blue'; // Culoarea albastră la hover
+    });
+
+    button.addEventListener('mouseout', function () {
+        this.style.backgroundColor = 'rgb(90, 187, 48)'; // Culoarea inițială a butonului
+    });
 }
+// Adaugă funcționalitatea de a schimba vizibilitatea parolei
+
 function goBack() {
     document.getElementById('sectiuneDetalii').style.display = 'none';
     document.getElementById('sectiuneNoua').style.display = 'block';
@@ -302,14 +347,17 @@ function afiseazaParole(parole) {
         li.innerHTML = `
             <span style="color: white; font-size: medium;">${parola.nume} - ${parola.username}</span>
              <div style="display: flex; gap: 10px;">
-                <img src="assets/icons/launch.png" alt="Launch" class="launch" style="width: 24px; height: 24px; cursor: pointer;">
-                <img src="assets/icons/garbage.png" alt="Garbage" class="garbage" style="width: 24px; height: 24px; cursor: pointer;">
+                <img src="assets/icons/launch.png" alt="Launch" class="launch" style="inline-size: 24px; block-size: 24px; cursor: pointer;">
+                <img src="assets/icons/garbage.png" alt="Garbage" class="garbage" style="inline-size: 24px; block-size: 24px; cursor: pointer;">
             </div>
         `;
+
+        li.addEventListener('click', function () {
+            showItemDetails(parola);
+        });
         container.appendChild(li);
     });
 
-    // Adăugăm funcționalitatea de copiere a parolei
     document.querySelectorAll(".copy-password").forEach(button => {
         button.addEventListener("click", function () {
             const password = this.getAttribute("data-password");
