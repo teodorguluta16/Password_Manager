@@ -7,26 +7,123 @@ export async function hashPassword(password) {
     return hashHex;
 };
 
+export async function genereazaCheiaLocal(parola) {
+    try {
+        let salt = null;
+        const saltResponse = await fetch("http://localhost:9000/api/utilizator/getSalt", {
+            method: "GET", headers: { "Content-Type": "application/json" }, credentials: "include",
+        });
+
+        if (saltResponse.ok) {
+            const data = await saltResponse.json();
+            salt = Uint8Array.from(atob(data.salt), c => c.charCodeAt(0));
+        } else {
+            console.error("Nu am primit saltul de la server.");
+            return null;
+        }
+
+        // 2. Derivăm cheia folosind PBKDF2
+        const passwordBuffer = new TextEncoder().encode(parola);
+        const derivedKey = await crypto.subtle.importKey("raw", passwordBuffer, { name: "PBKDF2" }, false, ["deriveKey"]);
+
+        // Derivăm cheia AES
+        const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt: salt, iterations: 500000, hash: "SHA-256" }, derivedKey, { name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"]);
+
+        console.log("Cheia derivată în format AES:", key);
+
+        // Exportăm cheia într-un format raw (binary)
+        const exportedKey = await crypto.subtle.exportKey("raw", key);
+
+        // Converim cheia exportată într-un string Base64
+        const base64Key = arrayBufferToBase64(exportedKey);
+
+        console.log("Cheia derivată în format Base64:", base64Key);
+
+        // 3. Obținem cheia AES criptată de la server
+        const aesResponse = await fetch("http://localhost:9000/api/getUserSimmetricKey", {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' },
+            credentials: "include"
+        });
+
+        if (aesResponse.ok) {
+            const aesResponseData = await aesResponse.json();
+            console.log("Răspunsul de la server pentru cheia AES:", aesResponseData);
+
+            // 4. Decriptăm cheia AES folosind cheia derivată
+            const keyfromdata = aesResponseData[0].encryptedsimmetrickey;
+            const decodedString = hexToString(keyfromdata);
+            const dataObject = JSON.parse(decodedString);
+
+            const ivHex = dataObject.encKey.iv;
+            const encDataHex = dataObject.encKey.encData;
+            const tagHex = dataObject.encKey.tag;
+
+            const dec_key = await decriptareDate(encDataHex, ivHex, tagHex, key);
+
+            const octetiArray = dec_key.split(',').map(item => parseInt(item.trim(), 10));
+            const uint8Array = new Uint8Array(octetiArray);
+
+            // 5. Convertim cheia AES în format Base64
+            const base64Key = arrayBufferToBase64(uint8Array);
+            return base64Key;
+        } else {
+            console.error("Eroare la obținerea cheii AES de la server.");
+            return null;
+        }
+    } catch (error) {
+        console.error("Eroare la generarea cheii local:", error);
+        return null;
+    }
+}
+
+function arrayBufferToBase64(buffer) {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const length = bytes.byteLength;
+    for (let i = 0; i < length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+}
+
 export async function decripteazaItemi(data, encodedMainKey) {
     const decryptionKey = await decodeMainKey(encodedMainKey);
     const rezultate = [];
 
     for (let item of data) {
         try {
+            console.log("E favorit ", item.isfavorite);
+            const isFavorite = item.isfavorite;
+            const id_item = item.id_item;
+            const isDeleted = item.isdeleted
             const itemKey = await extrageSiDecripteazaCheiaItemului(item.keys_hex, decryptionKey);
 
             const continutDecoded = hexToString(item.continut_hex);
             const continutObj = JSON.parse(continutDecoded);
-
+            const { created_at, modified_at, version } = continutObj.metadata;
             const rez_tip = await decriptareDate(continutObj.data.tip.encData, continutObj.data.tip.iv, continutObj.data.tip.tag, itemKey);
 
-            if (rez_tip === "password") {
+            if (rez_tip === "password" && isDeleted === 0 && isFavorite === true) {
                 const rez_nume = await decriptareDate(continutObj.data.nume.encData, continutObj.data.nume.iv, continutObj.data.nume.tag, itemKey);
                 const rez_username = await decriptareDate(continutObj.data.username.encData, continutObj.data.username.iv, continutObj.data.username.tag, itemKey);
                 const rez_parola = await decriptareDate(continutObj.data.parola.encData, continutObj.data.parola.iv, continutObj.data.parola.tag, itemKey);
+                const rez_url = await decriptareDate(continutObj.data.url.encData, continutObj.data.url.iv, continutObj.data.url.tag, itemKey);
 
                 console.log("🔓 Item decriptat:", { nume: rez_nume, username: rez_username, parola: rez_parola });
-                rezultate.push({ nume: rez_nume, username: rez_username, parola: rez_parola });
+                rezultate.push({
+                    itemKey: itemKey,
+                    id_item: id_item,
+                    nume: rez_nume,
+                    username: rez_username,
+                    parola: rez_parola,
+                    url: rez_url,
+                    isFavorite: isFavorite,
+                    created_at: created_at,
+                    modified_at: modified_at,
+                    version: version,
+                    isDeleted: isDeleted,
+                });
             }
         } catch (e) {
             console.error("❌ Eroare la decriptarea unui item:", e);
@@ -72,6 +169,11 @@ export async function decriptareDate(encDataHex, ivHex, tagHex, key) {
     const combined = new Uint8Array(encData.length + tag.length);
     combined.set(encData);
     combined.set(tag, encData.length);
+
+    if (!(key instanceof CryptoKey)) {
+        console.error("Cheia trebuie să fie de tip CryptoKey");
+        return;
+    }
 
     const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv: iv, tagLength: 128 }, key, combined);
     return new TextDecoder().decode(decrypted);

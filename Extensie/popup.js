@@ -1,12 +1,12 @@
 // Compatibilitate universală pentru toate browserele
-import { decripteazaItemi, hashPassword } from "./functiiprocesaredate.js";
+import { decripteazaItemi, hashPassword, genereazaCheiaLocal } from "./functiiprocesaredate.js";
 
 const browserAPI = typeof browser !== "undefined" ? browser : chrome;
+let paroleDecriptate = [];
 
-//extrag cheia principala din Index DB
 function getKeyFromIndexedDB() {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open("passwordManagerDB", 1);
+        const request = indexedDB.open("passwordManagerDB", 2);
 
         request.onerror = (event) => {
             console.error("Eroare la accesarea IndexedDB:", event.target.error);
@@ -17,7 +17,7 @@ function getKeyFromIndexedDB() {
             const db = event.target.result;
             const transaction = db.transaction("keys", "readonly");
             const store = transaction.objectStore("keys");
-            const getRequest = store.get("encryptionKey");
+            const getRequest = store.get(1);
 
             getRequest.onerror = () => reject("Eroare la citirea cheii din IndexedDB");
             getRequest.onsuccess = () => {
@@ -29,6 +29,139 @@ function getKeyFromIndexedDB() {
             };
         };
     });
+}
+
+function saveKeyInIndexedDB(key) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open("passwordManagerDB", 2);
+
+        request.onerror = (event) => {
+            console.error("Eroare la accesarea IndexedDB:", event.target.error);
+            reject("Eroare la accesarea IndexedDB");
+        };
+
+        request.onsuccess = (event) => {
+            const db = event.target.result;
+            const transaction = db.transaction("keys", "readwrite");
+            const store = transaction.objectStore("keys");
+
+            const putRequest = store.put({ id: 1, key: key });
+
+            putRequest.onerror = (event) => {
+                console.error("Eroare la salvarea cheii în IndexedDB:", event.target.error);
+                reject("Eroare la salvarea cheii în IndexedDB");
+            };
+
+            putRequest.onsuccess = () => {
+                console.log("Cheia a fost salvată cu succes în IndexedDB.");
+                resolve();
+            };
+        };
+
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains("keys")) {
+                db.createObjectStore("keys", { keyPath: "id" });
+                console.log("Obiectul de stocare 'keys' a fost creat.");
+            }
+        };
+    });
+}
+
+async function initKeyAndPasswords() {
+    try {
+        const response = await new Promise((resolve, reject) => {
+            browserAPI.runtime.sendMessage({ action: "getDecryptionKey" }, (response) => {
+                if (response.success && response.key) {
+                    resolve(response.key);
+                } else {
+                    console.warn("Nu am primit cheia de decriptare! O voi lua din IndexDB");
+                    resolve(null);
+                }
+            });
+        });
+
+        let encodedKey = response;
+        if (!encodedKey) {
+            // Dacă cheia nu este disponibilă, o luăm din IndexedDB
+            encodedKey = await getKeyFromIndexedDB();
+            if (encodedKey) {
+                console.log("✅ Cheie fallback luată din IndexedDB:", encodedKey);
+            } else {
+                console.error("❌ Nu am găsit cheia nici în IndexedDB.");
+                return;
+            }
+        }
+
+        // Sincronizează cheia
+        await new Promise((resolve, reject) => {
+            browserAPI.runtime.sendMessage({ action: "syncDecryptionKey", key: encodedKey }, (response) => {
+                if (response.success) {
+                    console.log("✅ Cheia a fost sincronizată cu succes!");
+                    resolve();
+                } else {
+                    console.error("❌ Eroare la sincronizarea cheii");
+                    reject();
+                }
+            });
+        });
+
+        // Obține parolele
+        const passwordResponse = await new Promise((resolve, reject) => {
+            browserAPI.runtime.sendMessage({ action: "getPasswords" }, (response) => {
+                if (response.success) {
+                    resolve(response.passwords);
+                } else {
+                    console.error("Eroare la primirea parolelor:", response.error);
+                    reject();
+                }
+            });
+        });
+
+        // Decriptează parolele
+        paroleDecriptate = await decripteazaItemi(passwordResponse, encodedKey);
+        console.log("🔐 Toate parolele decriptate:", paroleDecriptate);
+        afiseazaParole(paroleDecriptate);
+
+    } catch (error) {
+        console.error("Eroare la preluarea cheii sau parolelor:", error);
+    }
+}
+async function initKeyAndPasswords2(password) {
+    try {
+        browserAPI.runtime.sendMessage({ action: "getDecryptionKey" }, async (response) => {
+            if (response && response.success === false) {
+                console.log("Cheia nu a fost încă generată !");
+            }
+
+            let encodedKey = await genereazaCheiaLocal(password);
+            console.log("Cheia obținută !! este: ", encodedKey);
+            await saveKeyInIndexedDB(encodedKey);
+
+            browserAPI.runtime.sendMessage({ action: "syncDecryptionKey", key: encodedKey }, (response) => {
+                if (response && response.success) {
+                    console.log("✅ Cheia a fost sincronizată cu succes!");
+                    browserAPI.runtime.sendMessage({ action: "getPasswords" }, async (response) => {
+                        if (response && response.success) {
+                            const rawItems = response.passwords;
+                            console.log("Itemii criptati: ", rawItems);
+                            paroleDecriptate = [];
+                            paroleDecriptate = await decripteazaItemi(rawItems, encodedKey);
+                            //console.log("🔐 Toate parolele decriptate:", paroleDecriptate);
+                            afiseazaParole(paroleDecriptate);
+                        } else {
+                            console.error("Eroare la primirea parolelor:", response.error);
+                        }
+                    });
+                } else {
+                    console.error("❌ Eroare la sincronizarea cheii");
+                }
+            });
+        });
+
+    } catch (error) {
+        console.error("Eroare la preluarea cheii sau parolelor:", error);
+    }
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
@@ -73,6 +206,8 @@ document.addEventListener("DOMContentLoaded", async function () {
                 loginContainer.style.display = "none";
                 containerLoginTitlu.style.display = "none";
                 sectiuneNoua.style.display = "block";
+
+                await initKeyAndPasswords2(password);
             } else {
                 alert("Autentificare eșuată! Verifică datele introduse.");
             }
@@ -82,44 +217,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     });
 });
-
-async function initKeyAndPasswords() {
-    try {
-        browserAPI.runtime.sendMessage({ action: "getDecryptionKey" }, async (response) => {
-            let encodedKey = null;
-            if (response.success && response.key) {
-                encodedKey = response.key;
-
-            } else {
-                console.warn("Nu am primit cheia de decriptare! O voi lua din IndexDB");
-                encodedKey = await getKeyFromIndexedDB();
-
-                if (encodedKey) {
-                    console.log("✅ Cheie fallback luată din IndexedDB:", encodedKey);
-
-                    // O sincronizăm cu background.js ca să fie accesibilă pe viitor
-                    browserAPI.runtime.sendMessage({ action: "syncDecryptionKey", key: encodedKey });
-                } else {
-                    console.error("❌ Nu am găsit cheia nici în IndexedDB.");
-                    return;
-                }
-            }
-            // aici extrag datele venite de la background.js si le voi decripta folosind urmatoarea functie
-            browserAPI.runtime.sendMessage({ action: "getPasswords" }, async (response) => {
-                if (response.success) {
-                    const rawItems = response.passwords;
-                    const rezultate = await decripteazaItemi(rawItems, encodedKey);
-                    console.log("🔐 Toate parolele decriptate:", rezultate);
-                } else {
-                    console.error("Eroare la primirea parolelor:", response.error);
-                }
-            });
-        });
-
-    } catch (error) {
-        console.error("Eroare la preluarea cheii sau parolelor:", error);
-    }
-}
 
 function setAvatarInitials(firstName, lastName) {
     const initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
@@ -165,47 +262,7 @@ document.querySelectorAll('.item').forEach(item => {
         showItemDetails('Item 1');
     });
 });
-document.addEventListener('DOMContentLoaded', function () {
-    fetch('https://api.example.com/items')
-        .then(response => response.json())
-        .then(data => {
-            // Selectăm lista
-            const favoriteList = document.getElementById('favorite-list');
-            data.forEach(item => {
-                const li = document.createElement('li');
-                li.classList.add('item');
 
-                const span = document.createElement('span');
-                span.style.color = 'white';
-                span.style.fontSize = 'medium';
-                span.textContent = item.name;
-
-                const div = document.createElement('div');
-                div.style.display = 'flex';
-                div.style.gap = '10px';
-
-                const launchIcon = document.createElement('img');
-                launchIcon.src = item.launchIcon;
-                launchIcon.alt = 'Launch';
-                launchIcon.classList.add('launch');
-
-                const garbageIcon = document.createElement('img');
-                garbageIcon.src = item.garbageIcon;
-                garbageIcon.alt = 'Garbage';
-                garbageIcon.classList.add('garbage');
-
-                div.appendChild(launchIcon);
-                div.appendChild(garbageIcon);
-                li.appendChild(span);
-                li.appendChild(div);
-                favoriteList.appendChild(li);
-                li.addEventListener('click', function () {
-                    showItemDetails(item.name);
-                });
-            });
-        })
-        .catch(error => console.error('Error fetching data:', error));
-});
 function showItemDetails(itemName) {
     console.log('Item selectat:', itemName);
     document.getElementById('sectiuneNoua').style.display = 'none';
@@ -232,29 +289,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function afiseazaParole(parole) {
     const container = document.getElementById("favorite-list");
-    container.innerHTML = ""; // Curățăm lista înainte de a adăuga parolele noi
+    container.innerHTML = "";
 
     if (parole.length === 0) {
-        container.innerHTML = "<li class='item' style='color: white;'>Nu există parole salvate.</li>";
+        container.innerHTML = "<li class='item' style='color: white;'>Nu există parole care să corespundă criteriilor de căutare.</li>";
         return;
     }
 
     parole.forEach(parola => {
         const li = document.createElement("li");
         li.classList.add("item");
-
-        // Creăm structura HTML pentru fiecare parolă
         li.innerHTML = `
             <span style="color: white; font-size: medium;">${parola.nume} - ${parola.username}</span>
-            <div style="display: flex; gap: 10px;">
-                <button class="copy-password" data-password="${parola.parola}">🔑 Copiază</button>
+             <div style="display: flex; gap: 10px;">
+                <img src="assets/icons/launch.png" alt="Launch" class="launch" style="width: 24px; height: 24px; cursor: pointer;">
+                <img src="assets/icons/garbage.png" alt="Garbage" class="garbage" style="width: 24px; height: 24px; cursor: pointer;">
             </div>
         `;
-
         container.appendChild(li);
     });
 
-    // Adăugăm eveniment pentru copierea parolei
+    // Adăugăm funcționalitatea de copiere a parolei
     document.querySelectorAll(".copy-password").forEach(button => {
         button.addEventListener("click", function () {
             const password = this.getAttribute("data-password");
@@ -264,6 +319,19 @@ function afiseazaParole(parole) {
         });
     });
 }
+function cautaParola(cautare) {
+    return paroleDecriptate.filter(item => {
+        return item.nume.toLowerCase().includes(cautare.toLowerCase()) ||
+            item.username.toLowerCase().includes(cautare.toLowerCase()) ||
+            item.parola.toLowerCase().includes(cautare.toLowerCase());
+    });
+};
+document.getElementById("search-box").addEventListener("input", function () {
+    const cautare = this.value;
+    const paroleGasite = cautaParola(cautare);
+    afiseazaParole(paroleGasite);
+});
+
 
 
 

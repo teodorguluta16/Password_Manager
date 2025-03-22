@@ -62,10 +62,6 @@ const LoginPage = () => {
 
       if (response.ok) {
         console.log("Autentificare reusita !");
-
-        //const responseFromServer = await response.json();
-        //console.log("Access token primit:", responseFromServer);
-
         let salt = null;
 
         try {
@@ -85,7 +81,7 @@ const LoginPage = () => {
         } catch (error) {
           console.log("Eroare luare salt: ", error);
         }
-        const derivedKey = CryptoJS.PBKDF2(Parola, salt, { keySize: 256 / 32, iterations: 500000 });  // Ajustează numărul de iterații
+        const derivedKey = CryptoJS.PBKDF2(Parola, salt, { keySize: 256 / 32, iterations: 500000 });
         const derivedKeyBase64 = derivedKey.toString(CryptoJS.enc.Base64);
         console.log('Cheia derivată în Base64:', derivedKeyBase64);
 

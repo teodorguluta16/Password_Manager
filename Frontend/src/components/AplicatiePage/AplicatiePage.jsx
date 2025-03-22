@@ -206,8 +206,6 @@ const AplicatiePage = () => {
     }
   };
 
-
-
   const [items, setItems] = useState([]);
   const [favoriteItemsAll, setFavoriteItems] = useState([]);
   const [paroleItemsAll, setParoleItems] = useState([]);

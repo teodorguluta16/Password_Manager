@@ -8,11 +8,37 @@ browserAPI.runtime.onInstalled.addListener(() => {
 // aici fac interogarea in baza de date si extrag datele si le trimit pe urma in popup.js in format sjson
 browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "getPasswords") {
-        fetch("http://localhost:9000/api/utilizator/itemi", { method: "GET", headers: { "Content-Type": "application/json" }, credentials: "include", })
-            .then(response => response.json())
-            .then(data => { console.log("📥 Parole primite în background.js:", data); sendResponse({ success: true, passwords: data }); })
-            .catch(error => { console.error("❌ Eroare la preluarea parolelor:", error); sendResponse({ success: false, error: error.message }); });
-        return true;
+        // Înlocuim async/await cu promisiuni
+        fetch("http://localhost:9000/api/auth/me", { method: "GET", credentials: "include", })
+            .then(response => {
+                if (response.ok) {
+                    return fetch("http://localhost:9000/api/utilizator/itemi", {
+                        method: "GET", headers: { "Content-Type": "application/json" }, credentials: "include",
+                    });
+                } else {
+                    console.error("❌ Eroare Utilizatorul nu este autentificat");
+                    sendResponse({ success: false, error: "Nu esti autentificat !" });
+                    return Promise.reject("Utilizatorul nu este autentificat");
+                }
+            })
+            .then(itemiResponse => {
+                if (itemiResponse.ok) {
+                    return itemiResponse.json();
+                } else {
+                    console.error("❌ Eroare la preluarea parolelor:", itemiResponse.statusText);
+                    sendResponse({ success: false, error: itemiResponse.statusText });
+                    return Promise.reject("Eroare la preluarea parolelor");
+                }
+            })
+            .then(data => {
+                console.log("📥 Parole primite în background.js:", data);
+                sendResponse({ success: true, passwords: data });
+            })
+            .catch(error => {
+                console.error("❌ Eroare la autentificare:", error);
+                sendResponse({ success: false, error: "Eroare la autentificare" });
+            });
+        return true;  // important pentru a păstra canalul deschis până când se trimite răspunsul
     }
     if (request.action === "syncDecryptionKey") {
         decryptionKey = request.key;
@@ -28,7 +54,8 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
         return true;
     }
-    console.warn("⚠️ Mesaj necunsocut:", request.action);
+    console.warn("⚠️ Mesaj necunoscut:", request.action);
     sendResponse({ success: false, error: "Mesaj necunoscut" });
     return true;
 });
+
