@@ -49,11 +49,11 @@
             <input type="text" id="search-box" placeholder="Căutare item..."
                 style="padding: 8px; border: 3.5px solid #0d5a03; border-radius: 5px; width: 70%;background-color:rgba(239, 239, 239, 0.811)">
         </div>
+        <!-- Seciune vizualizare parole -->
         <div>
             <h3 style="font-size: medium; color: white; margin-left: 1rem;">Favorite</h3>
             <ul id="favorite-list" style="list-style-type: none; padding: 0;margin-left:12px;margin-right:12px">
                 <li class="item">
-
                 </li>
             </ul>
         </div>
@@ -61,15 +61,53 @@
 
     <!-- Secțiune cu detalii despre item -->
     <div id="sectiuneDetalii" style="display: none;">
-
         <img id="back-btn" src="assets/icons/back.png" alt="Back Arrow">
-
         <h1 id="item-title" style="color: white; margin-top:-5px;text-align: center;font-size: x-large;"></h1>
         <p id="item-details" style="color: rgb(255, 255, 255); margin-left:20px; font-size:small;"></p>
-
     </div>
 
+    <!-- Sectiune de adauagre parola -->
+    <div id="sectiuneCreareItem" style="display: none;">
+        <img id="back-from-create-btn" src="assets/icons/back.png" alt="Back Arrow">
+        <h2 style="text-align: center; color: white; margin-top:-25px">Adaugă o parolă nouă</h2>
+
+        <form id="creare-form" style="margin-top: 15px;">
+            <div class="input-group">
+                <label for="numeItem" style="color:white; margin-left:20px;">Nume</label>
+                <input type="text" id="numeItem"
+                    style="padding: 8px; border: 3.5px solid #0d5a03; border-radius: 5px; width: 70%;background-color:rgba(239, 239, 239, 0.811);margin-left:20px;height:8px"
+                    placeholder=" Ex: Gmail,Instagram" required>
+            </div>
+            <div class="input-group">
+                <label for="usernameItem" style="color:white;margin-left:20px;">Username:</label>
+                <input type="text" id="usernameItem"
+                    style="padding: 8px; border: 3.5px solid #0d5a03; border-radius: 5px; width: 70%;background-color:rgba(239, 239, 239, 0.811);margin-left:20px;height:8px"
+                    placeholder="exemplu@email.com" required>
+            </div>
+            <div class="input-group">
+                <label for="parolaItem" style="color:white;margin-left:20px;">Parolă:</label>
+                <input type="password" placeholder="*******"
+                    style="padding: 8px; border: 3.5px solid #0d5a03; border-radius: 5px; width: 70%;background-color:rgba(239, 239, 239, 0.811);margin-left:20px;height:8px"
+                    id="parolaItem" required>
+            </div>
+            <div class="input-group">
+                <label for="urlItem" style="color:white;margin-left:20px;">URL:</label>
+                <input type="url" id="urlItem"
+                    style="padding: 8px; border: 3.5px solid #0d5a03; border-radius: 5px; width: 70%;background-color:rgba(239, 239, 239, 0.811);margin-left:20px;height:8px"
+                    placeholder="https://example.com">
+            </div>
+            <div class="input-group">
+                <label for="comentariuItem" style="color:white;margin-left:20px;">Comentariu:</label>
+                <textarea id="comentariuItem"
+                    style="padding: 8px; border: 3.5px solid #0d5a03; border-radius: 5px; width: 70%;background-color:rgba(239, 239, 239, 0.811);margin-left:20px;"
+                    rows="3" placeholder="Adaugă un comentariu opțional..."></textarea>
+            </div>
+            <button type="submit" class="butonAdauga">
+                Adaugă
+            </button>
+        </form>
     </div>
+
     <script type="module" src="popup.js"></script>
 </body>
 

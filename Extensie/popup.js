@@ -1,5 +1,5 @@
 // Compatibilitate universală pentru toate browserele
-import { decripteazaItemi, hashPassword, genereazaCheiaLocal } from "./functiiprocesaredate.js";
+import { decripteazaItemi, hashPassword, genereazaCheiaLocal, generateKey, criptareDate, decriptareDate, exportKey, decodeMainKey } from "./functiiprocesaredate.js";
 
 const browserAPI = typeof browser !== "undefined" ? browser : chrome;
 let paroleDecriptate = [];
@@ -264,56 +264,93 @@ function showItemDetails(parola) {
     const username = parola.username;
     const pass = parola.parola;
     const url = parola.url;
-    console.log('Parola selectată:', nume, username, parola);
+    const id_item = parola.id_item;
+    const comentariu = parola.comentariu;
+
+
+    const created_at = parola.created_at;
+    const modified_at = parola.modified_at;
+    const format = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false, };
+    const createdDate = new Date(created_at);
+    const modifiedDate = new Date(modified_at);
+    const createdFormatted = createdDate.toLocaleString('ro-RO', format);
+    const modifiedFormatted = modifiedDate.toLocaleString('ro-RO', format);
+
     document.getElementById('sectiuneNoua').style.display = 'none';
     document.getElementById('sectiuneDetalii').style.display = 'block';
-
-    // Afișează detaliile despre parolă
     document.getElementById('item-title').textContent = nume;
     document.getElementById('item-details').innerHTML = `
     <div style="display: flex; align-items: center; gap: 15px;">
         <strong style="font-size: medium;">Username:</strong>
         <span style="font-size: small;">${username}</span>
     </div>
-    <div style="display: flex; align-items: center; gap: 15px; margin-top: 15px;">
+    <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
         <strong style="font-size: medium;">Parola:</strong>
         <span id="password-span" style="font-size: small;">********</span>
-        <button id="toggle-password" style="margin-left: 10px;margin-right: 10px; background-color:rgb(90, 187, 48);
+        <button id="toggle-password" style="margin-left: 10px;margin-right: 10px; background-color:rgb(150, 107, 7);
          color: white; border: none; border-radius: 5px; padding: 3px 3px; cursor: pointer;
          transition: background-color 0.3s, transform 0.3s;">
             Afișează
         </button>
     </div>
-     <div  style="display: flex; align-items: center; gap: 15px; margin-top: 15px;">
+    <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
         <strong style="font-size: medium;">Url:</strong>
-        <span style="font-size: small;">${url}</span>
+        <a href="${url}" id="url-link" target="_blank" style="font-size: small; color:rgb(255, 255, 255); text-decoration: none;">
+            ${url}
+        </a>
+    </div>
+    <div style="display: block; margin-top: 10px;">
+        <strong style="font-size: medium;">Comentariu:</strong>
+        <span style="font-size: small; display: block; margin-top: 5px;">${comentariu}</span>
+    </div>
+    <hr class="linieorinzontala" style="margin-top:20px; margin-left:-5px; margin-right:15px">
+    <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
+        <strong style="font-size: medium;">Id:</strong>
+        <span style="font-size: small;">${id_item}</span>
+    </div>
+     <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
+        <strong style="font-size: medium;">Creat la:</strong>
+        <span style="font-size: small;">${createdFormatted}</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 15px; margin-top: 10px;">
+        <strong style="font-size: medium;">Ultima modificare:</strong>
+        <span style="font-size: small;">${modifiedFormatted}</span>
     </div>
 `;
 
     document.getElementById('toggle-password').addEventListener('click', function () {
         const passwordSpan = document.getElementById('password-span');
-        const password = pass; // `pass` este parola care a fost trecută anterior în variabila ta
+        const password = pass;
 
         if (passwordSpan.textContent === '********') {
-            passwordSpan.textContent = password; // Afișează parola
-            this.textContent = "Ascunde"; // Schimbă textul butonului
+            passwordSpan.textContent = password;
+            this.textContent = "Ascunde";
         } else {
-            passwordSpan.textContent = '********'; // Ascunde parola
-            this.textContent = "Afisează"; // Schimbă textul butonului
+            passwordSpan.textContent = '********';
+            this.textContent = "Afisează";
         }
     });
 
-    // Adaugă stilul pentru hover
     const button = document.getElementById('toggle-password');
     button.addEventListener('mouseover', function () {
-        this.style.backgroundColor = 'blue'; // Culoarea albastră la hover
+        this.style.backgroundColor = 'rgb(44, 138, 185)';
     });
 
     button.addEventListener('mouseout', function () {
-        this.style.backgroundColor = 'rgb(90, 187, 48)'; // Culoarea inițială a butonului
+        this.style.backgroundColor = 'rgb(150, 107, 7)';
+    });
+
+    const urlLink = document.getElementById('url-link');
+    urlLink.addEventListener('mouseover', function () {
+        this.style.color = 'rgb(0, 182, 248)';
+        this.style.textDecoration = 'underline';
+    });
+
+    urlLink.addEventListener('mouseout', function () {
+        this.style.color = 'white';
+        this.style.textDecoration = 'none';
     });
 }
-// Adaugă funcționalitatea de a schimba vizibilitatea parolei
 
 function goBack() {
     document.getElementById('sectiuneDetalii').style.display = 'none';
@@ -343,20 +380,61 @@ function afiseazaParole(parole) {
 
     parole.forEach(parola => {
         const li = document.createElement("li");
+        console.log("Parola: ", parola);
         li.classList.add("item");
         li.innerHTML = `
             <span style="color: white; font-size: medium;">${parola.nume} - ${parola.username}</span>
              <div style="display: flex; gap: 10px;">
-                <img src="assets/icons/launch.png" alt="Launch" class="launch" style="inline-size: 24px; block-size: 24px; cursor: pointer;">
-                <img src="assets/icons/garbage.png" alt="Garbage" class="garbage" style="inline-size: 24px; block-size: 24px; cursor: pointer;">
+                 <img src="assets/icons/launch.png" alt="Launch" class="launch" style="inline-size: 24px; block-size: 24px; cursor: pointer;" data-url="${parola.url}">
+                 <img src="assets/icons/garbage.png" alt="Garbage" class="garbage" style="inline-size: 24px; block-size: 24px; cursor: pointer;">
             </div>
         `;
 
         li.addEventListener('click', function () {
             showItemDetails(parola);
         });
+
+        const launchButon = li.querySelector('.launch');
+        launchButon.addEventListener('click', function (event) {
+            event.stopPropagation();
+            const url = this.getAttribute('data-url');
+            if (url) { window.open(url, '_blank'); }
+        });
+
+        const deleteButon = li.querySelector('.garbage');
+        deleteButon.addEventListener('click', function (event) {
+            event.stopPropagation();
+            const index = parole.indexOf(parola);
+            if (index > -1) {
+                parole.splice(index, 1);
+                afiseazaParole(parole);
+            }
+
+            // marcam isDeleted
+            fetch('http://localhost:9000/api/stergeItem', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id_item: parola.id_item }),
+                credentials: "include"
+            })
+                .then(response => {
+                    if (response.ok) {
+                        const index = parole.indexOf(parola);
+                        if (index > -1) {
+                            parole.splice(index, 1);
+                            afiseazaParole(parole);
+                        }
+                        console.log("item sters cu succes !");
+                    }
+                })
+                .catch(error => console.error("eroare la trimiterea cererii:", error));
+        })
+
         container.appendChild(li);
     });
+
 
     document.querySelectorAll(".copy-password").forEach(button => {
         button.addEventListener("click", function () {
@@ -381,9 +459,136 @@ document.getElementById("search-box").addEventListener("input", function () {
 });
 
 
+const plusBtn = document.getElementById('plus-button');
+const sectiuneNoua = document.getElementById('sectiuneNoua');
+const sectiuneCreareItem = document.getElementById('sectiuneCreareItem');
+
+plusBtn.addEventListener('click', () => {
+    sectiuneNoua.style.display = 'none';
+    sectiuneDetalii.style.display = 'none';
+    sectiuneCreareItem.style.display = 'block';
+});
+
+const backFromCreateBtn = document.getElementById('back-from-create-btn');
+
+backFromCreateBtn.addEventListener('click', () => {
+    sectiuneCreareItem.style.display = 'none';
+    sectiuneNoua.style.display = 'block';
+});
+
+const creareForm = document.getElementById('creare-form');
+
+creareForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const key = await getKeyFromIndexedDB();
+    console.log("Cheia pentru criptare este: ", key);
+
+    const nume = document.getElementById('numeItem').value;
+    const username = document.getElementById('usernameItem').value;
+    const parola = document.getElementById('parolaItem').value;
+    const url = document.getElementById('urlItem').value;
+    const comentariu = document.getElementById('comentariuItem').value;
+
+    try {
+        const key_aes = await generateKey();
+
+        // criptare elemente
+        const enc_Tip = await criptareDate("password", key_aes);
+        const enc_NumeItem = await criptareDate(nume, key_aes);
+        const enc_UrlItem = await criptareDate(url, key_aes);
+        const enc_UsernameItem = await criptareDate(username, key_aes);
+        const enc_ParolaItem = await criptareDate(parola, key_aes);
+        const enc_ComentariuItem = await criptareDate(comentariu, key_aes);
+
+        // criptare cheie
+        const criptKey = await decodeMainKey(key);
+
+        const key_aes_raw = await exportKey(key_aes);
+        console.log("Cheia intreaga ianinte de criptare este: ", key_aes_raw);
+        const enc_key_raw = await criptareDate(key_aes_raw, criptKey);
+
+        console.log("Cheia criptata este: ", enc_key_raw);
+
+        // 3. Decriptarea cheii AES criptate folosind cheia AES decriptata
+        const dec_key = await decriptareDate(enc_key_raw.encData, enc_key_raw.iv, enc_key_raw.tag, criptKey);
+
+        const octetiArray = dec_key.split(',').map(item => parseInt(item.trim(), 10));
+
+        // Creăm un Uint8Array din array-ul de numere
+        const uint8Array = new Uint8Array(octetiArray);
+        console.log(uint8Array);
+
+        const importedKey = await window.crypto.subtle.importKey("raw", uint8Array, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
+
+        const dec_tip = await decriptareDate(enc_Tip.encData, enc_Tip.iv, enc_Tip.tag, importedKey);
+
+        //const decoded_key = await decodeMainKey(dec_key);
+
+        console.log("Elementul decriptat ar trebui sa fie: ", dec_tip);
+
+        const jsonItemKey = {
+            data: {
+                encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag },
+            },
+        };
+
+        const jsonItem = {
+            metadata: {
+                created_at: new Date().toISOString(),
+                modified_at: new Date().toISOString(),
+                version: 1
+            },
+            data: {
+                tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag, },
+                nume: { iv: enc_NumeItem.iv, encData: enc_NumeItem.encData, tag: enc_NumeItem.tag },
+                url: { iv: enc_UrlItem.iv, encData: enc_UrlItem.encData, tag: enc_UrlItem.tag },
+                username: { iv: enc_UsernameItem.iv, encData: enc_UsernameItem.encData, tag: enc_UsernameItem.tag },
+                parola: { iv: enc_ParolaItem.iv, encData: enc_ParolaItem.encData, tag: enc_ParolaItem.tag },
+                comentariu: { iv: enc_ComentariuItem.iv, encData: enc_ComentariuItem.encData, tag: enc_ComentariuItem.tag }
+            },
+        };
+
+        try {
+            const response = await fetch('http://localhost:9000/api/addItem', {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(jsonItem),
+                credentials: "include"
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Eroare la server:", errorText);
+                return;
+            }
+        } catch (error) {
+            console.error("Eroare la trimitere", error);
+        }
+        try {
+            const response = await fetch('http://localhost:9000/api/addKeyFavorite', {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(jsonItemKey),
+                credentials: "include"
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Eroare la server:", errorText);
+                return;
+            }
+        } catch (error) {
+            console.error("Eroare la trimitere", error);
+        };
 
 
-
-
+    } catch (error) {
+        console.error("Eroare la criptarea datelor:", error);
+    }
+});
 
 

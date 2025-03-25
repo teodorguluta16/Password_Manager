@@ -109,8 +109,9 @@ export async function decripteazaItemi(data, encodedMainKey) {
                 const rez_username = await decriptareDate(continutObj.data.username.encData, continutObj.data.username.iv, continutObj.data.username.tag, itemKey);
                 const rez_parola = await decriptareDate(continutObj.data.parola.encData, continutObj.data.parola.iv, continutObj.data.parola.tag, itemKey);
                 const rez_url = await decriptareDate(continutObj.data.url.encData, continutObj.data.url.iv, continutObj.data.url.tag, itemKey);
+                const rez_comentariu = await decriptareDate(continutObj.data.comentariu.encData, continutObj.data.comentariu.iv, continutObj.data.comentariu.tag, itemKey);
 
-                console.log("🔓 Item decriptat:", { nume: rez_nume, username: rez_username, parola: rez_parola });
+                console.log("🔓 Item decriptat:", { nume: rez_nume, username: rez_username, parola: rez_parola, comentariu: rez_comentariu });
                 rezultate.push({
                     itemKey: itemKey,
                     id_item: id_item,
@@ -118,6 +119,7 @@ export async function decripteazaItemi(data, encodedMainKey) {
                     username: rez_username,
                     parola: rez_parola,
                     url: rez_url,
+                    comentariu: rez_comentariu,
                     isFavorite: isFavorite,
                     created_at: created_at,
                     modified_at: modified_at,
@@ -185,4 +187,38 @@ export function hexToBytes(hex) {
         bytes.push(parseInt(hex.substr(i, 2), 16));
     }
     return new Uint8Array(bytes);
+};
+
+export async function generateKey() {
+    try {
+        const key = await window.crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"]);
+        return key;
+    } catch (error) {
+        console.error("Eroare la generarea cheii:", error);
+        throw error;
+    }
+}
+
+export async function criptareDate(continut, key) {
+    try {
+        const iv = window.crypto.getRandomValues(new Uint8Array(12));
+        const codificareCont = new TextEncoder();
+        const bufferCodificat = codificareCont.encode(continut);
+        const encCont = await window.crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, bufferCodificat);
+        const encContArray = new Uint8Array(encCont);
+        const tag = encContArray.slice(-16);
+        return {
+            iv: Array.from(iv).map(byte => byte.toString(16).padStart(2, '0')).join(''),
+            encData: Array.from(encContArray.slice(0, -16)).map(byte => byte.toString(16).padStart(2, '0')).join(''),
+            tag: Array.from(tag).map(byte => byte.toString(16).padStart(2, '0')).join('')
+        };
+    } catch (error) {
+        console.error("Eroare la criptarea datelor:", error);
+        throw error;
+    }
+};
+
+export async function exportKey(key) {
+    const exportedKey = await window.crypto.subtle.exportKey('raw', key);
+    return new Uint8Array(exportedKey);
 };

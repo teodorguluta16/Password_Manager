@@ -68,6 +68,42 @@ protectedRouter.post('/addKey', async (req, res) => {
         res.status(500).send();
     }
 });
+protectedRouter.post('/addKeyFavorite', async (req, res) => {
+    const jsonItemKey = req.body;
+    const userId = req.user.sub;
+
+    if (!jsonItemKey || !jsonItemKey.data) {
+        console.log("E incomplet");
+        return res.status(400).json({ message: "Structura datelor este incompleta" });
+    }
+
+    try {
+        const result = await client.query("SELECT id_item FROM Itemi WHERE id_owner=$1 ORDER BY created_at DESC LIMIT 1;", [userId]);
+        console.log("rezultate:", result.rows);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ message: "Nu exista iteme pentru acest utilizator" });
+        }
+
+        const iditem = result.rows[0].id_item;
+        const existingAssociation = await client.query(
+            "SELECT 1 FROM LeguserItemi WHERE id_user=$1 AND id_item=$2",
+            [userId, iditem]
+        );
+
+        if (existingAssociation.rows.length > 0) {
+            return res.status(400).json({ message: "Itemul este deja asociat cu acest utilizator!" });
+        }
+        await client.query(`UPDATE Itemi SET keys=$1 WHERE id_item=$2`, [jsonItemKey.data, iditem]);
+        await client.query(`INSERT INTO LeguserItemi (id_user, id_item,isfavorite) VALUES ($1, $2, true)`, [userId, iditem]);
+
+        console.log("Key adăugat și asociat cu utilizatorul în LeguserItemi!");
+        res.status(200).send();
+    } catch (error) {
+        console.error('Eroare la adăugarea cheii:', error);
+        res.status(500).send();
+    }
+});
 protectedRouter.get('/utilizator/getSalt', async (req, res) => {
     const userId = req.user.sub;
 
