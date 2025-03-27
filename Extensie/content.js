@@ -180,27 +180,40 @@ function observeForm() {
 }
 
 
-function tryAutofillFromStorage() {
+function tryAutofillFromStorage(retries = 10, interval = 300) {
     chrome.storage.local.get(["credentiale_temporare"], (result) => {
         const creds = result.credentiale_temporare;
-        if (creds && window.location.hostname === new URL(creds.url).hostname) {
-            const loginForm = document.querySelector("form");
-            if (loginForm) {
-                console.log("🔍 Formular detectat în timpul autofill-ului");
-            }
+        if (!creds || window.location.hostname !== new URL(creds.url).hostname) return;
 
+        const attemptAutofill = () => {
             const campuri = detectareCampuriLogin();
             if (campuri) {
                 simulateTyping(campuri.usernameCamp, creds.username);
                 simulateTyping(campuri.parolaCamp, creds.password || creds.parola);
-                console.log("✅ Autocompletare cu credentiale temporare (din Launch)");
+                console.log("✅ Autocompletare reușită!");
                 chrome.storage.local.remove("credentiale_temporare");
-            } else {
-                console.warn("⚠️ Nu s-au găsit câmpuri de login în noul tab.");
+                return true;
             }
-        }
+            return false;
+        };
+
+        // Prima încercare
+        if (attemptAutofill()) return;
+
+        // Retry de până la X ori
+        let attempts = 0;
+        const retryInterval = setInterval(() => {
+            attempts++;
+            if (attemptAutofill() || attempts >= retries) {
+                clearInterval(retryInterval);
+                if (attempts >= retries) {
+                    console.warn("❌ Autofill a eșuat după mai multe încercări.");
+                }
+            }
+        }, interval);
     });
 }
+
 
 document.addEventListener("DOMContentLoaded", () => {
     observeForm();
