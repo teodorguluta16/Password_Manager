@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Video2 from "../../assets/website/video6.mp4";
+import Video2 from "../../assets/website/video6_compressed.mp4";
 import { useNavigate } from 'react-router-dom';
 import forge from 'node-forge';
 import CryptoJS from 'crypto-js';
@@ -7,13 +7,11 @@ import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } f
 
 
 function pemToUint8Array(pem) {
-    // Elimină antetul, footerul și liniile noi
     const base64 = pem
         .replace(/-----BEGIN PUBLIC KEY-----/, '')
         .replace(/-----END PUBLIC KEY-----/, '')
         .replace(/\n/g, '');
 
-    // Decodifică Base64 într-un array de octeți
     const binaryString = atob(base64);
     const uint8Array = new Uint8Array(binaryString.length);
     for (let i = 0; i < binaryString.length; i++) {

@@ -396,9 +396,41 @@ function afiseazaParole(parole) {
 
         const launchButon = li.querySelector('.launch');
         launchButon.addEventListener('click', function (event) {
+            console.log("Am ajuns aici !!!!!!!!");
             event.stopPropagation();
             const url = this.getAttribute('data-url');
-            if (url) { window.open(url, '_blank'); }
+            console.log("Am ajuns aici !!!!!!!!");
+            if (url) {
+
+                const username = parola.username;
+                const password = parola.parola; // presupun că ai parola deja decriptată aici
+
+                console.log(username, password);
+                browserAPI.tabs.create({ url: url }, function (tab) {
+                    const tabId = tab.id;
+
+                    const interval = setInterval(() => {
+                        browserAPI.tabs.get(tabId, (updatedTab) => {
+                            if (updatedTab.status === 'complete') {
+                                clearInterval(interval);
+
+                                browserAPI.tabs.sendMessage(tabId, {
+                                    type: "FILL_CREDENTIALS",
+                                    username: username,
+                                    password: password
+                                }, () => {
+                                    if (browserAPI.runtime.lastError) {
+                                        console.warn("❌ Eroare trimitere către content script:", browserAPI.runtime.lastError.message);
+                                    } else {
+                                        console.log("📤 Trimis FILL_CREDENTIALS către tab:", tabId);
+                                    }
+                                });
+                            }
+                        });
+                    }, 1000); // poți reduce la 1s
+                });
+
+            }
         });
 
         const deleteButon = li.querySelector('.garbage');
@@ -591,4 +623,27 @@ creareForm.addEventListener('submit', async (e) => {
     }
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+    const testBtn = document.getElementById("test-form"); // presupunem că ai un buton de test
+
+    if (testBtn) {
+        testBtn.addEventListener("click", () => {
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                if (tabs.length === 0) return;
+
+                chrome.tabs.sendMessage(tabs[0].id, {
+                    type: "FILL_CREDENTIALS",
+                    username: "test@example.com",
+                    password: "parola123"
+                }, (response) => {
+                    if (chrome.runtime.lastError) {
+                        console.error("❌ Eroare la trimiterea mesajului:", chrome.runtime.lastError.message);
+                    } else {
+                        console.log("✅ Mesaj trimis către content.js");
+                    }
+                });
+            });
+        });
+    }
+});
 

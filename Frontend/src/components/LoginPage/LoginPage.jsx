@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Video2 from "../../assets/website/video6.mp4";
+import Video2 from "../../assets/website/video6_compressed.mp4";
 import { useNavigate } from 'react-router-dom';
 
 import { useKeySimetrica } from '../FunctiiDate/ContextKeySimetrice'
@@ -146,9 +146,9 @@ const LoginPage = () => {
     <>
       <div className='flex flex-col md:flex-row h-screen'>
         {/* Stanga Video */}
-        <div className='relative w-full md:w-1/2 h-auto'>
-          <video src={Video2} autoPlay loop muted className="w-full md:h-full object-cover aspect-[16/9] md:aspect-auto max-h-[50vh] md:max-h-full"></video>
-        </div>
+        {<div className='relative w-full md:w-1/2 h-auto'>
+          <video src={Video2} autoPlay loop muted preload="none" className="w-full md:h-full object-cover aspect-[16/9] md:aspect-auto max-h-[50vh] md:max-h-full"></video>
+        </div>}
 
         {/* Dreapta formular */}
         <div className="w-full md:w-1/2">
