@@ -21,25 +21,6 @@ window.addEventListener("message", function (event) {
     }
 });
 
-/*const siteRules = {
-    "facebook.com": {
-        username: "input#email",
-        password: "input#pass"
-    },
-    "instagram.com": {
-        username: "input[name='username']",
-        password: "input[name='password']"
-    },
-    "linkedin.com": {
-        username: "input#username",
-        password: "input#password"
-    },
-    "reddit.com": {
-        username: "input#loginUsername",
-        password: "input#loginPassword"
-    }
-};*/
-
 // Caută câmpurile de login
 function detectareCampuriLogin() {
     const inputs = Array.from(document.querySelectorAll("input"));
