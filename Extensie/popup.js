@@ -395,41 +395,24 @@ function afiseazaParole(parole) {
         });
 
         const launchButon = li.querySelector('.launch');
+        launchButon.disabled = true;
+        launchButon.style.opacity = "0.5";
+        setTimeout(() => {
+            launchButon.disabled = false;
+            launchButon.style.opacity = "1";
+        }, 1000);
+
         launchButon.addEventListener('click', function (event) {
-            console.log("Am ajuns aici !!!!!!!!");
             event.stopPropagation();
             const url = this.getAttribute('data-url');
-            console.log("Am ajuns aici !!!!!!!!");
             if (url) {
-
-                const username = parola.username;
-                const password = parola.parola; // presupun că ai parola deja decriptată aici
-
-                console.log(username, password);
-                browserAPI.tabs.create({ url: url }, function (tab) {
-                    const tabId = tab.id;
-
-                    const interval = setInterval(() => {
-                        browserAPI.tabs.get(tabId, (updatedTab) => {
-                            if (updatedTab.status === 'complete') {
-                                clearInterval(interval);
-
-                                browserAPI.tabs.sendMessage(tabId, {
-                                    type: "FILL_CREDENTIALS",
-                                    username: username,
-                                    password: password
-                                }, () => {
-                                    if (browserAPI.runtime.lastError) {
-                                        console.warn("❌ Eroare trimitere către content script:", browserAPI.runtime.lastError.message);
-                                    } else {
-                                        console.log("📤 Trimis FILL_CREDENTIALS către tab:", tabId);
-                                    }
-                                });
-                            }
-                        });
-                    }, 1000); // poți reduce la 1s
+                //console.log(parola);
+                const { username, url } = parola;
+                const password = parola.parola;
+                console.log("Date: ", username, password, url);
+                chrome.storage.local.set({ credentiale_temporare: { username, password, url } }, () => {
+                    chrome.tabs.create({ url });
                 });
-
             }
         });
 

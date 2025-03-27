@@ -67,6 +67,16 @@ const GridAfisItems = ({ items, setGestioneazaItem, setStergeItem, setItemid, fe
 
     const handlePassword = (e, item) => {
         e.stopPropagation();
+
+        // trimitem credentialele la extensie
+        window.postMessage({
+            type: "SYNC_CREDENTIALS_TO_EXTENSION",
+            credentials: {
+                username: item.username,
+                parola: item.parola,
+                url: item.url
+            }
+        }, "*");
         if (item.url) {
             window.open(item.url, "_blank");
         } else {

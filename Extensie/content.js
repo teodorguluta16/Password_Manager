@@ -21,7 +21,7 @@ window.addEventListener("message", function (event) {
     }
 });
 
-const siteRules = {
+/*const siteRules = {
     "facebook.com": {
         username: "input#email",
         password: "input#pass"
@@ -38,7 +38,7 @@ const siteRules = {
         username: "input#loginUsername",
         password: "input#loginPassword"
     }
-};
+};*/
 
 // Caută câmpurile de login
 function detectareCampuriLogin() {
@@ -139,6 +139,21 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("🔍 Formular detectat pe pagină");
     }
 
+    chrome.storage.local.get(["credentiale_temporare"], (result) => {
+        const creds = result.credentiale_temporare;
+        if (creds && window.location.hostname === new URL(creds.url).hostname) {
+            const campuri = detectareCampuriLogin();
+            if (campuri) {
+                simulateTyping(campuri.usernameCamp, creds.username);
+                simulateTyping(campuri.parolaCamp, creds.parola); // ai câmpul numit `parola`
+                console.log("✅ Autocompletare cu credentiale temporare (din Launch)");
+
+                // ștergem imediat credentialele ca să nu se refolosească din greșeală
+                chrome.storage.local.remove("credentiale_temporare");
+            }
+        }
+    });
+
     setTimeout(() => {
         const campuri = detectareCampuriLogin();
         if (campuri) {
@@ -147,4 +162,61 @@ document.addEventListener("DOMContentLoaded", function () {
             console.warn("❌ [Fallback] Nici după timeout nu am găsit câmpurile.");
         }
     }, 1500);
+});
+
+function observeForm() {
+    const observer = new MutationObserver(() => {
+        const form = document.querySelector("form");
+        if (form) {
+            console.log("🔍 Formular detectat dinamic");
+            observer.disconnect(); // oprește observarea după ce a fost găsit
+        }
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+}
+
+
+function tryAutofillFromStorage() {
+    chrome.storage.local.get(["credentiale_temporare"], (result) => {
+        const creds = result.credentiale_temporare;
+        if (creds && window.location.hostname === new URL(creds.url).hostname) {
+            const loginForm = document.querySelector("form");
+            if (loginForm) {
+                console.log("🔍 Formular detectat în timpul autofill-ului");
+            }
+
+            const campuri = detectareCampuriLogin();
+            if (campuri) {
+                simulateTyping(campuri.usernameCamp, creds.username);
+                simulateTyping(campuri.parolaCamp, creds.password || creds.parola);
+                console.log("✅ Autocompletare cu credentiale temporare (din Launch)");
+                chrome.storage.local.remove("credentiale_temporare");
+            } else {
+                console.warn("⚠️ Nu s-au găsit câmpuri de login în noul tab.");
+            }
+        }
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    observeForm();
+    tryAutofillFromStorage();
+});
+window.addEventListener("load", tryAutofillFromStorage); // fallback mai târziu
+
+window.addEventListener("message", (event) => {
+    if (event.source !== window) return;
+
+    if (event.data.type === "SYNC_CREDENTIALS_TO_EXTENSION") {
+        const creds = event.data.credentials;
+        console.log("🔐 Am primit credentialele din aplicația React:", creds);
+
+        chrome.storage.local.set({ credentiale_temporare: creds }, () => {
+            console.log("✅ Credentialele au fost salvate în storage");
+        });
+    }
 });
