@@ -383,8 +383,11 @@ function afiseazaParole(parole) {
         console.log("Parola: ", parola);
         li.classList.add("item");
         li.innerHTML = `
-            <span style="color: white; font-size: medium;">${parola.nume} - ${parola.username}</span>
-             <div style="display: flex; gap: 10px;">
+             <div style="display: flex; flex-direction: column; color: white;">
+                <span style="font-size: medium;">${parola.nume}</span>
+                <span style="font-size: small; opacity: 0.8;">${parola.username}</span>
+            </div>
+             <div style="display: flex; gap: 10px;margin-right:10px">
                  <img src="assets/icons/launch.png" alt="Launch" class="launch" style="inline-size: 24px; block-size: 24px; cursor: pointer;" data-url="${parola.url}">
                  <img src="assets/icons/garbage.png" alt="Garbage" class="garbage" style="inline-size: 24px; block-size: 24px; cursor: pointer;">
             </div>
@@ -606,27 +609,4 @@ creareForm.addEventListener('submit', async (e) => {
     }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    const testBtn = document.getElementById("test-form"); // presupunem că ai un buton de test
-
-    if (testBtn) {
-        testBtn.addEventListener("click", () => {
-            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                if (tabs.length === 0) return;
-
-                chrome.tabs.sendMessage(tabs[0].id, {
-                    type: "FILL_CREDENTIALS",
-                    username: "test@example.com",
-                    password: "parola123"
-                }, (response) => {
-                    if (chrome.runtime.lastError) {
-                        console.error("❌ Eroare la trimiterea mesajului:", chrome.runtime.lastError.message);
-                    } else {
-                        console.log("✅ Mesaj trimis către content.js");
-                    }
-                });
-            });
-        });
-    }
-});
 
