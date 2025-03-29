@@ -74,7 +74,7 @@ function showItemDetails(parola) {
 
     <div style="display: block; margin-top: 5px;">
         <strong style="font-size: medium;">Comentariu:</strong>
-        <textarea id="edit-comentariu"  style="font-size: small; width: 80%; height: 70px; resize: none; overflow: auto;">>${comentariu}</textarea>
+        <textarea id="edit-comentariu"  style="font-size: small; width: 80%; height: 70px; resize: none; overflow: auto;">${comentariu}</textarea>
     </div>
 
      <button id="btn_save_modificari">
@@ -143,11 +143,53 @@ function showItemDetails(parola) {
 
     const buttonSalvareModificari = document.getElementById('btn_save_modificari');
     buttonSalvareModificari.addEventListener('click', async function () {
+        let parsedIstoric = [];
+
+        try {
+            parsedIstoric = JSON.parse(parola.istoric);
+            if (!Array.isArray(parsedIstoric)) {
+                parsedIstoric = [];
+            }
+        } catch (error) {
+            console.error("Eroare la parsarea istoricului:", error);
+            parsedIstoric = [];
+        }
+
+        let modificari = [];
+
         const numeModificat = document.getElementById('nume-input').value;
         const usernameModificat = document.getElementById('username-input').value;
         const parolaModificat = document.getElementById('password-input').value;
         const urlModificat = document.getElementById('url-input').value;
         const comentariuModificat = document.getElementById('edit-comentariu').value;
+
+        if (nume !== numeModificat) { modificari.push("Nume"); }
+        if (username !== usernameModificat) { modificari.push("Username"); }
+        if (pass !== parolaModificat) { modificari.push("Parola"); }
+        if (url !== urlModificat) { modificari.push("URL"); }
+        if (comentariu !== comentariuModificat) { modificari.push("Comentariu"); }
+
+        console.log("Modificarile noi:", numeModificat, usernameModificat, parolaModificat, urlModificat, comentariuModificat);
+        if (modificari.length === 0) {
+            console.log("Nicio modificare detectată.");
+            return;
+        }
+
+        const now = new Date();
+        const dataCurenta = now.toLocaleDateString();
+        const oraCurenta = now.toLocaleTimeString();
+
+        const nouIstoric = {
+            operatie: `Actualizare Date: ${modificari.join(", ")}`,
+            data: dataCurenta,
+            time: oraCurenta,
+        };
+
+        console.log("Nou Istoric:", nouIstoric);
+
+
+        const istoricActualizat = [...parsedIstoric, nouIstoric];
+        console.log("Istoricul actualizat: ", istoricActualizat);
 
         const key_aes = parola.itemKey;
 
@@ -157,6 +199,9 @@ function showItemDetails(parola) {
         const enc_UsernameItem = await criptareDate(usernameModificat, key_aes);
         const enc_ParolaItem = await criptareDate(parolaModificat, key_aes);
         const enc_ComentariuItem = await criptareDate(comentariuModificat, key_aes);
+        const enc_IstoricItem = await criptareDate(JSON.stringify(istoricActualizat), key_aes);
+
+        console.log("Nume vechi:", nume, "nume nou: ", numeModificat);
 
         const jsonItem = {
             metadata: {
@@ -170,7 +215,8 @@ function showItemDetails(parola) {
                 url: { iv: enc_UrlItem.iv, encData: enc_UrlItem.encData, tag: enc_UrlItem.tag },
                 username: { iv: enc_UsernameItem.iv, encData: enc_UsernameItem.encData, tag: enc_UsernameItem.tag },
                 parola: { iv: enc_ParolaItem.iv, encData: enc_ParolaItem.encData, tag: enc_ParolaItem.tag },
-                comentariu: { iv: enc_ComentariuItem.iv, encData: enc_ComentariuItem.encData, tag: enc_ComentariuItem.tag }
+                comentariu: { iv: enc_ComentariuItem.iv, encData: enc_ComentariuItem.encData, tag: enc_ComentariuItem.tag },
+                istoric: { iv: enc_IstoricItem.iv, encData: enc_IstoricItem.encData, tag: enc_IstoricItem.tag }
             },
         };
 

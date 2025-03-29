@@ -1,8 +1,30 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
+import sha1 from "js-sha1";
+import zxcvbn from 'zxcvbn'; // trebuie sa includ si asta in documentatie
 
 import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } from "../../FunctiiDate/FunctiiDefinite"
+
+const checkPwnedPassword = async (password) => {
+    const hash = sha1(password).toUpperCase();
+    const prefix = hash.substring(0, 5);
+    const suffix = hash.substring(5);
+
+    const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
+    const text = await response.text();
+
+    // căutăm dacă suffix-ul există în listă
+    const lines = text.split("\n");
+    const found = lines.find((line) => line.startsWith(suffix));
+
+    if (found) {
+        const count = parseInt(found.split(":")[1]);
+        return count; // de câte ori a fost găsită în breșe
+    }
+
+    return 0;
+};
 
 const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
     const [numeItem, setNumeItem] = useState('');
@@ -11,7 +33,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
     const [parolaItem, setParolaItem] = useState('');
     const [comentariuItem, setComentariuItem] = useState('');
     const [key, setKey] = useState(derivedKey);
-    const [length, setLength] = useState(32); // Lungime implicită
+    const [length, setLength] = useState(32);
 
     useEffect(() => {
         if (derivedKey) {
@@ -20,16 +42,132 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
         }
     }, [derivedKey]);
 
-    const generateStrongPassword = (length) => {
-        //const length = 64;
-        const chars =
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
-        let password = "";
-        for (let i = 0; i < length; i++) {
-            password += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        setParolaItem(password);
+    //Math.random() la final pentru amestecare (sort(() => 0.5 - Math.random())), care nu e criptografic.
+    const getRandomChar = (charset) => {  // N-am folosit math random pentru ca pot fi prezise. Crypto-js e mult mai sigur. Am sa includ si asta in dcoumentatie
+        const array = new Uint32Array(1);
+        crypto.getRandomValues(array);
+        return charset[array[0] % charset.length];
     };
+
+    const secureShuffle = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const rand = new Uint32Array(1);
+            crypto.getRandomValues(rand);
+            const j = rand[0] % (i + 1);
+
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+
+    const generateStrongPassword = (length) => {
+        const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const lower = "abcdefghijklmnopqrstuvwxyz";
+        const digits = "0123456789";
+        const symbols = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+        const all = upper + lower + digits + symbols;
+
+        if (length < 4) {
+            throw new Error("Parola trebuie să aibă cel puțin 4 caractere pentru a include toate tipurile.");
+        }
+
+        // Garanție: cel puțin un caracter din fiecare categorie
+        let password = [
+            getRandomChar(upper),
+            getRandomChar(lower),
+            getRandomChar(digits),
+            getRandomChar(symbols)
+        ];
+
+        const remainingLength = length - password.length;
+        const randomBytes = new Uint32Array(remainingLength);
+        crypto.getRandomValues(randomBytes);
+
+        for (let i = 0; i < remainingLength; i++) {
+            password.push(all[randomBytes[i] % all.length]);
+        }
+
+        // Amestecăm caracterele (cu secure shuffle dacă vrei extra)  vom fac secur suffle ca as anu e sigur
+        //return password.sort(() => 0.5 - Math.random()).join("");
+        return secureShuffle(password).join("");
+
+        /*Generarea parolei se face folosind crypto.getRandomValues() 
+        pentru entropie criptografică. Nu se folosește Math.random() deoarece nu oferă securitate suficientă. 
+        Parola este compusă din cel puțin o literă mare, o literă mică, o cifră și un simbol, 
+        urmate de caractere alese aleatoriu și amestecate cu un algoritm Fisher-Yates (secure shuffle).*/
+
+    };
+
+    const getPasswordStrength = async (password, usernameItem = "") => {
+        const parolaLower = password.toLowerCase();
+        const userLower = usernameItem.toLowerCase();
+
+        const paroleComune = [
+            "123456", "password", "123456789", "qwerty", "abc123", "111111", "admin",
+            "Academia123", "parola123", "letmein", "iloveyou", "000000", "123123"
+        ];
+
+        // 1. Verificare dacă parola conține numele/emailul
+        if (password.toLowerCase().includes(userLower)) {
+            return {
+                strength: 0,
+                color: "bg-red-600",
+                label: "Parola conține emailul sau numele utilizatorului",
+                suggestions: ["Nu include emailul sau numele în parolă."]
+            };
+        }
+
+        // 2. Verificare dacă parola este prea comună
+        if (paroleComune.includes(parolaLower)) {
+            return {
+                strength: 0,
+                color: "bg-red-600",
+                label: "Parolă foarte comună",
+                suggestions: ["Alege o parolă mai puțin previzibilă."]
+            };
+        }
+
+        // 3. Verificare HIBP
+        const breachCount = await checkPwnedPassword(password);
+        if (breachCount > 0) {
+            return {
+                strength: 0,
+                color: "bg-red-700",
+                label: `Parolă compromisă (${breachCount} ori)`,
+                suggestions: ["Această parolă a fost expusă public. Alege alta."]
+            };
+        }
+
+        // 4. Analiză cu zxcvbn
+        const result = zxcvbn(password);
+        const score = Math.min(result.score, 4);
+        const suggestions = result.feedback?.suggestions || [];
+
+        const colors = ["bg-red-500", "bg-yellow-500", "bg-yellow-400", "bg-green-500", "bg-green-600"];
+        const labels = ["Foarte slabă", "Slabă", "Ok", "Puternică", "Foarte puternică"];
+
+        return {
+            strength: score,
+            color: colors[score],
+            label: labels[score],
+            suggestions
+        };
+    };
+
+    const [strengthData, setStrengthData] = useState({ strength: 0, color: "", label: "" });
+
+    useEffect(() => {
+        const evaluateStrength = async () => {
+            if (parolaItem.length > 0) {
+                const result = await getPasswordStrength(parolaItem, usernameItem);
+                setStrengthData(result);
+            } else {
+                setStrengthData({ strength: 0, color: "", label: "" });
+            }
+        };
+
+        evaluateStrength();
+    }, [parolaItem, usernameItem]);
 
     const handleAdaugaItem = async () => {
         try {
@@ -170,6 +308,27 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
 
                         <label className="text-sm md:text-md font-medium">Parola</label>
                         <input type="password" value={parolaItem} onChange={(e) => { setParolaItem(e.target.value) }} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full"></input>
+                        {/* Strength bar */}
+                        {parolaItem.length > 0 && (
+                            <>
+                                <div className="w-full h-2 bg-gray-300 rounded mt-2">
+                                    <div
+                                        className={`h-2 rounded transition-all duration-300 ${strengthData.color}`}
+                                        style={{ width: `${(strengthData.strength + 1) * 20}%` }}
+                                    />
+                                </div>
+                                <p className="text-xs mt-1 text-gray-700">{strengthData.label}</p>
+
+                                {/* Sugestii */}
+                                {strengthData.suggestions && strengthData.suggestions.length > 0 && (
+                                    <ul className="text-xs text-red-500 mt-1 list-disc list-inside">
+                                        {strengthData.suggestions.map((sugestie, index) => (
+                                            <li key={index}>{sugestie}</li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </>
+                        )}
                         <div className="mt-2 flex items-center gap-2">
                             <label className="text-sm">Lungime:</label>
                             <select

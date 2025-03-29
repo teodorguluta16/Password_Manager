@@ -111,6 +111,11 @@ export async function decripteazaItemi(data, encodedMainKey) {
                 const rez_url = await decriptareDate(continutObj.data.url.encData, continutObj.data.url.iv, continutObj.data.url.tag, itemKey);
                 const rez_comentariu = await decriptareDate(continutObj.data.comentariu.encData, continutObj.data.comentariu.iv, continutObj.data.comentariu.tag, itemKey);
 
+                let rez_istoric = null;
+                if (continutObj.data.istoric) {
+                    rez_istoric = await decriptareDate(continutObj.data.istoric.encData, continutObj.data.istoric.iv, continutObj.data.istoric.tag, itemKey);
+                }
+
                 console.log("🔓 Item decriptat:", { nume: rez_nume, username: rez_username, parola: rez_parola, comentariu: rez_comentariu });
                 rezultate.push({
                     itemKey: itemKey,
@@ -126,6 +131,7 @@ export async function decripteazaItemi(data, encodedMainKey) {
                     modified_at: modified_at,
                     version: version,
                     isDeleted: isDeleted,
+                    istoric: rez_istoric
                 });
             }
             if (rez_tip === "card" && isDeleted === 0 && isFavorite === true) {
