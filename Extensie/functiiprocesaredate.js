@@ -115,10 +115,36 @@ export async function decripteazaItemi(data, encodedMainKey) {
                 rezultate.push({
                     itemKey: itemKey,
                     id_item: id_item,
+                    tip_item: rez_tip,
                     nume: rez_nume,
                     username: rez_username,
                     parola: rez_parola,
                     url: rez_url,
+                    comentariu: rez_comentariu,
+                    isFavorite: isFavorite,
+                    created_at: created_at,
+                    modified_at: modified_at,
+                    version: version,
+                    isDeleted: isDeleted,
+                });
+            }
+            if (rez_tip === "card" && isDeleted === 0 && isFavorite === true) {
+                const rez_nume = await decriptareDate(continutObj.data.nume.encData, continutObj.data.nume.iv, continutObj.data.nume.tag, itemKey);
+                const rez_numarCard = await decriptareDate(continutObj.data.numarItem.encData, continutObj.data.numarItem.iv, continutObj.data.numarItem.tag, itemKey);
+                const rez_posesorCard = await decriptareDate(continutObj.data.numePosesor.encData, continutObj.data.numePosesor.iv, continutObj.data.numePosesor.tag, itemKey);
+                const rez_dataExpirare = await decriptareDate(continutObj.data.dataExpirare.encData, continutObj.data.dataExpirare.iv, continutObj.data.dataExpirare.tag, itemKey);
+                const rez_comentariu = await decriptareDate(continutObj.data.comentariu.encData, continutObj.data.comentariu.iv, continutObj.data.comentariu.tag, itemKey);
+
+                console.log("🔓 Item decriptat:", { nume: rez_nume, numarCard: rez_numarCard, posesorCard: rez_posesorCard, dataExpirare: rez_dataExpirare, comentariu: rez_comentariu, });
+
+                rezultate.push({
+                    itemKey: itemKey,
+                    id_item: id_item,
+                    tip_item: rez_tip,
+                    nume: rez_nume,
+                    numarCard: rez_numarCard,
+                    posesorCard: rez_posesorCard,
+                    dataExpirare: rez_dataExpirare,
                     comentariu: rez_comentariu,
                     isFavorite: isFavorite,
                     created_at: created_at,
