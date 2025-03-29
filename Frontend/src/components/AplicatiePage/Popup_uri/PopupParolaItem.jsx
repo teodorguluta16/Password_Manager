@@ -6,6 +6,44 @@ import zxcvbn from 'zxcvbn'; // trebuie sa includ si asta in documentatie
 
 import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } from "../../FunctiiDate/FunctiiDefinite"
 
+const importRawKeyFromBase64 = async (base64Key) => {
+    const binary = atob(base64Key); // decode base64
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+
+    return await window.crypto.subtle.importKey(
+        "raw",
+        bytes,
+        "HKDF",
+        false,
+        ["deriveKey"]
+    );
+};
+
+
+
+const deriveHMACKey = async (derivedKey) => {
+    return crypto.subtle.deriveKey(
+        {
+            name: "HKDF",
+            hash: "SHA-256",
+            salt: new TextEncoder().encode("semnatura-parola"),
+            info: new TextEncoder().encode("hmac-signing")
+        },
+        derivedKey,
+        {
+            name: "HMAC",
+            hash: "SHA-256",
+            length: 256
+        },
+        false,
+        ["sign"]
+    );
+};
+
+
 const checkPwnedPassword = async (password) => {
     const hash = sha1(password).toUpperCase();
     const prefix = hash.substring(0, 5);
@@ -42,8 +80,8 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
         }
     }, [derivedKey]);
 
-    //Math.random() la final pentru amestecare (sort(() => 0.5 - Math.random())), care nu e criptografic.
-    const getRandomChar = (charset) => {  // N-am folosit math random pentru ca pot fi prezise. Crypto-js e mult mai sigur. Am sa includ si asta in dcoumentatie
+
+    const getRandomChar = (charset) => {
         const array = new Uint32Array(1);
         crypto.getRandomValues(array);
         return charset[array[0] % charset.length];
@@ -61,6 +99,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
     };
 
     const generateStrongPassword = (length) => {
+        //!@#$%^&*()
         const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         const lower = "abcdefghijklmnopqrstuvwxyz";
         const digits = "0123456789";
@@ -71,7 +110,6 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
             throw new Error("Parola trebuie să aibă cel puțin 4 caractere pentru a include toate tipurile.");
         }
 
-        // Garanție: cel puțin un caracter din fiecare categorie
         let password = [
             getRandomChar(upper),
             getRandomChar(lower),
@@ -86,16 +124,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
         for (let i = 0; i < remainingLength; i++) {
             password.push(all[randomBytes[i] % all.length]);
         }
-
-        // Amestecăm caracterele (cu secure shuffle dacă vrei extra)  vom fac secur suffle ca as anu e sigur
-        //return password.sort(() => 0.5 - Math.random()).join("");
         return secureShuffle(password).join("");
-
-        /*Generarea parolei se face folosind crypto.getRandomValues() 
-        pentru entropie criptografică. Nu se folosește Math.random() deoarece nu oferă securitate suficientă. 
-        Parola este compusă din cel puțin o literă mare, o literă mică, o cifră și un simbol, 
-        urmate de caractere alese aleatoriu și amestecate cu un algoritm Fisher-Yates (secure shuffle).*/
-
     };
 
     const getPasswordStrength = async (password, usernameItem = "") => {
@@ -169,9 +198,50 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
         evaluateStrength();
     }, [parolaItem, usernameItem]);
 
+    const [hmacKey, setHmacKey] = useState(null); // 1. inițializare
+
+    useEffect(() => {
+        const genereazaHmacKey = async () => {
+            if (derivedKey) {
+                let cryptoKey;
+
+                if (typeof derivedKey === "string") {
+                    cryptoKey = await importRawKeyFromBase64(derivedKey);
+                } else {
+                    cryptoKey = derivedKey;
+                }
+
+                const key = await deriveHMACKey(cryptoKey);
+                setHmacKey(key);
+                console.log("🔐 HMAC Key generată:", key);
+            }
+        };
+
+        genereazaHmacKey();
+    }, [derivedKey]);
+
+    const semneazaParola = async (parola, charset, length, hmacKey) => {
+        const data = `${parola}|${charset}|${length}`;
+        const encoder = new TextEncoder();
+
+        const signature = await crypto.subtle.sign(
+            "HMAC",
+            hmacKey, // 🔐 folosești cheia deja derivată
+            encoder.encode(data)
+        );
+
+        return Array.from(new Uint8Array(signature))
+            .map(b => b.toString(16).padStart(2, "0"))
+            .join("");
+    };
+
+
     const handleAdaugaItem = async () => {
         try {
             setShowParolaPopup(false);
+            const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
+            const semnaturaParola = await semneazaParola(parolaItem, charset, length, hmacKey);
+
 
             const key_aes = await generateKey();
 
@@ -182,6 +252,8 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
             const enc_UsernameItem = await criptareDate(usernameItem, key_aes);
             const enc_ParolaItem = await criptareDate(parolaItem, key_aes);
             const enc_ComentariuItem = await criptareDate(comentariuItem, key_aes);
+            const enc_Semnatura = await criptareDate(semnaturaParola, key_aes);
+
 
             // criptare cheie
             const criptKey = await decodeMainKey(key);
@@ -225,7 +297,11 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
                 metadata: {
                     created_at: new Date().toISOString(),
                     modified_at: new Date().toISOString(),
-                    version: 1
+                    version: 1,
+                    meta: {
+                        lungime: length,
+                        charset: charset
+                    }
                 },
                 data: {
                     tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag, },
@@ -233,6 +309,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
                     url: { iv: enc_UrlItem.iv, encData: enc_UrlItem.encData, tag: enc_UrlItem.tag },
                     username: { iv: enc_UsernameItem.iv, encData: enc_UsernameItem.encData, tag: enc_UsernameItem.tag },
                     parola: { iv: enc_ParolaItem.iv, encData: enc_ParolaItem.encData, tag: enc_ParolaItem.tag },
+                    semnatura: { iv: enc_Semnatura.iv, encData: enc_Semnatura.encData, tag: enc_Semnatura.tag },
                     comentariu: { iv: enc_ComentariuItem.iv, encData: enc_ComentariuItem.encData, tag: enc_ComentariuItem.tag }
                 },
             };

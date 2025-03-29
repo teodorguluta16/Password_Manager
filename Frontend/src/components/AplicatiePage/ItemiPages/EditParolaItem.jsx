@@ -294,7 +294,7 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                                 {/* Data creării și cine a creat */}
                                 <div className="flex flex-col lg:flex-row lg:ml-4">
                                     <h3 className="font-medium">Creat:</h3>
-                                    <div className="ml-2">
+                                    <div className="lg:ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{createdDate}</span>
 
@@ -304,12 +304,22 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                                 {/* Proprietar */}
                                 <div className="flex flex-col lg:flex-row lg:ml-4">
                                     <h3 className="font-medium">Proprietar:</h3>
-                                    <span className="text-gray-700 ml-2">{`${ownerNume} ${ownerPrenume}`}</span>
+                                    <span className="text-gray-700 lg:ml-2">{`${ownerNume} ${ownerPrenume}`}</span>
+                                </div>
+                                {/*Semantura */}
+                                <div className="flex flex-col lg:flex-row lg:ml-4 mt-2">
+                                    <h3 className="font-medium">Semnătură:</h3>
+                                    <span
+                                        className={`lg:ml-2 font-semibold flex items-center gap-2 
+            ${item.isTampered ? "text-red-600" : "text-green-600"}`}
+                                    >
+                                        {item.isTampered ? "Invalidă ❌" : "Validă ✅"}
+                                    </span>
                                 </div>
                                 {/* Data modificării și cine a modificat */}
                                 <div className="flex flex-col lg:flex-row lg:ml-4">
                                     <h3 className="font-medium">Modificat:</h3>
-                                    <div className="ml-2">
+                                    <div className="lg:ml-2">
                                         <div className="space-x-2">
                                             <span className="text-gray-700">{modifiedDate}</span>
                                         </div>

@@ -114,7 +114,9 @@ const GridAfisItems = ({ items, setGestioneazaItem, setStergeItem, setItemid, fe
         <div className="grid custom_grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-4 md:gap-6 ml-2 mr-2 px-8 sm:px-4 md:px-12 custom-height overflow-y-auto py-4 mt-0">
             {items.map((item, index) => (
                 <div key={index} onClick={() => setGestioneazaItem(item)} className="border border-white-700 rounded-lg w-68 h-28 shadow-lg shadow-gray-300 bg-white items-center hover:bg-gray-400 cursor-pointer group  transition-all duration-300 ease-in-out">
+
                     <div className="flex flex-col justify-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-100 space-x-2 relative">
+
                         {(item.tipitem === "password" || item.tipitem === "remoteConnexion") && (
                             <>
                                 <button onClick={(e) => {
@@ -172,6 +174,19 @@ const GridAfisItems = ({ items, setGestioneazaItem, setStergeItem, setItemid, fe
 
                             )}
                         </div>
+                        {(item.tipitem === "password") && (
+                            <>
+                                <span
+                                    className={`relative text-lg font-bold px-2  rounded-full top-[-20px]
+                                    `}
+                                    title={item.isTampered ? "Semnătura NU se potrivește" : "Parola este validă"}
+                                >
+                                    {item.isTampered ? "⚠️" : "✅"}
+                                </span>
+                            </>
+
+                        )}
+
                     </div>
                 </div>
             ))}

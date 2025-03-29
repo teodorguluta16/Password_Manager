@@ -39,6 +39,41 @@ import RemoteWorkingPage from './ItemiPages/RemoteWorkingPage';
 import { getKeyFromIndexedDB } from "../FunctiiDate/ContextKeySimetrice";
 import { decodeMainKey, decriptareDate } from "../FunctiiDate/FunctiiDefinite"
 
+const importRawKeyFromBase64 = async (base64Key) => {
+  const binary = atob(base64Key); // decode base64
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+
+  return await window.crypto.subtle.importKey(
+    "raw",
+    bytes,
+    "HKDF",
+    false,
+    ["deriveKey"]
+  );
+};
+
+const deriveHMACKey = async (derivedKey) => {
+  return crypto.subtle.deriveKey(
+    {
+      name: "HKDF",
+      hash: "SHA-256",
+      salt: new TextEncoder().encode("semnatura-parola"),
+      info: new TextEncoder().encode("hmac-signing")
+    },
+    derivedKey,
+    {
+      name: "HMAC",
+      hash: "SHA-256",
+      length: 256
+    },
+    false,
+    ["sign"]
+  );
+};
+
 function hexToString(hex) {
   let str = '';
   for (let i = 0; i < hex.length; i += 2) {
@@ -188,6 +223,44 @@ const AplicatiePage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isFocused, setIsFocused] = useState(false);
 
+  const [hmacKey, setHmacKey] = useState(null); // 1. inițializare
+
+  useEffect(() => {
+    const genereazaHmacKey = async () => {
+      if (savedKey) {
+        let cryptoKey;
+
+        if (typeof savedKey === "string") {
+          cryptoKey = await importRawKeyFromBase64(savedKey);
+        } else {
+          cryptoKey = savedKey;
+        }
+
+        const key = await deriveHMACKey(cryptoKey);
+        setHmacKey(key);
+        console.log("🔐 HMAC Key generată:", key);
+      }
+    };
+
+    genereazaHmacKey();
+  }, [savedKey]);
+
+
+  const semneazaParola = async (parola, charset, length, hmacKey) => {
+    const data = `${parola}|${charset}|${length}`;
+    const encoder = new TextEncoder();
+
+    const signature = await crypto.subtle.sign(
+      "HMAC",
+      hmacKey, // 🔐 folosești cheia deja derivată
+      encoder.encode(data)
+    );
+
+    return Array.from(new Uint8Array(signature))
+      .map(b => b.toString(16).padStart(2, "0"))
+      .join("");
+  };
+
   const deconectare = async () => {
     try {
       const response = await fetch('http://localhost:9000/api/auth/logout', {
@@ -310,7 +383,30 @@ const AplicatiePage = () => {
 
               }
 
+              const ivHex9 = dataObject2.data.semnatura.iv;
+              const encDataHex9 = dataObject2.data.semnatura.encData;
+              const tagHex9 = dataObject2.data.semnatura.tag;
+
+              const rez_semnatura = await decriptareDate(encDataHex9, ivHex9, tagHex9, importedKey);
+
+
               console.log("Datele primite de la server aferente parolei:", rez_tip, rez_nume, rez_url, rez_username, rez_parola, rez_comentariu, isDeleted, isFavorite, rez_istoric);
+
+              const lungime = dataObject2.metadata?.meta?.lungime;
+              const charset = dataObject2.metadata?.meta?.charset;
+
+              const semnaturaCalculata = await semneazaParola(
+                rez_parola, charset, lungime, hmacKey
+              );
+
+              if (semnaturaCalculata !== rez_semnatura) {
+                console.warn("⚠️ Semnătura nu se potrivește! Parola ar putea fi alterată.");
+                // Poți marca acest item ca „invalid” în UI
+              }
+              else {
+                console.log("Semnatura verificata !!!");
+              }
+
               paroleItems.push({
                 importedKey: importedKey,
                 nume: rez_nume,
@@ -326,7 +422,9 @@ const AplicatiePage = () => {
                 id_item: id_item,
                 isDeleted: isDeleted,
                 isFavorite: isFavorite,
-                istoric: rez_istoric
+                istoric: rez_istoric,
+                isTampered: semnaturaCalculata !== rez_semnatura
+
               });
 
               fetchedItems.push({
@@ -344,7 +442,8 @@ const AplicatiePage = () => {
                 id_item: id_item,
                 isDeleted: isDeleted,
                 isFavorite: isFavorite,
-                istoric: rez_istoric
+                istoric: rez_istoric,
+                isTampered: semnaturaCalculata !== rez_semnatura
               });
 
               if (isFavorite) {
@@ -363,7 +462,8 @@ const AplicatiePage = () => {
                   id_item: id_item,
                   isDeleted: isDeleted,
                   isFavorite: isFavorite,
-                  istoric: rez_istoric
+                  istoric: rez_istoric,
+                  isTampered: semnaturaCalculata !== rez_semnatura
                 });
               }
 
