@@ -278,3 +278,17 @@ body {
 .butonAdauga:hover {
     background-color: rgb(205, 117, 23);
 }
+
+#btn_save_modificari {
+    margin-top: 5px;
+    padding: 8px 12px;
+    background-color: #198754;
+    color: white;
+    border: #0d5a03;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#btn_save_modificari:hover {
+    background-color: #0095ff;
+}

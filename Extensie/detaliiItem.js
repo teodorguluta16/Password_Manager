@@ -1,3 +1,5 @@
+import { criptareDate } from "./functiiprocesaredate.js"
+
 function setupEditToggle(field) {
     const btn = document.getElementById(`edit-${field}-btn`);
     const span = document.getElementById(`${field}-text`);
@@ -61,7 +63,6 @@ function showItemDetails(parola) {
                 color: white; border: none; border-radius: 5px; padding: 3px 6px; cursor: pointer;">Afișează</button>
             <span id="edit-password-btn" style="cursor: pointer;">✏️</span>
         </div>
-        
     </div>
 
     <div style="display: flex;flex-direction: column; align-items: flex-start; gap: 10px; margin-bottom: 10px;">
@@ -76,7 +77,7 @@ function showItemDetails(parola) {
         <textarea id="edit-comentariu"  style="font-size: small; width: 80%; height: 70px; resize: none; overflow: auto;">>${comentariu}</textarea>
     </div>
 
-     <button id="save-changes" style="margin-top: 5px; padding: 8px 12px; background-color: #198754; color: white; border: none; border-radius: 5px; cursor: pointer;">
+     <button id="btn_save_modificari">
         Salvează modificările
     </button>
 
@@ -138,6 +139,62 @@ function showItemDetails(parola) {
     setupEditToggle("username");
     setupEditToggle("password");
     setupEditToggle("url");
+
+
+    const buttonSalvareModificari = document.getElementById('btn_save_modificari');
+    buttonSalvareModificari.addEventListener('click', async function () {
+        const numeModificat = document.getElementById('nume-input').value;
+        const usernameModificat = document.getElementById('username-input').value;
+        const parolaModificat = document.getElementById('password-input').value;
+        const urlModificat = document.getElementById('url-input').value;
+        const comentariuModificat = document.getElementById('edit-comentariu').value;
+
+        const key_aes = parola.itemKey;
+
+        const enc_Tip = await criptareDate("password", key_aes);
+        const enc_NumeItem = await criptareDate(numeModificat, key_aes);
+        const enc_UrlItem = await criptareDate(urlModificat, key_aes);
+        const enc_UsernameItem = await criptareDate(usernameModificat, key_aes);
+        const enc_ParolaItem = await criptareDate(parolaModificat, key_aes);
+        const enc_ComentariuItem = await criptareDate(comentariuModificat, key_aes);
+
+        const jsonItem = {
+            metadata: {
+                created_at: parola.created_at,
+                modified_at: new Date().toISOString(),
+                version: 2
+            },
+            data: {
+                tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag, },
+                nume: { iv: enc_NumeItem.iv, encData: enc_NumeItem.encData, tag: enc_NumeItem.tag },
+                url: { iv: enc_UrlItem.iv, encData: enc_UrlItem.encData, tag: enc_UrlItem.tag },
+                username: { iv: enc_UsernameItem.iv, encData: enc_UsernameItem.encData, tag: enc_UsernameItem.tag },
+                parola: { iv: enc_ParolaItem.iv, encData: enc_ParolaItem.encData, tag: enc_ParolaItem.tag },
+                comentariu: { iv: enc_ComentariuItem.iv, encData: enc_ComentariuItem.encData, tag: enc_ComentariuItem.tag }
+            },
+        };
+
+        try {
+            const response = await fetch("http://localhost:9000/api/updateItem", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    id_item: parola.id_item,
+                    continut: jsonItem,
+                }),
+                credentials: "include",
+            });
+
+            if (!response.ok) {
+                throw new Error("Eroare la actualizare");
+            }
+            console.log("Item actualizat cu succes!");
+        } catch (error) {
+            console.error("eroare la modificarea itemului: ", error);
+        }
+    });
 }
 
 function formatCardNumber(number) {
@@ -200,7 +257,6 @@ function showCardDetails(parola) {
 `;
 
 }
-
 
 export function afiseazaParole(parole) {
     const container = document.getElementById("favorite-list");

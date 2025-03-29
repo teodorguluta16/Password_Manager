@@ -44,6 +44,7 @@ browserAPI.runtime.sendMessage({ action: "getPasswords" }, (response) => {
         console.error("Eroare la primirea parolelor:", response.error);
     }
 });
+
 // avatar cont cu meniu
 const firstName = "Ion";
 const lastName = "Popescu";
