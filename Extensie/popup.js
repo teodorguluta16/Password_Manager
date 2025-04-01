@@ -46,9 +46,6 @@ browserAPI.runtime.sendMessage({ action: "getPasswords" }, (response) => {
 });
 
 // avatar cont cu meniu
-const firstName = "Ion";
-const lastName = "Popescu";
-setAvatarInitials(firstName, lastName);
 initAccountDropdown();
 
 // buton de back pt cand selectez un item sa-i vad detaliile

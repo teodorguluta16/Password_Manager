@@ -267,6 +267,17 @@ protectedRouter.get('/getOwner', async (req, res) => {
     }
 });
 
+protectedRouter.get('/getEmail', async (req, res) => {
+    const userId = req.user.sub;
+    try {
+        const result = await client.query("Select u.email,u,nume,u.prenume from utilizatori u where u.id=$1;", [userId])
+        res.status(200).json({ email: result.rows[0].email, nume: result.rows[0].nume, prenume: result.rows[0].prenume });
+    }
+    catch (error) {
+        console.error('Eroare:', error);
+        res.status(401).send();
+    }
+});
 
 // rute grupuri
 

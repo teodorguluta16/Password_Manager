@@ -1,11 +1,24 @@
 import { hashPassword } from "./functiiprocesaredate.js";
 import { afiseazaParole } from "./detaliiItem.js";
 import { initKeyAndPasswords, initKeyAndPasswords2 } from "./initiereItemisiKeys.js"
+import { setAvatarInitials } from "./contulmeu.js"
 
 export async function verificaAutentificare() {
     try {
         const response = await fetch("http://localhost:9000/api/auth/me", { method: "GET", credentials: "include" });
         if (response.ok) {
+
+            const data = await response.json();
+            console.log("Utilizator autentificat:", data);
+
+            // extragem inițialele
+            if (data.name) {
+                const [firstName, lastName] = data.name.split(" ");
+                const initiale = `${firstName[0]}${lastName[0]}`.toUpperCase();
+                //console.log("Intialelle sunt", initiale);
+                setAvatarInitials(firstName, lastName); // ⚠️ funcție din popup.js
+            }
+
             const paroleDecriptate = await initKeyAndPasswords();
             return paroleDecriptate;
         }

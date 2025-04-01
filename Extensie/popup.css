@@ -115,9 +115,9 @@ body {
 }
 
 .avatar {
-    width: 37px;
+    width: 39px;
     /* Lățimea avatarului */
-    height: 37px;
+    height: 38px;
     /* Înălțimea avatarului */
     border-radius: 50%;
     /* Face avatarul să fie cerc */
@@ -291,4 +291,30 @@ body {
 
 #btn_save_modificari:hover {
     background-color: #0095ff;
+}
+
+
+.dropdown {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    background-color: white;
+    color: #333;
+    width: 260px;
+    font-size: 14px;
+}
+
+.dropdown button {
+    width: 100%;
+    padding: 10px;
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.dropdown button:hover {
+    background-color: #dc2626;
 }
