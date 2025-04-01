@@ -99,7 +99,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
     };
 
     const generateStrongPassword = (length) => {
-        //!@#$%^&*()
+
         const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         const lower = "abcdefghijklmnopqrstuvwxyz";
         const digits = "0123456789";
@@ -124,7 +124,13 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
         for (let i = 0; i < remainingLength; i++) {
             password.push(all[randomBytes[i] % all.length]);
         }
-        return secureShuffle(password).join("");
+
+        const finalPassword = secureShuffle(password).join("");
+
+        setParolaItem(finalPassword);
+
+        //console.log("Am intrat, este: ", secureShuffle(password).join(""));
+        return finalPassword;
     };
 
     const getPasswordStrength = async (password, usernameItem = "") => {
@@ -241,6 +247,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
             setShowParolaPopup(false);
             const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
             const semnaturaParola = await semneazaParola(parolaItem, charset, length, hmacKey);
+            console.log("Semnatura: ", semnaturaParola);
 
 
             const key_aes = await generateKey();

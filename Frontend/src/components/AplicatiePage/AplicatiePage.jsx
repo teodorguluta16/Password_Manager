@@ -223,10 +223,10 @@ const AplicatiePage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isFocused, setIsFocused] = useState(false);
 
-  const [hmacKey, setHmacKey] = useState(null); // 1. inițializare
+  //const [hmacKey, setHmacKey] = useState(null); // 1. inițializare
 
   useEffect(() => {
-    const genereazaHmacKey = async () => {
+    /*const genereazaHmacKey = async () => {
       if (savedKey) {
         let cryptoKey;
 
@@ -242,7 +242,7 @@ const AplicatiePage = () => {
       }
     };
 
-    genereazaHmacKey();
+    genereazaHmacKey();*/
   }, [savedKey]);
 
 
@@ -395,9 +395,26 @@ const AplicatiePage = () => {
               const lungime = dataObject2.metadata?.meta?.lungime;
               const charset = dataObject2.metadata?.meta?.charset;
 
+              console.log("Lungimea: ", lungime, "Charset: ", charset);
+
+
+              const cryptoKey = typeof savedKey === "string"
+                ? await importRawKeyFromBase64(savedKey)
+                : savedKey;
+
+              const hmacKey = await deriveHMACKey(cryptoKey);
+
+              if (!hmacKey) {
+                console.error("🔐 HMAC key lipsește în momentul semnării!");
+                return;
+              }
+
               const semnaturaCalculata = await semneazaParola(
                 rez_parola, charset, lungime, hmacKey
               );
+
+              console.log("semnatura calculata: ", semnaturaCalculata);
+              console.log("semnatura item: ", rez_semnatura);
 
               if (semnaturaCalculata !== rez_semnatura) {
                 console.warn("⚠️ Semnătura nu se potrivește! Parola ar putea fi alterată.");
