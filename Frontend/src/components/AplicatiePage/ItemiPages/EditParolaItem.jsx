@@ -149,7 +149,9 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
             const jsonItem = {
                 metadata: {
                     created_at: item.created_at,
-                    modified_at: new Date().toISOString(),
+                    modified_at: (parolaName !== initialValues.parola)
+                        ? new Date().toISOString()
+                        : item.modified_at,
                     version: 2
                 },
                 data: {
