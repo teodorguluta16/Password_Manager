@@ -131,7 +131,7 @@ const EditNotitaItem = ({ item, setGestioneazaParolaItem }) => {
                 metadata: {
                     created_at: new Date().toISOString(),
                     modified_at: new Date().toISOString(),
-                    version: 1
+                    version: item.version + 1
                 },
                 data: {
                     tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag, },
@@ -261,6 +261,9 @@ const EditNotitaItem = ({ item, setGestioneazaParolaItem }) => {
                                         </div>
                                     </div>
                                 </div>
+                                <div className="flex flex-col lg:flex-row lg:ml-4">
+                                    <span className="text-gray-700 ">Versiune: {item.version}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -279,6 +282,7 @@ const EditNotitaItem = ({ item, setGestioneazaParolaItem }) => {
                                                     <div className="flex space-x-2">
                                                         <span className="text-sm">{it.data}</span>
                                                         <span className="text-sm">{it.time}</span>
+
                                                     </div>
                                                     <hr className="border-t-2 border-blue-400 my-1 rounded-full"></hr>
                                                 </div>

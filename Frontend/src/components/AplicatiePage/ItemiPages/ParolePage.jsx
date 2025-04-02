@@ -109,6 +109,7 @@ const ParolePage = ({ derivedKey, items, fetchItems }) => {
                     <EditParolaItem
                         item={gestioneazaParolaItem}
                         setGestioneazaParolaItem={setGestioneazaParolaItem}
+                        derivedKey={key}
                     />
                 )}
 

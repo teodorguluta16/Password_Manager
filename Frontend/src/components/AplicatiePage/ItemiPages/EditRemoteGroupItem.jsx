@@ -150,7 +150,7 @@ const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                 metadata: {
                     created_at: item.created_at,
                     modified_at: new Date().toISOString(),
-                    version: 2
+                    version: item.version + 1
                 },
                 data: {
                     tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag, },
@@ -446,6 +446,9 @@ const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                                             <span className="text-gray-700">{modifiedDate}</span>
                                         </div>
                                     </div>
+                                </div>
+                                <div className="flex flex-col lg:flex-row lg:ml-4">
+                                    <span className="text-gray-700 ">Versiune: {item.version}</span>
                                 </div>
                                 {/*Cheia PPK*/}
                                 <div className="mt-6">

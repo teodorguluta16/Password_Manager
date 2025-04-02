@@ -102,7 +102,7 @@ const ItemsAllPage = ({ derivedKey, items, fetchItems }) => {
                 ) : (
                     <>
                         {gestioneazaParolaItem.tipitem === "password" && (
-                            <EditParolaItem item={gestioneazaParolaItem} setGestioneazaParolaItem={setGestioneazaParolaItem} />
+                            <EditParolaItem item={gestioneazaParolaItem} setGestioneazaParolaItem={setGestioneazaParolaItem} derivedKey={key} />
                         )}
                         {gestioneazaParolaItem.tipitem === "remoteConnexion" && (
                             <EditRemoteItem item={gestioneazaParolaItem} setGestioneazaRemoteItem={setGestioneazaParolaItem} />

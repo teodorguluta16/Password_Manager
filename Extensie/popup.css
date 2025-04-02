@@ -318,3 +318,14 @@ body {
 .dropdown button:hover {
     background-color: #dc2626;
 }
+
+#user-nume {
+    font: bold;
+    font-size: large;
+    margin-bottom: 8px;
+}
+
+#user-email {
+    font-style: italic;
+    font-size: small;
+}

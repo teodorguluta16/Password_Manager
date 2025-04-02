@@ -6,9 +6,59 @@ import "../../../App.css"
 import { FaEye, FaEyeSlash, FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
 import { criptareDate } from "../../FunctiiDate/FunctiiDefinite";
 
+const importRawKeyFromBase64 = async (base64Key) => {
+    const binary = atob(base64Key); // decode base64
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
 
-const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
+    return await window.crypto.subtle.importKey(
+        "raw",
+        bytes,
+        "HKDF",
+        false,
+        ["deriveKey"]
+    );
+};
 
+
+
+const deriveHMACKey = async (derivedKey) => {
+    return crypto.subtle.deriveKey(
+        {
+            name: "HKDF",
+            hash: "SHA-256",
+            salt: new TextEncoder().encode("semnatura-parola"),
+            info: new TextEncoder().encode("hmac-signing")
+        },
+        derivedKey,
+        {
+            name: "HMAC",
+            hash: "SHA-256",
+            length: 256
+        },
+        false,
+        ["sign"]
+    );
+};
+
+const EditParolaItem = ({ item, setGestioneazaParolaItem, derivedKey }) => {
+
+    const [key, setKey] = useState(derivedKey);
+    //const [length, setLength] = useState(32);
+
+    useEffect(() => {
+        if (derivedKey) {
+            setKey(derivedKey);
+            console.log("Cheia setată:", derivedKey);
+        }
+        else {
+            console.log("Cheia este goala !!");
+        }
+    }, [derivedKey]);
+
+    console.log("cheia are trebui sa fie: ", key);
     const [initialValues, setInitialValues] = useState({
         nume: item.nume,
         username: item.username,
@@ -48,6 +98,8 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
     const [uidItem, setUidItem] = useState(item.id_item);
     const [createdDate, setCreatedDate] = useState("");
     const [modifiedDate, setModifiedDate] = useState("");
+
+
 
     useEffect(() => {
         const dateObject = new Date(item.created_at);
@@ -91,6 +143,47 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
         };
         fetchItems();
     }, []);
+
+    const [hmacKey, setHmacKey] = useState(null); // 1. inițializare
+
+    useEffect(() => {
+        const genereazaHmacKey = async () => {
+            if (derivedKey) {
+                let cryptoKey;
+
+                if (typeof derivedKey === "string") {
+                    cryptoKey = await importRawKeyFromBase64(derivedKey);
+                } else {
+                    cryptoKey = derivedKey;
+                }
+
+                const key = await deriveHMACKey(cryptoKey);
+                setHmacKey(key);
+                console.log("🔐 HMAC Key generată:", key);
+            }
+        };
+
+        genereazaHmacKey();
+    }, [derivedKey]);
+
+    const semneazaParola = async (parola, charset, length, hmacKey) => {
+        if (hmacKey === null) {
+            console.log("E GOL NU E BINE");
+        }
+        const data = `${parola}|${charset}|${length}`;
+        const encoder = new TextEncoder();
+
+        const signature = await crypto.subtle.sign(
+            "HMAC",
+            hmacKey, // 🔐 folosești cheia deja derivată
+            encoder.encode(data)
+        );
+
+        return Array.from(new Uint8Array(signature))
+            .map(b => b.toString(16).padStart(2, "0"))
+            .join("");
+    };
+
 
     const salveazaToateModificarile = async () => {
         let modificari = [];
@@ -136,6 +229,24 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
 
             setIstoric(istoricActualizat);
 
+            const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
+            let cryptoKey;
+
+            //console.log("Cheia derivata este: ", key);
+            if (typeof derivedKey === "string") {
+                cryptoKey = await importRawKeyFromBase64(derivedKey);
+            } else {
+                cryptoKey = derivedKey;
+            }
+
+            const key = await deriveHMACKey(cryptoKey);
+            setHmacKey(key);
+            console.log("🔐 HMAC Key generată:", key);
+
+            const semnaturaParola = await semneazaParola(parolaName, charset, length, hmacKey);
+            console.log("Semnatura: ", semnaturaParola);
+
+
 
             // criptare elemente
             const enc_Tip = await criptareDate("password", importedKey);
@@ -144,6 +255,7 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
             const enc_UsernameItem = await criptareDate(userName, importedKey);
             const enc_ParolaItem = await criptareDate(parolaName, importedKey);
             const enc_ComentariuItem = await criptareDate(note, importedKey);
+            const enc_Semnatura = await criptareDate(semnaturaParola, importedKey);
             const enc_IstoricItem = await criptareDate(JSON.stringify(istoricActualizat), importedKey);
 
             const jsonItem = {
@@ -152,7 +264,11 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                     modified_at: (parolaName !== initialValues.parola)
                         ? new Date().toISOString()
                         : item.modified_at,
-                    version: 2
+                    version: item.version + 1,
+                    meta: {
+                        lungime: length,
+                        charset: charset
+                    }
                 },
                 data: {
                     tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag, },
@@ -160,6 +276,7 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                     url: { iv: enc_UrlItem.iv, encData: enc_UrlItem.encData, tag: enc_UrlItem.tag },
                     username: { iv: enc_UsernameItem.iv, encData: enc_UsernameItem.encData, tag: enc_UsernameItem.tag },
                     parola: { iv: enc_ParolaItem.iv, encData: enc_ParolaItem.encData, tag: enc_ParolaItem.tag },
+                    semnatura: { iv: enc_Semnatura.iv, encData: enc_Semnatura.encData, tag: enc_Semnatura.tag },
                     comentariu: { iv: enc_ComentariuItem.iv, encData: enc_ComentariuItem.encData, tag: enc_ComentariuItem.tag },
                     istoric: { iv: enc_IstoricItem.iv, encData: enc_IstoricItem.encData, tag: enc_IstoricItem.tag }
 
@@ -326,6 +443,9 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem }) => {
                                             <span className="text-gray-700">{modifiedDate}</span>
                                         </div>
                                     </div>
+                                </div>
+                                <div className="flex flex-col lg:flex-row lg:ml-4">
+                                    <span className="text-gray-700 ">Versiune: {item.version}</span>
                                 </div>
                             </div>
 
