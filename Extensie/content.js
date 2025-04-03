@@ -214,3 +214,54 @@ window.addEventListener("message", (event) => {
         });
     }
 });
+
+
+
+
+/// verificare alertare utilizatori
+// Verifică dacă e HTTPS
+if (window.location.protocol !== "https:") {
+    alert("⚠️ Atenție: Site-ul nu folosește o conexiune securizată (HTTPS)!");
+}
+if (window.location.protocol === "https:") {
+    const suspiciousDomains = [
+        "amaz0n-login.com",
+        "secure-facebook-login.net",
+        "paypal-secure-checkin.com",
+        "login-microsoft-support.com",
+        "google-verificare.com"
+    ];
+
+    const currentDomain = window.location.hostname;
+
+    const isSuspicious = suspiciousDomains.some(suspect => currentDomain.includes(suspect));
+
+    if (isSuspicious) {
+        alert("⚠️ Aceasta pagina pare suspecta ! Verifica cu antentie adresa URL.");
+    }
+}
+
+// Ascultă evenimentul de submit pe formularul de login
+document.addEventListener("submit", async (e) => {
+    const form = e.target;
+    const passwordInput = form.querySelector('input[type="password"]');
+    const password = passwordInput?.value;
+
+    console.log("🟢 Submit detectat!");
+
+    if (password) {
+        console.log("🟢 Parolă detectată:", password);
+        browserAPI.runtime.sendMessage({ action: "verificaParola", parola: password }, (response) => {
+            console.log("🧪 Răspuns HIBP:", response);
+            if (response?.found) {
+                alert("⚠️ Această parolă a fost găsită în breșe de securitate! Ar trebui să o schimbi.");
+                return true;
+            }
+        });
+    }
+}, true); // <== folosește captura
+
+
+
+
+

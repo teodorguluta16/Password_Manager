@@ -1,3 +1,5 @@
+import sha1 from "./sha1.mjs";
+
 const browserAPI = typeof browser !== "undefined" ? browser : chrome;
 
 let decryptionKey = null;
@@ -54,6 +56,32 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
         }
         return true;
     }
+
+    if (request.action === "verificaParola") {
+        const parola = request.parola;
+        console.log("SUNT AICI !!!!!");
+        sha1(parola).then(hash => {
+            const prefix = hash.slice(0, 5);
+            const suffix = hash.slice(5).toUpperCase();
+
+            fetch(`https://api.pwnedpasswords.com/range/${prefix}`)
+                .then(res => res.text())
+                .then(text => {
+                    const line = text.split("\n").find(line => line.startsWith(suffix));
+                    const count = line ? parseInt(line.split(":")[1]) : 0;
+
+                    // trimitem doar o dată răspunsul
+                    sendResponse({ found: count > 0, count });
+                })
+                .catch(err => {
+                    console.error("Eroare la verificarea HIBP:", err);
+                    sendResponse({ found: false, count: 0 });
+                });
+        });
+
+        return true; // ⬅️ păstrează canalul async deschis
+    }
+
     console.warn("⚠️ Mesaj necunoscut:", request.action);
     sendResponse({ success: false, error: "Mesaj necunoscut" });
     return true;
