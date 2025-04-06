@@ -329,3 +329,7 @@ body {
     font-style: italic;
     font-size: small;
 }
+
+.parola-generata {
+    background-color: #a5a5a5;
+}
