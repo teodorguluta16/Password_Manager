@@ -1104,14 +1104,23 @@ const AplicatiePage = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
-                className={`px-4 py-2 rounded-lg text-black ${isFocused ? 'bg-white' : 'bg-green-700'} w-40 md:w-52 lg:w-80 transition-colors duration-300`}
+                className={`px-4 py-2 rounded-lg text-black ${isFocused ? 'bg-white' : 'bg-green-700'} w-40 md:w-52 lg:w-64 transition-colors duration-300`}
               />
             </div>
 
             {/* Contul meu */}
-            <div className="ml-auto mr-6 flex items-center gap-4 text-white transition-all duration-300">
-              <button onClick={() => setMeniuContulMeu(!showMeniuLContulmeuCascada)} className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-2xl font-bold text-white bg-red-600 hover:bg-red-800">
-                {initiale}
+            <div className="ml-auto lg:mr-2 flex items-center gap-4 text-white transition-all duration-300">
+              <button
+                onClick={() => setMeniuContulMeu(!showMeniuLContulmeuCascada)}
+                className="flex flex-col lg:flex-row items-center gap-2 pr-2 hover:bg-green-800 rounded-full text-white transition-all duration-300"
+              >
+                <div className="w-10 h-10 bg-red-600 text-white-600 rounded-full flex items-center justify-center text-lg font-bold">
+                  {initiale}
+                </div>
+                <span className="hidden lg:inline text-sm ml-2 lg:ml-0 lg:text-lg">
+                  ion_popescu@gmail.com
+                </span>
+
               </button>
             </div>
           </div>
