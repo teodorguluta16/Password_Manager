@@ -8,7 +8,6 @@ window.addEventListener("message", function (event) {
     if (event.source !== window) return;
     if (event.data.type === "SYNC_DECRYPTION_KEY") {
         const key = event.data.key;
-        console.log("🧹 Content script a primit cheia de decriptare:", key);
         browserAPI.runtime.sendMessage({ action: "syncDecryptionKey", key: key },
             (response) => {
                 if (browserAPI.runtime.lastError) {
@@ -23,6 +22,7 @@ window.addEventListener("message", function (event) {
 
 // Caută câmpurile de login
 function detectareCampuriLogin() {
+    console.log("AICIIIII");
     const inputs = Array.from(document.querySelectorAll("input"));
     let usernameCamp = null;
     let parolaCamp = null;
@@ -50,7 +50,7 @@ function detectareCampuriLogin() {
 
         let passScore = 0;
         if (type === "password") passScore += 5;
-        if (name.includes("pass") || name.includes("parola")) passScore += 3;
+        if (name.includes("pass") || name.includes("parol")) passScore += 3;
         if (id.includes("pass") || id.includes("parola")) passScore += 3;
         if (placeholder.includes("parol") || placeholder.includes("pass")) passScore += 2;
         if (className.includes("pass")) passScore += 1;
@@ -75,15 +75,42 @@ function genereazaParolaPuternica(length) {
     return parola;
 }
 
-function adaugaButonGenerare(parolaInput) {
-    const name = parolaInput.name?.toLowerCase() || "";
-    const id = parolaInput.id?.toLowerCase() || "";
+function esteCampConfirmare(input) {
+    const className = input.className?.toLowerCase() || "";
+    const name = input.name?.toLowerCase() || "";
 
-    // Dacă e confirmare parolă, ieșim direct
-    if (name.includes("confirm") || id.includes("confirm")) return;
+    if (name === "postcheckoutregisterform_retypedpassword" && className.includes("form-control")) {
+        return true;
+    }
+
+    if (name === "confirmpassword" && className.includes("form-control")) {
+        return true;
+    }
+
+
+    const text = [
+        input.name,
+        input.id,
+        input.placeholder,
+        input.getAttribute("aria-label") || ""
+    ].join(" ").toLowerCase();
+
+    const campIdentic = input.hasAttribute("data-bv-identical-field");
+
+    const isProbablyConfirm = /\b(confirm|retype|again|repeta|parola2|retyped|password2)\b/i.test(text);
+
+    return isProbablyConfirm || campIdentic;
+}
+
+
+function adaugaButonGenerare(parolaInput) {
+
+    if (esteCampConfirmare(parolaInput))
+        return;
 
     // Evităm dubluri
-    if (parolaInput.parentElement.querySelector(".btn-gen-parola")) return;
+    if (parolaInput.parentElement.querySelector(".btn-gen-parola"))
+        return;
 
     const container = document.createElement("div");
     container.style.display = "flex";
@@ -137,168 +164,91 @@ function adaugaButonGenerare(parolaInput) {
     parolaInput.parentElement.appendChild(container);
 }
 
-function detectareCampuriInregistrare() {
 
-    const host = window.location.hostname;
-    const path = window.location.pathname;
+function esteVizibil(el) {
+    if (!el) return false;
+    const style = window.getComputedStyle(el);
 
-    // Excludem site-uri cunoscute unde NU vrem să afișăm butonul
-    const excludeSites = [
-        { host: "instagram.com", path: "/accounts/login" },
-        //{ host: "ro.pinterest.com", path: "/" }, // la pinterest nu merge
-        { host: "facebook.com", path: "/login" },
-        { host: "teams.microsoft.com", path: "/" },
-        { host: "login.microsoftonline.com", path: "/" },
-        { host: "accounts.google.com", path: "/signin" },
-        { host: "login.live.com", path: "/" },
-        { host: "www.orange.ro", path: "/accounts/login" }
-    ];
-
-    const esteExclus = excludeSites.some(site =>
-        host.includes(site.host) && path.startsWith(site.path)
+    const hiddenByStyle = (
+        style.display === "none" ||
+        style.visibility === "hidden" ||
+        style.opacity === "0"
     );
 
-    if (esteExclus) return;
+    const outOfPage = el.offsetParent === null && style.position !== "fixed";
 
-    // restul codului tău:
-    const passwordInputs = Array.from(document.querySelectorAll('input[type="password"]'));
-
-    const usernameInputs = Array.from(document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"]'))
-        .filter(input => {
-            const name = input.name?.toLowerCase() || "";
-            const id = input.id?.toLowerCase() || "";
-            const placeholder = input.placeholder?.toLowerCase() || "";
-
-            return (
-                name.includes("user") || name.includes("login") || name.includes("email") || name.includes("identifier") ||
-                id.includes("user") || id.includes("login") || id.includes("email") || id.includes("identifier") ||
-                placeholder.includes("user") || placeholder.includes("login") || placeholder.includes("email") || placeholder.includes("phone")
-            );
-        });
-
-    if (usernameInputs.length === 0) return;
-
-    console.log("AM AJUSN AICI");
-
-    if (passwordInputs.length === 1) {
-        const input = passwordInputs[0];
-        const name = input.name?.toLowerCase() || "";
-        const id = input.id?.toLowerCase() || "";
-
-        if (!name.includes("confirm") && !id.includes("confirm")) {
-            //adaugaButonGenerare(input);
-        }
-
-    } else if (passwordInputs.length >= 2) {
-        const prim = passwordInputs[0];
-        const name1 = prim.name?.toLowerCase() || "";
-        const id1 = prim.id?.toLowerCase() || "";
-
-        if (!name1.includes("confirm") && !id1.includes("confirm")) {
-            //adaugaButonGenerare(prim);
-        }
-    }
+    return !hiddenByStyle && !outOfPage;
 }
-
-function detectareCampSchimbareParolaNoua() {
-
-    const host = window.location.hostname;
-    const path = window.location.pathname.toLowerCase();
-
-    const esteSchimbareParola = (
-        path.includes("change") ||
-        path.includes("password") ||
-        path.includes("reset") ||
-        path.includes("account")
-    );
-
-    // if (!esteSchimbareParola) return;
-
-    const passwordInputs = Array.from(document.querySelectorAll('input[type="password"]'));
-
-    passwordInputs.forEach(input => {
-        const name = input.name?.toLowerCase() || "";
-        const id = input.id?.toLowerCase() || "";
-
-        const esteConfirmare = name.includes("confirm") || id.includes("confirm");
-        const esteParolaVeche = name.includes("old") || id.includes("old");
-
-        if (!esteConfirmare && !esteParolaVeche) {
-            //adaugaButonGenerare(input);
-        }
-    });
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    detectareCampSchimbareParolaNoua();
-    detectareCampuriInregistrare();
-
-    setTimeout(() => {
-        detectareCampSchimbareParolaNoua();
-        detectareCampuriInregistrare();
-
-    }, 1500);
-});
 
 const observer = new MutationObserver(() => {
-    const passwordInputs = Array.from(document.querySelectorAll('input[type="password"]'));
-    const usernameInputs = Array.from(document.querySelectorAll('input[type="text"], input[type="email"]'));
+    const passwordInputs = Array.from(document.querySelectorAll('input[type="password"]')).filter(esteVizibil);
+    const usernameInputs = Array.from(document.querySelectorAll('input[type="text"], input[type="email"]')).filter(esteVizibil);
 
-    passwordInputs.forEach(input => {
-        const name = input.name?.toLowerCase() || "";
-        const id = input.id?.toLowerCase() || "";
+    // Nu continuăm dacă nu avem niciun câmp relevant
+    if (passwordInputs.length === 0) return;
 
-        const isLoginForm = passwordInputs.length === 1 && usernameInputs.length >= 1;
+    const input = passwordInputs[0]; // analizăm formularul legat de primul câmp de parolă
 
-        const isRegisterForm = passwordInputs.length === 2 &&
-            passwordInputs[0].name !== passwordInputs[1].name;
+    const { isLogin, isRegister, isReset } = detectFormType(passwordInputs, usernameInputs, input);
 
-        const isResetForm = (
-            passwordInputs.length >= 1 &&
-            !name.includes("old") &&
-            !name.includes("confirm") &&
-            !id.includes("old") &&
-            !id.includes("confirm") &&
-            !isLoginForm
-        );
+    console.log("📌 Observer detect — login:", isLogin, "register:", isRegister, "reset:", isReset);
 
-        const alreadyAdded = input.parentElement.querySelector(".btn-gen-parola");
+    const alreadyAdded = input.parentElement.querySelector(".btn-gen-parola");
 
-        if ((isRegisterForm || isResetForm) && !alreadyAdded) {
-            adaugaButonGenerare(input);
-            console.log("🔁 Observer a adăugat buton pe:", input);
-        }
-    });
+    if ((isRegister || isReset) && !alreadyAdded && !isLogin) {
+        adaugaButonGenerare(input);
+        console.log("🔁 Observer a adăugat buton pe:", input);
+    }
 });
+
 
 observer.observe(document.body, { childList: true, subtree: true });
 
+function esteInputDeAutentificare(input) {
+    const type = input.type?.toLowerCase();
+    if (!["text", "email", "password", "tel"].includes(type)) return false;
 
-//const observer = new MutationObserver(() => {
-//    detectareCampuriInregistrare();
-//    detectareCampSchimbareParolaNoua(); // <<--- observe și pentru asta
-//});
-//observer.observe(document.body, { childList: true, subtree: true });
+    const text = [
+        input.name,
+        input.id,
+        input.placeholder,
+        input.getAttribute("aria-label") || ""
+    ].join(" ").toLowerCase();
 
-/*document.addEventListener("input", async (e) => {
-    const target = e.target;
-    if (target.type === "password") {
-        const password = target.value;
-        if (password.length > 4) {
-            browserAPI.runtime.sendMessage({ action: "verificaParola", parola: password }, (response) => {
-                if (response?.found) {
-                    alert("⚠️ Parola introdusă a fost compromisă în breșe de securitate!");
-                }
-            });
-        }
-    }
-});*/
+    // Ignoră dacă pare că e search bar
+    if (/search|căutare|cauta|what do you want to learn/.test(text)) return false;
 
+    return true;
+}
+
+function ePlaceholderEmailFals(placeholder) {
+    const pl = placeholder.toLowerCase();
+    return /name@\w+\.\w+/.test(pl) || /\S+@\S+/.test(pl);
+}
+function tipFormularDupaButon(form) {
+    const butoane = Array.from(form.querySelectorAll('button, input[type="submit"]')).filter(esteVizibil);
+    const texte = butoane.map(b => (b.textContent || b.value || "").toLowerCase());
+
+    const areRegister = texte.some(t => ["creează", "create", "sign up", "înregistrare", "register"].some(w => t.includes(w)));
+    const areLogin = texte.some(t => ["login", "log in", "sign in", "conectare", "autentificare"].some(w => t.includes(w)));
+
+    if (areRegister && !areLogin) return "register";
+    if (areLogin && !areRegister) return "login";
+    return "ambiguu";
+}
 
 function detectFormType(passwordInputs, usernameInputs, target) {
-    //console.log("Target: ", target);
 
-    const allInputs = Array.from(document.querySelectorAll('input'));
+    // Încearcă să folosești formularul în care se află `target`
+    const form = target.closest("form");
+    const allInputs = form
+        ? Array.from(form.querySelectorAll('input')).filter(i => esteVizibil(i) && esteInputDeAutentificare(i))
+        : Array.from(document.querySelectorAll('input')).filter(i => esteVizibil(i) && esteInputDeAutentificare(i));
+
+    if (passwordInputs.length === 0) {
+        console.log("⏳ Nu există încă formular de parolă. Probabil suntem în pasul de email.");
+        return { isLogin: false, isRegister: false, isReset: false };
+    }
 
     const name = target.name?.toLowerCase() || "";
     const id = target.id?.toLowerCase() || "";
@@ -316,21 +266,22 @@ function detectFormType(passwordInputs, usernameInputs, target) {
         const n = input.name?.toLowerCase() || "";
         const p = input.placeholder?.toLowerCase() || "";
         const aria = input.getAttribute("aria-label")?.toLowerCase() || "";
+
         return (
-            n.includes("first") || n.includes("last") || n.includes("nume") || n.includes("prenume") || n.includes("fname") || n.includes("lname") ||
-            p.includes("nume") || p.includes("prenume") || p.includes("name") || p.includes("nume complet") ||
+            n.includes("first") || n.includes("last") || n.includes("nume") || n.includes("prenume") || n.includes("fname") || n.includes("lname") || n.includes("username") ||
+            (p.includes("nume") || p.includes("prenume") || p.includes("name") || p.includes("nume complet") || p.includes("username")) && !ePlaceholderEmailFals(p) ||
             aria.includes("nume")
         );
     });
 
     // detectează dacă e login simplu (ex: doar user + parola)
-    let isLogin = passwordInputs.length === 1 && usernameInputs.length >= 1 && !isLikelyConfirmPassword;
+    console.log(isLikelyConfirmPassword);
+    let isLogin = passwordInputs.length >= 1 && usernameInputs.length >= 1 && !isLikelyConfirmPassword;
     console.log("Deci login: ", isLogin);
 
     // scor pentru înregistrare
     let score = 0;
 
-    //if (passwordInputs.length >= 1 && passwordInputs[0].name !== passwordInputs[1].name) score += 3;
     if (passwordInputs.length >= 1) score += 1;
     if (registerHints.length >= 1) score += 2;
 
@@ -340,48 +291,53 @@ function detectFormType(passwordInputs, usernameInputs, target) {
     console.log("all inputs lenght: ", allInputs.length);
     if (usernameInputs.length >= 1) score += 1;
 
-
-    // bonus dacă avem un buton cu "creează cont" sau similar
     const submitButtons = Array.from(document.querySelectorAll('button, input[type="submit"]'));
     console.log("Butonul de submit este: ", submitButtons);
-    const hasRegisterButton = submitButtons.some(btn => {
-        const t = (btn.textContent || btn.value || "").toLowerCase();
-        return ["creează", "create", "sign up", "înregistrare", "register", "înainte"].some(w => t.includes(w));
-    });
-    if (hasRegisterButton) score += 2;
-
 
     // penalizare dacă e doar login clasic
     if (isLogin && allInputs.length <= 4) score -= 2;
+    if (allInputs.length === 2) {
+        score = 2;
+    }
+    const hasRegisterButton = submitButtons.some(btn => {
+        const t = (btn.textContent || btn.value || "").toLowerCase();
+        return ["create", "sign up", "înregistrare", "register", "înainte"].some(w => t.includes(w));
+    });
+
+    if (hasRegisterButton) score += 2;
+    console.log("Aici scorul e: ", score);
+
+    const tipFormular = form ? tipFormularDupaButon(form) : "necunoscut";
+
+    if (tipFormular === "register") score += 2;
+    else if (tipFormular === "login") score -= 1;
+
+
+    const urlPath = window.location.pathname.toLowerCase();
+    const urlFull = window.location.href.toLowerCase();
+
+    if (urlPath.includes("register") || urlPath.includes("signup") || urlFull.includes("join") || urlFull.includes("create"))
+        score += 2;
+
+    if (allInputs.length >= 4)
+        score += 2;
 
     console.log("Scorul este: ", score);
-
-    //const isRegister = score >= 4;
 
     let isRegister = false;
     if (score >= 4)
         isRegister = true;
 
     if (isRegister) {
-        console.log("ATAT");
         isLogin = false;
-        console.log("IsLogin: ", isLogin);
     }
 
+    if (passwordInputs.length === 1 && usernameInputs.length === 0) {
+        isLogin = true; isRegister = false;
+    }
 
-    const isReset = (
-        passwordInputs.length >= 1 &&
-        !isLikelyOldPassword &&
-        !isLikelyConfirmPassword &&
-        !isLogin &&
-        !isRegister
-    );
-
-    return {
-        isLogin: isLogin,
-        isRegister,
-        isReset
-    };
+    const isReset = (passwordInputs.length >= 1 && !isLikelyOldPassword && !isLikelyConfirmPassword && !isLogin && !isRegister);
+    return { isLogin: isLogin, isRegister, isReset };
 
 }
 
@@ -400,19 +356,8 @@ document.addEventListener("input", async (e) => {
             !target.parentElement.querySelector(".btn-gen-parola") && !isLogin) {
             adaugaButonGenerare(target);
         }
-
-        const password = target.value;
-        if (password.length > 4) {
-            browserAPI.runtime.sendMessage({ action: "verificaParola", parola: password }, (response) => {
-                if (response?.found) {
-                    alert("⚠️ Parola introdusă este compromisă. Încearcă alta sau genereză automat una nouă ! ⚠️");
-                }
-            });
-        }
     }
 });
-
-
 
 document.addEventListener("submit", async (e) => {
     const form = e.target;
@@ -427,6 +372,7 @@ document.addEventListener("submit", async (e) => {
         });
     }
 }, true);
+
 
 //if (window.location.protocol !== "https:") {
 //    alert("⚠️ Atenție: Site-ul nu folosește o conexiune securizată (HTTPS)!");
@@ -449,10 +395,14 @@ if (window.location.protocol === "https:") {
     }
 }
 
+
 browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    console.log("AM AJUNS AICIIIIIIIIII")
     if (request.type === "FILL_CREDENTIALS") {
+        console.log("⚡ FILL_CREDENTIALS primit")
         const campuri = detectareCampuriLogin();
         if (campuri) {
+            console.log("📩 Completez cu:", request.username, request.password);
             simulateTyping(campuri.usernameCamp, request.username);
             simulateTyping(campuri.parolaCamp, request.password);
         }

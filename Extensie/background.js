@@ -79,7 +79,7 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 });
         });
 
-        return true; // ⬅️ păstrează canalul async deschis
+        return true;
     }
 
     console.warn("⚠️ Mesaj necunoscut:", request.action);
@@ -87,3 +87,30 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
 });
 
+// Aparent asta lipstea nuj de ce verifica pe stick pr mai vechi
+browserAPI.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (changeInfo.status === "complete" && tab.url?.startsWith("http")) {
+        browserAPI.storage.local.get("credentiale_temporare", (data) => {
+            const creds = data.credentiale_temporare;
+            if (!creds || !creds.username || !creds.password || !creds.url) return;
+
+            const { username, password, url } = creds;
+            const targetDomain = new URL(url).hostname;
+
+            if (!tab.url.includes(targetDomain)) return;
+
+            browserAPI.tabs.sendMessage(tabId, {
+                type: "FILL_CREDENTIALS",
+                username,
+                password
+            }, (res) => {
+                if (browserAPI.runtime.lastError) {
+                    console.warn("⚠️ Nu am putut trimite către content script:", browserAPI.runtime.lastError.message);
+                } else {
+                    console.log("✅ Autocomplete trimis în tab:", tab.url);
+                    browserAPI.storage.local.remove("credentiale_temporare");
+                }
+            });
+        });
+    }
+});
