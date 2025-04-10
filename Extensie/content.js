@@ -3,7 +3,6 @@ if (typeof browserAPI === 'undefined') {
     var browserAPI = typeof browser !== "undefined" ? browser : chrome;
 }
 
-// Primește cheia de decriptare din pagina web
 window.addEventListener("message", function (event) {
     if (event.source !== window) return;
     if (event.data.type === "SYNC_DECRYPTION_KEY") {
@@ -17,6 +16,14 @@ window.addEventListener("message", function (event) {
                 }
             }
         );
+    }
+    if (event.data.type === "LAUNCH_WITH_CREDENTIALS") {
+        const creds = event.data.credentials;
+
+        chrome.runtime.sendMessage({
+            action: "launchTabWithCredentials",
+            credentials: creds
+        });
     }
 });
 

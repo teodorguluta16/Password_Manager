@@ -29,16 +29,13 @@ import VizualizareRemoteGroupItem from "./ViuzalizareRemoteGroupItem.jsx";
 
 function hexToString(hex) {
     let str = '';
-    for (let i = 0; i < hex.length; i += 2) {
+    for (let i = 0; i < hex.length; i += 2)
         str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-    }
     return str;
 }
 function decryptWithPrivateKey(encryptedMessage, privateKey) {
     try {
-        return privateKey.decrypt(encryptedMessage, 'RSA-OAEP', {
-            md: forge.md.sha256.create()
-        });
+        return privateKey.decrypt(encryptedMessage, 'RSA-OAEP', { md: forge.md.sha256.create() });
     } catch (error) {
         console.error('Eroare la decriptare:', error);
         throw new Error('Decriptare nereușită');
@@ -47,15 +44,10 @@ function decryptWithPrivateKey(encryptedMessage, privateKey) {
 const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
 
     const [id_current_user, setIdUtilizator] = useState(null);
-
     useEffect(() => {
         const fetchUserId = async () => {
             try {
-                const response = await fetch("http://localhost:9000/api/utilizator/getMyId", {
-                    method: "GET",
-                    credentials: "include",
-                });
-
+                const response = await fetch("http://localhost:9000/api/utilizator/getMyId", { method: "GET", credentials: "include", });
                 if (response.ok) {
                     const data = await response.json();
                     setIdUtilizator(data.Id);
@@ -71,7 +63,6 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
     }, []);
 
     let idgrup = item.id_grup;
-
     const [key, setKey] = useState(derivedKey);
     useEffect(() => {
         if (derivedKey) {
@@ -86,14 +77,12 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
 
     console.log("Cheia simetrica este: ", key);
 
-    //const [shoMeniuCreeazaItem, setMeniuCreeazaItem] = useState(false);
+
     const [ShowParolaPopup, setShowParolaPopup] = useState(false);
     const [ShowNotitaPopup, setShowNotitaPopup] = useState(false);
     const [ShowCardPopup, setShowCardPopup] = useState(false);
     const [ShowAdresaPopup, setShowAdresaPopup] = useState(false);
     const [ShowRemotePopup, setShowRemotePopup] = useState(false);
-
-    //const [ShowNotitaPopup, setShowNotitaPopup] = useState(false);
 
     const [isDeschisMeniuSortare, setIsDropdownOpen] = useState(false);
     const [OptiuneSelectata, setSelectedOption] = useState("Sortează după: Nume");
@@ -176,11 +165,7 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
                 try {
                     decryptedMessage = decryptWithPrivateKey(encryptedMessage, privateKey2);
                     console.log("Cheia simetrica a grupului decriptata:", decryptedMessage);
-
-
                     const decriptKey = await decodeMainKey(decryptedMessage);
-                    //console.log("DecryptKey: ", decriptKey);
-
                     let fetchedItems = [];
 
                     for (let item of data) {
@@ -513,7 +498,6 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
 
                     }
 
-                    // Filtrăm itemii pentru a exclude cei care au `isDeleted === 1`
                     const filteredItems = fetchedItems.filter(item => item.isDeleted === 0);
                     setItems(filteredItems);
                 } catch (error) {

@@ -1,22 +1,17 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
-
 import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } from "../../FunctiiDate/FunctiiDefinite"
 import { useKeySimetrica } from '../../FunctiiDate/ContextKeySimetrice'
 import forge from 'node-forge';
 
 function hexToString(hex) {
     let str = '';
-    for (let i = 0; i < hex.length; i += 2) {
+    for (let i = 0; i < hex.length; i += 2)
         str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-    }
     return str;
 }
 function decryptWithPrivateKey(encryptedMessage, privateKey) {
-    return privateKey.decrypt(encryptedMessage, 'RSA-OAEP', {
-        md: forge.md.sha256.create()
-    });
+    return privateKey.decrypt(encryptedMessage, 'RSA-OAEP', { md: forge.md.sha256.create() });
 }
 
 const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems }) => {
@@ -170,9 +165,7 @@ const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems
             try {
                 const response = await fetch('http://localhost:9000/api/addKey', {
                     method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json', },
                     body: JSON.stringify(jsonItemKey),
                     credentials: "include"
                 });
@@ -186,46 +179,6 @@ const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems
                 console.error("Eroare la trimitere", error);
             };
 
-            //const decodedString = hexToString(encryptedsimmetricKeyGroup);
-
-            //const dataObject = JSON.parse(decodedString);
-            //console.log(dataObject);
-            //const ivHex = dataObject.encKey.iv;
-            //const encDataHex = dataObject.encKey.encData;
-            //const tagHex = dataObject.encKey.tag;
-
-
-
-            //const criptKey = await decodeMainKey(key);
-
-            //const key_aes_raw = await exportKey(key_aes);
-            //console.log("Cheia intreaga ianinte de criptare este: ", key_aes_raw);
-            //const enc_key_raw = await criptareDate(key_aes_raw, criptKey);
-
-            //console.log("Cheia criptata este: ", enc_key_raw);
-
-            // 3. Decriptarea cheii AES criptate folosind cheia AES decriptată
-            //const dec_key = await decriptareDate(enc_key_raw.encData, enc_key_raw.iv, enc_key_raw.tag, criptKey);  // obții cheia AES decriptată
-
-            //const octetiArray = dec_key.split(',').map(item => parseInt(item.trim(), 10));
-
-            // Creăm un Uint8Array din array-ul de numere
-            //const uint8Array = new Uint8Array(octetiArray);
-            //console.log(uint8Array);
-
-            //const importedKey = await window.crypto.subtle.importKey(
-            //    "raw",               // Importăm cheia în format brut
-            //    uint8Array,          // Cheia de tip Uint8Array
-            //    { name: "AES-GCM" },  // Algoritmul de criptare
-            //    false,               // Nu este necesar să exportăm cheia
-            //    ["encrypt", "decrypt"]  // Permisiunile cheii
-            //);
-
-            //const dec_tip = await decriptareDate(enc_Tip.encData, enc_Tip.iv, enc_Tip.tag, importedKey);
-
-            //const decoded_key = await decodeMainKey(dec_key);
-
-            //console.log("Elementul decriptat ar trebui sa fie: ", dec_tip);
             await fetchItems();
 
         } catch (error) {
@@ -244,15 +197,12 @@ const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems
                             <div className="block">
                                 <label className="text-sm md:text-md font-medium">Nume Platforma</label>
                                 <input type="name" value={numeItem} onChange={(e) => { setNumeItem(e.target.value) }} className="mt-2 border py-1 px-2 border-gray-600 rounded-md md:w-5/6 w-full"></input>
-
                             </div>
                             <div className="block">
                                 <label className="text-sm md:text-md font-medium">URL</label>
                                 <input type="url" value={urlItem} onChange={(e) => { setUrlItem(e.target.value) }} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full"></input>
-
                             </div>
                         </div>
-
 
                         <label className="text-sm md:text-md font-medium">Username</label>
                         <input type="name" value={usernameItem} onChange={(e) => { setUserNamItem(e.target.value) }} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full" placeholder="Username sau E-mail"></input>

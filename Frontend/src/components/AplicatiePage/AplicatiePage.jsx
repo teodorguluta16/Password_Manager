@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { Bell } from "lucide-react";
+
 import Logo from "../../assets/website/access-control.png";
 import User2 from "../../assets/website/user3.png"
 import Notes from "../../assets/website/notes.png"
@@ -887,6 +889,8 @@ const AplicatiePage = () => {
     }
   }, [savedKey]);
 
+
+  const [open, setIsOpen] = useState(false);
   return (
 
     <div className="flex flex-col sm:flex-row sm:h-screen bg-gray-100 h-screen">
@@ -1096,7 +1100,7 @@ const AplicatiePage = () => {
             </div>
 
             {/* Bara de cautare */}
-            <div className="relative hidden sm:block ml-5">
+            <div className="relative hidden sm:block md:ml-5">
               <input
                 type="text"
                 placeholder="Cauta..."
@@ -1108,6 +1112,19 @@ const AplicatiePage = () => {
               />
             </div>
 
+            <div className="relative">
+              {/* Clopoțel */}
+              <button
+                onClick={() => setOpen(!open)}
+                className="relative p-2 rounded-full hover:bg-gray-100 transition"
+              >
+                <Bell className="w-6 h-6 text-gray-700" />
+                {expiredItems.length > 0 && (
+                  <span className="absolute top-0 right-0 inline-block w-2 h-2 bg-red-500 rounded-full"></span>
+                )}
+              </button>
+
+            </div>
             {/* Contul meu */}
             <div className="ml-auto lg:mr-2 flex items-center gap-4 text-white transition-all duration-300">
               <button

@@ -70,18 +70,13 @@ const GridAfisItems = ({ items, setGestioneazaItem, setStergeItem, setItemid, fe
 
         // trimitem credentialele la extensie
         window.postMessage({
-            type: "SYNC_CREDENTIALS_TO_EXTENSION",
+            type: "LAUNCH_WITH_CREDENTIALS",
             credentials: {
                 username: item.username,
                 parola: item.parola,
                 url: item.url
             }
         }, "*");
-        if (item.url) {
-            window.open(item.url, "_blank");
-        } else {
-            console.warn("URL indisponibil!");
-        }
     };
 
     const handleRemoteConnexion = async (e, item) => {

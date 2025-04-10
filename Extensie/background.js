@@ -8,6 +8,7 @@ browserAPI.runtime.onInstalled.addListener(() => {
 });
 
 // aici fac interogarea in baza de date si extrag datele si le trimit pe urma in popup.js in format sjson
+let alreadyLaunched = false;
 browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "getPasswords") {
         // Înlocuim async/await cu promisiuni
@@ -80,6 +81,25 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
         });
 
         return true;
+    }
+
+
+    if (request.action === "launchTabWithCredentials") {
+        if (alreadyLaunched) {
+            console.warn("⚠️ Tab deja lansat. Ignorăm.");
+            return;
+        }
+
+        alreadyLaunched = true;
+        setTimeout(() => alreadyLaunched = false, 5000); // prevenim spamul
+
+        const { username, parola, url } = request.credentials;
+
+        chrome.storage.local.set({
+            credentiale_temporare: { username, password: parola, url }
+        }, () => {
+            chrome.tabs.create({ url });
+        });
     }
 
     console.warn("⚠️ Mesaj necunoscut:", request.action);
