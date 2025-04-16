@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Bell } from "lucide-react";
+import dayjs from "dayjs";
+
 
 import Logo from "../../assets/website/access-control.png";
 import User2 from "../../assets/website/user3.png"
@@ -16,7 +18,6 @@ import DeletedIcon from "../../assets/website/garbage.png"
 import AddIcon from "../../assets/website/add.png"
 import FavoriteIcon from '../../assets/website/star.png'
 import Address from '../../assets/website/address.png'
-import IDCard from "../../assets/website/id-card.png"
 import RemoteWorking from "../../assets/website/remote-working.png"
 import '../../App.css';
 
@@ -288,6 +289,30 @@ const AplicatiePage = () => {
   const [notiteItemsAll, setNotiteItmes] = useState([]);
   const [carduriItemsAll, setCarduriItems] = useState([]);
   const [adreseAll, setAdreseItems] = useState([]);
+
+
+  const thresholdDays = 180;
+  const paroleDeModificat = useMemo(() => {
+    return paroleItemsAll
+      .filter(p => dayjs().diff(dayjs(p.lastUpdated), 'day') >= thresholdDays)
+      .sort((a, b) => new Date(a.lastUpdated) - new Date(b.lastUpdated));
+  }, [paroleItemsAll]);
+
+
+  const [showNotificariCascada, setShowNotificari] = useState(false);
+  const notificariRef = useRef(null);
+
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (notificariRef.current && !notificariRef.current.contains(event.target)) {
+        setShowNotificari(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const fetchItems = async () => {
 
@@ -1112,21 +1137,17 @@ const AplicatiePage = () => {
               />
             </div>
 
-            <div className="relative">
-              {/* Clopoțel */}
-              <button
-                onClick={() => setOpen(!open)}
-                className="relative p-2 rounded-full hover:bg-gray-100 transition"
-              >
-                <Bell className="w-6 h-6 text-gray-700" />
-                {expiredItems.length > 0 && (
-                  <span className="absolute top-0 right-0 inline-block w-2 h-2 bg-red-500 rounded-full"></span>
-                )}
-              </button>
 
-            </div>
             {/* Contul meu */}
             <div className="ml-auto lg:mr-2 flex items-center gap-4 text-white transition-all duration-300">
+              {/* Clopoțel */}
+              <button
+                onClick={() => setShowNotificari(true)}
+                className="relative p-2 rounded-full transition"
+              >
+                <Bell className="w-7 h-7 text-white hover:text-gray-700 transition" />
+              </button>
+
               <button
                 onClick={() => setMeniuContulMeu(!showMeniuLContulmeuCascada)}
                 className="flex flex-col lg:flex-row items-center gap-2 pr-2 hover:bg-green-800 rounded-full text-white transition-all duration-300"
@@ -1152,6 +1173,26 @@ const AplicatiePage = () => {
             </ul>
           </div>
           )}
+
+        {showNotificariCascada && (
+          <div
+            ref={notificariRef}
+            className="absolute right-0 mt-2 mr-4 w-80 bg-gray-700 shadow-xl rounded-lg z-50"
+          >
+            <div className="p-4 border-b font-semibold text-white">Parole de modificat</div>
+            {paroleDeModificat.length === 0 ? (
+              <div className="p-4 text-white">Nicio parola de modificat</div>
+            ) : (
+              <ul>
+                {paroleDeModificat.map((p, i) => (
+                  <li key={i} className="p-4 border-b hover:bg-gray-100">
+                    {p.site} – {dayjs(p.lastUpdated).format("DD MMM YYYY")}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
 
         {/* Buotnul de creare de itemi noi */}
         <button onClick={() => setMeniuCreeazaItem(true)} className="fixed flex items-center bottom-8 right-3 rounded-full shadow-lg bg-green-600 px-4 py-4 text-white hover:bg-gray-700 transition-all duration-300 aliniere">

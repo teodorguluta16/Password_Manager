@@ -103,9 +103,11 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem, derivedKey }) => {
 
     useEffect(() => {
         const dateObject = new Date(item.created_at);
+        const dateObject2 = new Date(item.modified_at);
         const formattedDate = dateObject.toLocaleString();
+        const formattedDate2 = dateObject2.toLocaleString();
         setCreatedDate(formattedDate);
-        setModifiedDate(formattedDate);
+        setModifiedDate(formattedDate2);
     }, [item.created_at, item.modified_at]);
 
     const [afisIstoric, setAfisIstoric] = useState(true);
@@ -261,7 +263,7 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem, derivedKey }) => {
             const jsonItem = {
                 metadata: {
                     created_at: item.created_at,
-                    modified_at: (parolaName !== initialValues.parola)
+                    modified_at: (modificari.length > 0)
                         ? new Date().toISOString()
                         : item.modified_at,
                     version: item.version + 1,
