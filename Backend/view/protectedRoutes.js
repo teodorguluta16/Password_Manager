@@ -278,6 +278,17 @@ protectedRouter.get('/getEmail', async (req, res) => {
         res.status(401).send();
     }
 });
+protectedRouter.get('/utilizatori/getEmailUser', async (req, res) => {
+    const userId = req.user.sub;
+    try {
+        const result = await client.query("Select u.email from utilizatori u where u.id=$1;", [userId])
+        res.status(200).json({ email: result.rows[0].email });
+    }
+    catch (error) {
+        console.error('Eroare:', error);
+        res.status(401).send();
+    }
+});
 
 // rute grupuri
 

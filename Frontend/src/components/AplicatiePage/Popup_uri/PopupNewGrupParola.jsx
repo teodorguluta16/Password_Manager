@@ -15,22 +15,6 @@ function decryptWithPrivateKey(encryptedMessage, privateKey) {
     return privateKey.decrypt(encryptedMessage, 'RSA-OAEP', { md: forge.md.sha256.create() });
 }
 
-const importRawKeyFromBase64 = async (base64Key) => {
-    const binary = atob(base64Key); // decode base64
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-        bytes[i] = binary.charCodeAt(i);
-    }
-
-    return await window.crypto.subtle.importKey(
-        "raw",
-        bytes,
-        "HKDF",
-        false,
-        ["deriveKey"]
-    );
-};
-
 const checkPwnedPassword = async (password) => {
     const hash = sha1(password).toUpperCase();
     const prefix = hash.substring(0, 5);

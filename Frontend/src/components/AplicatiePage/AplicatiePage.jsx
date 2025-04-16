@@ -49,13 +49,7 @@ const importRawKeyFromBase64 = async (base64Key) => {
     bytes[i] = binary.charCodeAt(i);
   }
 
-  return await window.crypto.subtle.importKey(
-    "raw",
-    bytes,
-    "HKDF",
-    false,
-    ["deriveKey"]
-  );
+  return await window.crypto.subtle.importKey("raw", bytes, "HKDF", false, ["deriveKey"]);
 };
 
 const deriveHMACKey = async (derivedKey) => {
@@ -91,7 +85,7 @@ const AplicatiePage = () => {
   const [meniuExtinsVerticala, setMeniuExtinsVerticala] = useState(false);
 
   const [initiale, setInitiale] = useState(null);
-  const [name_user, setNameUser] = useState('');
+  const [email_user, setEmailUser] = useState('');
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -226,42 +220,35 @@ const AplicatiePage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isFocused, setIsFocused] = useState(false);
 
-  //const [hmacKey, setHmacKey] = useState(null); // 1. inițializare
-
   useEffect(() => {
-    /*const genereazaHmacKey = async () => {
-      if (savedKey) {
-        let cryptoKey;
+    const fetchEmailUser = async () => {
 
-        if (typeof savedKey === "string") {
-          cryptoKey = await importRawKeyFromBase64(savedKey);
+      try {
+        const response = await fetch('http://localhost:9000/api/utilizatori/getEmailUser', { method: 'GET', credentials: 'include', });
+
+        if (response.ok) {
+          const data = await response.json();
+          const email2 = data.email;
+          setEmailUser(email2);
+
         } else {
-          cryptoKey = savedKey;
+          console.log("NU E BINEEE AICIIIIII!");
+          console.error("Eroare la primire email");
         }
-
-        const key = await deriveHMACKey(cryptoKey);
-        setHmacKey(key);
-        console.log("🔐 HMAC Key generată:", key);
+      } catch (error) {
+        console.error("Eroare la primire email:", error);
       }
     };
 
-    genereazaHmacKey();*/
-  }, [savedKey]);
+    fetchEmailUser();
+  }, []);
 
 
   const semneazaParola = async (parola, charset, length, hmacKey) => {
     const data = `${parola}|${charset}|${length}`;
     const encoder = new TextEncoder();
-
-    const signature = await crypto.subtle.sign(
-      "HMAC",
-      hmacKey, // 🔐 folosești cheia deja derivată
-      encoder.encode(data)
-    );
-
-    return Array.from(new Uint8Array(signature))
-      .map(b => b.toString(16).padStart(2, "0"))
-      .join("");
+    const signature = await crypto.subtle.sign("HMAC", hmacKey, encoder.encode(data));
+    return Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, "0")).join("");
   };
 
   const deconectare = async () => {
@@ -291,11 +278,12 @@ const AplicatiePage = () => {
   const [adreseAll, setAdreseItems] = useState([]);
 
 
-  const thresholdDays = 180;
+  const thresholdMinutes = 1;
+
   const paroleDeModificat = useMemo(() => {
     return paroleItemsAll
-      .filter(p => dayjs().diff(dayjs(p.lastUpdated), 'day') >= thresholdDays)
-      .sort((a, b) => new Date(a.lastUpdated) - new Date(b.lastUpdated));
+      .filter(p => dayjs().diff(dayjs(p.modified_parola), 'minute') >= thresholdMinutes)
+      .sort((a, b) => new Date(a.modified_parola) - new Date(b.modified_parola));
   }, [paroleItemsAll]);
 
 
@@ -363,7 +351,7 @@ const AplicatiePage = () => {
             const decodedString2 = hexToString(continutfromdata);
             const dataObject2 = JSON.parse(decodedString2);
 
-            const { created_at, modified_at, version } = dataObject2.metadata;
+            const { created_at, modified_at, modified_parola, version } = dataObject2.metadata;
 
             const ivHex2 = dataObject2.data.tip.iv;
             const encDataHex2 = dataObject2.data.tip.encData;
@@ -461,6 +449,7 @@ const AplicatiePage = () => {
                 comentariu: rez_comentariu,
                 created_at: created_at,
                 modified_at: modified_at,
+                modified_parola: modified_parola,
                 version: version,
                 id_owner: id_owner,
                 id_item: id_item,
@@ -481,6 +470,7 @@ const AplicatiePage = () => {
                 comentariu: rez_comentariu,
                 created_at: created_at,
                 modified_at: modified_at,
+                modified_parola: modified_parola,
                 version: version,
                 id_owner: id_owner,
                 id_item: id_item,
@@ -501,6 +491,7 @@ const AplicatiePage = () => {
                   comentariu: rez_comentariu,
                   created_at: created_at,
                   modified_at: modified_at,
+                  modified_parola: modified_parola,
                   version: version,
                   id_owner: id_owner,
                   id_item: id_item,
@@ -613,7 +604,6 @@ const AplicatiePage = () => {
 
               const rez_nume = await decriptareDate(encDataHex3, ivHex3, tagHex3, importedKey);
 
-
               const ivHex4 = dataObject2.data.data.iv;
               const encDataHex4 = dataObject2.data.data.encData;
               const tagHex4 = dataObject2.data.data.tag;
@@ -631,57 +621,26 @@ const AplicatiePage = () => {
                 encDataHex8 = dataObject2.data.istoric.encData;
                 tagHex8 = dataObject2.data.istoric.tag;
                 rez_istoric = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
-
               }
 
               console.log("Datele primite de la server aferente parolei:", rez_tip, rez_nume, rez_data, rez_comentariu, isDeleted, isFavorite, rez_istoric);
               notiteItems.push({
-                importedKey: importedKey,
-                nume: rez_nume,
-                tipitem: rez_tip,
-                data: rez_data,
-                comentariu: rez_comentariu,
-                created_at: created_at,
-                modified_at: modified_at,
-                version: version,
-                id_owner: id_owner,
-                id_item: id_item,
-                isDeleted: isDeleted,
-                isFavorite: isFavorite,
-                istoric: rez_istoric,
+                importedKey: importedKey, nume: rez_nume, tipitem: rez_tip, data: rez_data, comentariu: rez_comentariu,
+                created_at: created_at, modified_at: modified_at, version: version, id_owner: id_owner, id_item: id_item,
+                isDeleted: isDeleted, isFavorite: isFavorite, istoric: rez_istoric,
               });
 
               fetchedItems.push({
-                importedKey: importedKey,
-                nume: rez_nume,
-                tipitem: rez_tip,
-                data: rez_data,
-                comentariu: rez_comentariu,
-                created_at: created_at,
-                modified_at: modified_at,
-                version: version,
-                id_owner: id_owner,
-                id_item: id_item,
-                isDeleted: isDeleted,
-                isFavorite: isFavorite,
-                istoric: rez_istoric
+                importedKey: importedKey, nume: rez_nume, tipitem: rez_tip, data: rez_data, comentariu: rez_comentariu,
+                created_at: created_at, modified_at: modified_at, version: version, id_owner: id_owner, id_item: id_item,
+                isDeleted: isDeleted, isFavorite: isFavorite, istoric: rez_istoric
               });
 
               if (isFavorite) {
                 favoriteItems.push({
-                  importedKey: importedKey,
-                  nume: rez_nume,
-                  tipitem: rez_tip,
-                  data: rez_data,
-                  comentariu: rez_comentariu,
-                  created_at: created_at,
-                  modified_at: modified_at,
-                  version: version,
-                  id_owner: id_owner,
-                  id_item: id_item,
-                  isDeleted: isDeleted,
-                  isFavorite: isFavorite,
-                  istoric: rez_istoric
+                  importedKey: importedKey, nume: rez_nume, tipitem: rez_tip, data: rez_data, comentariu: rez_comentariu,
+                  created_at: created_at, modified_at: modified_at, version: version, id_owner: id_owner, id_item: id_item,
+                  isDeleted: isDeleted, isFavorite: isFavorite, istoric: rez_istoric
                 });
               }
 
@@ -720,67 +679,28 @@ const AplicatiePage = () => {
               let ivHex8 = null, encDataHex8 = null, tagHex8 = null, rez_istoric = null;
               console.log(dataObject2);
               if (dataObject2.data.istoric) {
-                ivHex8 = dataObject2.data.istoric.iv;
-                encDataHex8 = dataObject2.data.istoric.encData;
-                tagHex8 = dataObject2.data.istoric.tag;
+                ivHex8 = dataObject2.data.istoric.iv; encDataHex8 = dataObject2.data.istoric.encData; tagHex8 = dataObject2.data.istoric.tag;
                 rez_istoric = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
-
               }
 
               console.log("Datele primite de la server aferente cardului:", rez_tip, rez_nume, rez_numarCard, rez_posesorCard, rez_comentariu, rez_dataExpirare, isDeleted, isFavorite);
               carduriItems.push({
-                importedKey: importedKey,
-                nume: rez_nume,
-                tipitem: rez_tip,
-                numarCard: rez_numarCard,
-                posesorCard: rez_posesorCard,
-                dataExpirare: rez_dataExpirare,
-                comentariu: rez_comentariu,
-                created_at: created_at,
-                modified_at: modified_at,
-                version: version,
-                id_owner: id_owner,
-                id_item: id_item,
-                isDeleted: isDeleted,
-                isFavorite: isFavorite,
-                istoric: rez_istoric
+                importedKey: importedKey, nume: rez_nume, tipitem: rez_tip, numarCard: rez_numarCard, posesorCard: rez_posesorCard,
+                dataExpirare: rez_dataExpirare, comentariu: rez_comentariu, created_at: created_at, modified_at: modified_at,
+                version: version, id_owner: id_owner, id_item: id_item, isDeleted: isDeleted, isFavorite: isFavorite, istoric: rez_istoric
               });
 
               fetchedItems.push({
-                importedKey: importedKey,
-                nume: rez_nume,
-                tipitem: rez_tip,
-                numarCard: rez_numarCard,
-                posesorCard: rez_posesorCard,
-                dataExpirare: rez_dataExpirare,
-                comentariu: rez_comentariu,
-                created_at: created_at,
-                modified_at: modified_at,
-                version: version,
-                id_owner: id_owner,
-                id_item: id_item,
-                isDeleted: isDeleted,
-                isFavorite: isFavorite,
-                istoric: rez_istoric
+                importedKey: importedKey, nume: rez_nume, tipitem: rez_tip, numarCard: rez_numarCard, posesorCard: rez_posesorCard,
+                dataExpirare: rez_dataExpirare, comentariu: rez_comentariu, created_at: created_at, modified_at: modified_at,
+                version: version, id_owner: id_owner, id_item: id_item, isDeleted: isDeleted, isFavorite: isFavorite, istoric: rez_istoric
               });
 
               if (isFavorite) {
                 favoriteItems.push({
-                  importedKey: importedKey,
-                  nume: rez_nume,
-                  tipitem: rez_tip,
-                  numarCard: rez_numarCard,
-                  posesorCard: rez_posesorCard,
-                  dataExpirare: rez_dataExpirare,
-                  comentariu: rez_comentariu,
-                  created_at: created_at,
-                  modified_at: modified_at,
-                  version: version,
-                  id_owner: id_owner,
-                  id_item: id_item,
-                  isDeleted: isDeleted,
-                  isFavorite: isFavorite,
-                  istoric: rez_istoric
+                  importedKey: importedKey, nume: rez_nume, tipitem: rez_tip, numarCard: rez_numarCard, posesorCard: rez_posesorCard,
+                  dataExpirare: rez_dataExpirare, comentariu: rez_comentariu, created_at: created_at, modified_at: modified_at,
+                  version: version, id_owner: id_owner, id_item: id_item, isDeleted: isDeleted, isFavorite: isFavorite, istoric: rez_istoric
                 });
               }
 
@@ -824,70 +744,29 @@ const AplicatiePage = () => {
               let ivHex9 = null, encDataHex9 = null, tagHex9 = null, rez_istoric = null;
               console.log(dataObject2);
               if (dataObject2.data.istoric) {
-                ivHex9 = dataObject2.data.istoric.iv;
-                encDataHex9 = dataObject2.data.istoric.encData;
-                tagHex9 = dataObject2.data.istoric.tag;
+                ivHex9 = dataObject2.data.istoric.iv; encDataHex9 = dataObject2.data.istoric.encData; tagHex9 = dataObject2.data.istoric.tag;
                 rez_istoric = await decriptareDate(encDataHex9, ivHex9, tagHex9, importedKey);
 
               }
 
               console.log("Datele primite de la server aferente adresei:", rez_tip, rez_nume, rez_adresa, rez_oras, rez_jduet, rez_codPostal, rez_comentariu, isDeleted, isFavorite);
               adreseItems.push({
-                importedKey: importedKey,
-                nume: rez_nume,
-                tipitem: rez_tip,
-                adresa: rez_adresa,
-                oras: rez_oras,
-                judet: rez_jduet,
-                codPostal: rez_codPostal,
-                comentariu: rez_comentariu,
-                created_at: created_at,
-                modified_at: modified_at,
-                version: version,
-                id_owner: id_owner,
-                id_item: id_item,
-                isDeleted: isDeleted,
-                isFavorite: isFavorite,
-                istoric: rez_istoric
+                importedKey: importedKey, nume: rez_nume, tipitem: rez_tip, adresa: rez_adresa, oras: rez_oras, judet: rez_jduet,
+                codPostal: rez_codPostal, comentariu: rez_comentariu, created_at: created_at, modified_at: modified_at, version: version,
+                id_owner: id_owner, id_item: id_item, isDeleted: isDeleted, isFavorite: isFavorite, istoric: rez_istoric
               });
 
               fetchedItems.push({
-                importedKey: importedKey,
-                nume: rez_nume,
-                tipitem: rez_tip,
-                adresa: rez_adresa,
-                oras: rez_oras,
-                judet: rez_jduet,
-                codPostal: rez_codPostal,
-                comentariu: rez_comentariu,
-                created_at: created_at,
-                modified_at: modified_at,
-                version: version,
-                id_owner: id_owner,
-                id_item: id_item,
-                isDeleted: isDeleted,
-                isFavorite: isFavorite,
-                istoric: rez_istoric
+                importedKey: importedKey, nume: rez_nume, tipitem: rez_tip, adresa: rez_adresa, oras: rez_oras,
+                judet: rez_jduet, codPostal: rez_codPostal, comentariu: rez_comentariu, created_at: created_at, modified_at: modified_at,
+                version: version, id_owner: id_owner, id_item: id_item, isDeleted: isDeleted, isFavorite: isFavorite, istoric: rez_istoric
               });
 
               if (isFavorite) {
                 favoriteItems.push({
-                  importedKey: importedKey,
-                  nume: rez_nume,
-                  tipitem: rez_tip,
-                  adresa: rez_adresa,
-                  oras: rez_oras,
-                  judet: rez_jduet,
-                  codPostal: rez_codPostal,
-                  comentariu: rez_comentariu,
-                  created_at: created_at,
-                  modified_at: modified_at,
-                  version: version,
-                  id_owner: id_owner,
-                  id_item: id_item,
-                  isDeleted: isDeleted,
-                  isFavorite: isFavorite,
-                  istoric: rez_istoric
+                  importedKey: importedKey, nume: rez_nume, tipitem: rez_tip, adresa: rez_adresa, oras: rez_oras, judet: rez_jduet,
+                  codPostal: rez_codPostal, comentariu: rez_comentariu, created_at: created_at, modified_at: modified_at,
+                  version: version, id_owner: id_owner, id_item: id_item, isDeleted: isDeleted, isFavorite: isFavorite, istoric: rez_istoric
                 });
               }
             }
@@ -1125,7 +1004,7 @@ const AplicatiePage = () => {
             </div>
 
             {/* Bara de cautare */}
-            <div className="relative hidden sm:block md:ml-5">
+            <div className="relative hidden sm:block sm:ml-12">
               <input
                 type="text"
                 placeholder="Cauta..."
@@ -1156,7 +1035,7 @@ const AplicatiePage = () => {
                   {initiale}
                 </div>
                 <span className="hidden lg:inline text-sm ml-2 lg:ml-0 lg:text-lg">
-                  ion_popescu@gmail.com
+                  {email_user}
                 </span>
 
               </button>
@@ -1168,7 +1047,6 @@ const AplicatiePage = () => {
           (<div className="absolute right-0 bg-gray-700 text-white border rounded-lg shadow-lg w-48 z-[1000] transition-all duration-600 ease-in-out mr-3" ref={menuRef}>
             <ul className="py-2 z-20">
               <li className="px-4 py-3 hover:bg-green-600 cursor-pointer z-50" onClick={() => selecteazaSectiune('ProfilUtilizator')}>Profil</li>
-              <li className="px-4 py-3 hover:bg-green-600 cursor-pointer z-50">Setări</li>
               <li className="px-4 py-3 hover:bg-green-600 cursor-pointer z-50" onClick={deconectare}>Deconectare</li>
             </ul>
           </div>

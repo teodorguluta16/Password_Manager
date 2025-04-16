@@ -304,6 +304,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
                 metadata: {
                     created_at: new Date().toISOString(),
                     modified_at: new Date().toISOString(),
+                    modified_parola: new Date().toISOString(),
                     version: 1,
                     meta: {
                         lungime: length,

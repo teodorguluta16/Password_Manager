@@ -266,6 +266,9 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem, derivedKey }) => {
                     modified_at: (modificari.length > 0)
                         ? new Date().toISOString()
                         : item.modified_at,
+                    modified_parola: (parolaName !== initialValues.parola)
+                        ? new Date().toISOString()
+                        : item.modified_parola,
                     version: item.version + 1,
                     meta: {
                         lungime: length,
