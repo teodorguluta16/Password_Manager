@@ -1,8 +1,9 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } from "../../FunctiiDate/FunctiiDefinite"
-import { useKeySimetrica } from '../../FunctiiDate/ContextKeySimetrice'
 import forge from 'node-forge';
+import sha1 from "js-sha1";
+import zxcvbn from 'zxcvbn'; // trebuie sa includ si asta in documentatie
 
 function hexToString(hex) {
     let str = '';
@@ -14,6 +15,42 @@ function decryptWithPrivateKey(encryptedMessage, privateKey) {
     return privateKey.decrypt(encryptedMessage, 'RSA-OAEP', { md: forge.md.sha256.create() });
 }
 
+const importRawKeyFromBase64 = async (base64Key) => {
+    const binary = atob(base64Key); // decode base64
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+
+    return await window.crypto.subtle.importKey(
+        "raw",
+        bytes,
+        "HKDF",
+        false,
+        ["deriveKey"]
+    );
+};
+
+const checkPwnedPassword = async (password) => {
+    const hash = sha1(password).toUpperCase();
+    const prefix = hash.substring(0, 5);
+    const suffix = hash.substring(5);
+
+    const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
+    const text = await response.text();
+
+    // căutăm dacă suffix-ul există în listă
+    const lines = text.split("\n");
+    const found = lines.find((line) => line.startsWith(suffix));
+
+    if (found) {
+        const count = parseInt(found.split(":")[1]);
+        return count; // de câte ori a fost găsită în breșe
+    }
+
+    return 0;
+};
+
 const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems }) => {
     const [numeItem, setNumeItem] = useState('');
     const [urlItem, setUrlItem] = useState('');
@@ -21,6 +58,7 @@ const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems
     const [parolaItem, setParolaItem] = useState('');
     const [comentariuItem, setComentariuItem] = useState('');
     const [key, setKey] = useState(derivedKey);
+    const [length, setLength] = useState(32);
 
     useEffect(() => {
         if (derivedKey) {
@@ -28,6 +66,129 @@ const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems
             console.log("Cheia setată:", derivedKey);
         }
     }, [derivedKey]);
+
+    const getRandomChar = (charset) => {
+        const array = new Uint32Array(1);
+        crypto.getRandomValues(array);
+        return charset[array[0] % charset.length];
+    };
+
+    const secureShuffle = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const rand = new Uint32Array(1);
+            crypto.getRandomValues(rand);
+            const j = rand[0] % (i + 1);
+
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+
+    const generateStrongPassword = (length) => {
+
+        const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const lower = "abcdefghijklmnopqrstuvwxyz";
+        const digits = "0123456789";
+        const symbols = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+        const all = upper + lower + digits + symbols;
+
+        if (length < 4) {
+            throw new Error("Parola trebuie să aibă cel puțin 4 caractere pentru a include toate tipurile.");
+        }
+
+        let password = [
+            getRandomChar(upper),
+            getRandomChar(lower),
+            getRandomChar(digits),
+            getRandomChar(symbols)
+        ];
+
+        const remainingLength = length - password.length;
+        const randomBytes = new Uint32Array(remainingLength);
+        crypto.getRandomValues(randomBytes);
+
+        for (let i = 0; i < remainingLength; i++) {
+            password.push(all[randomBytes[i] % all.length]);
+        }
+
+        const finalPassword = secureShuffle(password).join("");
+
+        setParolaItem(finalPassword);
+
+        //console.log("Am intrat, este: ", secureShuffle(password).join(""));
+        return finalPassword;
+    };
+
+    const getPasswordStrength = async (password, usernameItem = "") => {
+        const parolaLower = password.toLowerCase();
+        const userLower = usernameItem.toLowerCase();
+
+        const paroleComune = [
+            "123456", "password", "123456789", "qwerty", "abc123", "111111", "admin",
+            "Academia123", "parola123", "letmein", "iloveyou", "000000", "123123"
+        ];
+
+        // 1. Verificare dacă parola conține numele/emailul
+        if (password.toLowerCase().includes(userLower)) {
+            return {
+                strength: 0,
+                color: "bg-red-600",
+                label: "Parola conține emailul sau numele utilizatorului",
+                suggestions: ["Nu include emailul sau numele în parolă."]
+            };
+        }
+
+        // 2. Verificare dacă parola este prea comună
+        if (paroleComune.includes(parolaLower)) {
+            return {
+                strength: 0,
+                color: "bg-red-600",
+                label: "Parolă foarte comună",
+                suggestions: ["Alege o parolă mai puțin previzibilă."]
+            };
+        }
+
+        // 3. Verificare HIBP
+        const breachCount = await checkPwnedPassword(password);
+        if (breachCount > 0) {
+            return {
+                strength: 0,
+                color: "bg-red-700",
+                label: `Parolă compromisă (${breachCount} ori)`,
+                suggestions: ["Această parolă a fost expusă public. Alege alta."]
+            };
+        }
+
+        // 4. Analiză cu zxcvbn
+        const result = zxcvbn(password);
+        const score = Math.min(result.score, 4);
+        const suggestions = result.feedback?.suggestions || [];
+
+        const colors = ["bg-red-500", "bg-yellow-500", "bg-yellow-400", "bg-green-500", "bg-green-600"];
+        const labels = ["Foarte slabă", "Slabă", "Ok", "Puternică", "Foarte puternică"];
+
+        return {
+            strength: score,
+            color: colors[score],
+            label: labels[score],
+            suggestions
+        };
+    };
+
+    const [strengthData, setStrengthData] = useState({ strength: 0, color: "", label: "" });
+
+    useEffect(() => {
+        const evaluateStrength = async () => {
+            if (parolaItem.length > 0) {
+                const result = await getPasswordStrength(parolaItem, usernameItem);
+                setStrengthData(result);
+            } else {
+                setStrengthData({ strength: 0, color: "", label: "" });
+            }
+        };
+
+        evaluateStrength();
+    }, [parolaItem, usernameItem]);
 
     const handleAdaugaItem = async () => {
         try {
@@ -210,7 +371,48 @@ const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems
 
                         <label className="text-sm md:text-md font-medium">Parola</label>
                         <input type="password" value={parolaItem} onChange={(e) => { setParolaItem(e.target.value) }} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full"></input>
-                        <button>---</button>
+                        {/* Strength bar */}
+                        {parolaItem.length > 0 && (
+                            <>
+                                <div className="w-full h-2 bg-gray-300 rounded mt-2">
+                                    <div
+                                        className={`h-2 rounded transition-all duration-300 ${strengthData.color}`}
+                                        style={{ width: `${(strengthData.strength + 1) * 20}%` }}
+                                    />
+                                </div>
+                                <p className="text-xs mt-1 text-gray-700">{strengthData.label}</p>
+
+                                {/* Sugestii */}
+                                {strengthData.suggestions && strengthData.suggestions.length > 0 && (
+                                    <ul className="text-xs text-red-500 mt-1 list-disc list-inside">
+                                        {strengthData.suggestions.map((sugestie, index) => (
+                                            <li key={index}>{sugestie}</li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </>
+                        )}
+                        <div className="mt-2 flex items-center gap-2">
+                            <label className="text-sm">Lungime:</label>
+                            <select
+                                value={length}
+                                onChange={(e) => setLength(Number(e.target.value))}
+                                className="border py-1 px-2 border-gray-600 rounded-md"
+                            >
+                                <option value="16">16</option>
+                                <option value="24">24</option>
+                                <option value="32">32</option>
+                                <option value="64">64</option>
+                            </select>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => generateStrongPassword(length)}
+                            className="mt-2 bg-blue-600 text-white py-1 px-4 rounded-md hover:bg-blue-700 transition"
+                        >
+                            Generează parolă
+                        </button>
 
                         <label className="text-sm md:text-md font-medium">Adauga un comentariu</label>
                         <textarea type="note" value={comentariuItem} onChange={(e) => { setComentariuItem(e.target.value) }} className="border mt-2 py-1 px-2 border-gray-600 rounded-md w-full min-h-32 resize-none"></textarea>
