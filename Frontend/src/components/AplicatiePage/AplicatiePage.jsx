@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import { Bell } from "lucide-react";
 import dayjs from "dayjs";
-
-
 import Logo from "../../assets/website/access-control.png";
 import User2 from "../../assets/website/user3.png"
 import Notes from "../../assets/website/notes.png"
@@ -20,7 +17,6 @@ import FavoriteIcon from '../../assets/website/star.png'
 import Address from '../../assets/website/address.png'
 import RemoteWorking from "../../assets/website/remote-working.png"
 import '../../App.css';
-
 import ItemsAllPage from './ItemiPages/ItemsAllPage';
 import ParolePage from './ItemiPages/ParolePage';
 import NotitePage from './ItemiPages/NotitePage';
@@ -41,6 +37,7 @@ import RemoteWorkingPage from './ItemiPages/RemoteWorkingPage';
 
 import { getKeyFromIndexedDB } from "../FunctiiDate/ContextKeySimetrice";
 import { decodeMainKey, decriptareDate } from "../FunctiiDate/FunctiiDefinite"
+import EditParolaItem from './ItemiPages/EditParolaItem';
 
 const importRawKeyFromBase64 = async (base64Key) => {
   const binary = atob(base64Key); // decode base64
@@ -54,20 +51,8 @@ const importRawKeyFromBase64 = async (base64Key) => {
 
 const deriveHMACKey = async (derivedKey) => {
   return crypto.subtle.deriveKey(
-    {
-      name: "HKDF",
-      hash: "SHA-256",
-      salt: new TextEncoder().encode("semnatura-parola"),
-      info: new TextEncoder().encode("hmac-signing")
-    },
-    derivedKey,
-    {
-      name: "HMAC",
-      hash: "SHA-256",
-      length: 256
-    },
-    false,
-    ["sign"]
+    { name: "HKDF", hash: "SHA-256", salt: new TextEncoder().encode("semnatura-parola"), info: new TextEncoder().encode("hmac-signing") },
+    derivedKey, { name: "HMAC", hash: "SHA-256", length: 256 }, false, ["sign"]
   );
 };
 
@@ -125,25 +110,20 @@ const AplicatiePage = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch('http://localhost:9000/api/auth/validateToken', {
-          method: 'GET',
-          credentials: "include"
-        });
+        const response = await fetch('http://localhost:9000/api/auth/validateToken', { method: 'GET', credentials: "include" });
 
         if (response.ok) {
           const data = await response.json();
-          console.log("Utilizator autentificat:", data);
 
           if (data.name) {
             const [firstName, lastName] = data.name.split(' ');
             setInitiale(`${firstName.charAt(0)}${lastName.charAt(0)}`);
           }
         } else {
-          console.warn("Token invalid sau expirat. Redirecționare la login.");
           navigate('/login');
         }
       } catch (error) {
-        console.error("Eroare la verificarea autentificării:", error);
+        console.error("Eroare verificare autentificare:", error);
         navigate('/login');
       }
     };
@@ -253,13 +233,8 @@ const AplicatiePage = () => {
 
   const deconectare = async () => {
     try {
-      const response = await fetch('http://localhost:9000/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
-
+      const response = await fetch('http://localhost:9000/api/auth/logout', { method: 'POST', credentials: 'include', });
       if (response.ok) {
-        console.log("Deconectare reușită!");
         window.location.href = '/login';
       } else {
         console.error("Eroare la deconectare");
@@ -278,7 +253,7 @@ const AplicatiePage = () => {
   const [adreseAll, setAdreseItems] = useState([]);
 
 
-  const thresholdMinutes = 1;
+  const thresholdMinutes = 2;
 
   const paroleDeModificat = useMemo(() => {
     return paroleItemsAll
@@ -305,13 +280,7 @@ const AplicatiePage = () => {
   const fetchItems = async () => {
 
     try {
-      const response = await fetch('http://localhost:9000/api/utilizator/itemi', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: "include"
-      });
+      const response = await fetch('http://localhost:9000/api/utilizator/itemi', { method: 'GET', headers: { 'Content-Type': 'application/json', }, credentials: "include" });
 
       if (response.ok) {
         const data = await response.json();
@@ -341,9 +310,7 @@ const AplicatiePage = () => {
             const octetiArray = dec_key.split(',').map(item => parseInt(item.trim(), 10));
             const uint8Array = new Uint8Array(octetiArray);
 
-            const importedKey = await window.crypto.subtle.importKey(
-              "raw", uint8Array, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]
-            );
+            const importedKey = await window.crypto.subtle.importKey("raw", uint8Array, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
 
             // Decriptare continut
             const continutfromdata = item.continut_hex;
@@ -391,11 +358,8 @@ const AplicatiePage = () => {
               let ivHex8 = null, encDataHex8 = null, tagHex8 = null, rez_istoric = null;
               console.log(dataObject2);
               if (dataObject2.data.istoric) {
-                ivHex8 = dataObject2.data.istoric.iv;
-                encDataHex8 = dataObject2.data.istoric.encData;
-                tagHex8 = dataObject2.data.istoric.tag;
+                ivHex8 = dataObject2.data.istoric.iv; encDataHex8 = dataObject2.data.istoric.encData; tagHex8 = dataObject2.data.istoric.tag;
                 rez_istoric = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
-
               }
 
               const ivHex9 = dataObject2.data.semnatura.iv;
@@ -413,92 +377,45 @@ const AplicatiePage = () => {
               console.log("Lungimea: ", lungime, "Charset: ", charset);
 
 
-              const cryptoKey = typeof savedKey === "string"
-                ? await importRawKeyFromBase64(savedKey)
-                : savedKey;
+              const cryptoKey = typeof savedKey === "string" ? await importRawKeyFromBase64(savedKey) : savedKey;
 
               const hmacKey = await deriveHMACKey(cryptoKey);
 
-              if (!hmacKey) {
-                console.error("🔐 HMAC key lipsește în momentul semnării!");
-                return;
-              }
+              if (!hmacKey) return;
 
-              const semnaturaCalculata = await semneazaParola(
-                rez_parola, charset, lungime, hmacKey
-              );
+              const semnaturaCalculata = await semneazaParola(rez_parola, charset, lungime, hmacKey);
 
               console.log("semnatura calculata: ", semnaturaCalculata);
               console.log("semnatura item: ", rez_semnatura);
 
               if (semnaturaCalculata !== rez_semnatura) {
                 console.warn("⚠️ Semnătura nu se potrivește! Parola ar putea fi alterată.");
-                // Poți marca acest item ca „invalid” în UI
               }
               else {
                 console.log("Semnatura verificata !!!");
               }
 
               paroleItems.push({
-                importedKey: importedKey,
-                nume: rez_nume,
-                tipitem: rez_tip,
-                username: rez_username,
-                parola: rez_parola,
-                url: rez_url,
-                comentariu: rez_comentariu,
-                created_at: created_at,
-                modified_at: modified_at,
-                modified_parola: modified_parola,
-                version: version,
-                id_owner: id_owner,
-                id_item: id_item,
-                isDeleted: isDeleted,
-                isFavorite: isFavorite,
-                istoric: rez_istoric,
+                importedKey: importedKey, nume: rez_nume, tipitem: rez_tip, username: rez_username, parola: rez_parola,
+                url: rez_url, comentariu: rez_comentariu, created_at: created_at, modified_at: modified_at, modified_parola: modified_parola,
+                version: version, id_owner: id_owner, id_item: id_item, isDeleted: isDeleted, isFavorite: isFavorite, istoric: rez_istoric,
                 isTampered: semnaturaCalculata !== rez_semnatura
 
               });
 
               fetchedItems.push({
-                importedKey: importedKey,
-                nume: rez_nume,
-                tipitem: rez_tip,
-                username: rez_username,
-                parola: rez_parola,
-                url: rez_url,
-                comentariu: rez_comentariu,
-                created_at: created_at,
-                modified_at: modified_at,
-                modified_parola: modified_parola,
-                version: version,
-                id_owner: id_owner,
-                id_item: id_item,
-                isDeleted: isDeleted,
-                isFavorite: isFavorite,
-                istoric: rez_istoric,
-                isTampered: semnaturaCalculata !== rez_semnatura
+                importedKey: importedKey, nume: rez_nume, tipitem: rez_tip, username: rez_username, parola: rez_parola, url: rez_url,
+                comentariu: rez_comentariu, created_at: created_at, modified_at: modified_at, modified_parola: modified_parola,
+                version: version, id_owner: id_owner, id_item: id_item, isDeleted: isDeleted, isFavorite: isFavorite,
+                istoric: rez_istoric, isTampered: semnaturaCalculata !== rez_semnatura
               });
 
               if (isFavorite) {
                 favoriteItems.push({
-                  importedKey: importedKey,
-                  nume: rez_nume,
-                  tipitem: rez_tip,
-                  username: rez_username,
-                  parola: rez_parola,
-                  url: rez_url,
-                  comentariu: rez_comentariu,
-                  created_at: created_at,
-                  modified_at: modified_at,
-                  modified_parola: modified_parola,
-                  version: version,
-                  id_owner: id_owner,
-                  id_item: id_item,
-                  isDeleted: isDeleted,
-                  isFavorite: isFavorite,
-                  istoric: rez_istoric,
-                  isTampered: semnaturaCalculata !== rez_semnatura
+                  importedKey: importedKey, nume: rez_nume, tipitem: rez_tip, username: rez_username, parola: rez_parola, url: rez_url,
+                  comentariu: rez_comentariu, created_at: created_at, modified_at: modified_at, modified_parola: modified_parola,
+                  version: version, id_owner: id_owner, id_item: id_item, isDeleted: isDeleted,
+                  isFavorite: isFavorite, istoric: rez_istoric, isTampered: semnaturaCalculata !== rez_semnatura
                 });
               }
 
@@ -534,65 +451,27 @@ const AplicatiePage = () => {
               let ivHex8 = null, encDataHex8 = null, tagHex8 = null, rez_istoric = null;
               console.log(dataObject2);
               if (dataObject2.data.istoric) {
-                ivHex8 = dataObject2.data.istoric.iv;
-                encDataHex8 = dataObject2.data.istoric.encData;
-                tagHex8 = dataObject2.data.istoric.tag;
+                ivHex8 = dataObject2.data.istoric.iv; encDataHex8 = dataObject2.data.istoric.encData; tagHex8 = dataObject2.data.istoric.tag;
                 rez_istoric = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
 
               }
 
               remoteItems.push({
-                importedKey: importedKey,
-                nume: rez_nume,
-                tipitem: rez_tip,
-                username: rez_username,
-                parola: rez_parola,
-                host: rez_host,
-                ppkKey: rez_ppkKey,
-                created_at: created_at,
-                modified_at: modified_at,
-                version: version,
-                id_owner: id_owner,
-                id_item: id_item,
-                isDeleted: isDeleted,
-                isFavorite: isFavorite,
-                istoric: rez_istoric
+                importedKey: importedKey, nume: rez_nume, tipitem: rez_tip, username: rez_username, parola: rez_parola, host: rez_host,
+                ppkKey: rez_ppkKey, created_at: created_at, modified_at: modified_at, version: version, id_owner: id_owner,
+                id_item: id_item, isDeleted: isDeleted, isFavorite: isFavorite, istoric: rez_istoric
               });
 
               fetchedItems.push({
-                importedKey: importedKey,
-                nume: rez_nume,
-                tipitem: rez_tip,
-                username: rez_username,
-                parola: rez_parola,
-                host: rez_host,
-                ppkKey: rez_ppkKey,
-                created_at: created_at,
-                modified_at: modified_at,
-                version: version,
-                id_owner: id_owner,
-                id_item: id_item,
-                isDeleted: isDeleted,
-                isFavorite: isFavorite,
-                istoric: rez_istoric
+                importedKey: importedKey, nume: rez_nume, tipitem: rez_tip, username: rez_username, parola: rez_parola, host: rez_host,
+                ppkKey: rez_ppkKey, created_at: created_at, modified_at: modified_at, version: version, id_owner: id_owner,
+                id_item: id_item, isDeleted: isDeleted, isFavorite: isFavorite, istoric: rez_istoric
               });
               if (isFavorite) {
                 favoriteItems.push({
-                  importedKey: importedKey,
-                  nume: rez_nume,
-                  tipitem: rez_tip,
-                  username: rez_username,
-                  parola: rez_parola,
-                  host: rez_host,
-                  ppkKey: rez_ppkKey,
-                  created_at: created_at,
-                  modified_at: modified_at,
-                  version: version,
-                  id_owner: id_owner,
-                  id_item: id_item,
-                  isDeleted: isDeleted,
-                  isFavorite: isFavorite,
-                  istoric: rez_istoric
+                  importedKey: importedKey, nume: rez_nume, tipitem: rez_tip, username: rez_username, parola: rez_parola, host: rez_host,
+                  ppkKey: rez_ppkKey, created_at: created_at, modified_at: modified_at, version: version, id_owner: id_owner, id_item: id_item,
+                  isDeleted: isDeleted, isFavorite: isFavorite, istoric: rez_istoric
                 });
               }
 
@@ -787,16 +666,18 @@ const AplicatiePage = () => {
       setLoading(false);
     }
   };
+  useEffect(() => { if (savedKey) fetchItems(); }, [savedKey]);
+
+
+
+
+  const [gestioneazaParolaDeModificat, setGestioneazaParolaDeModificat] = useState(null);
   useEffect(() => {
-    if (savedKey) {
-      fetchItems();
+    if (!gestioneazaParolaDeModificat && sectiuneItemi === 'NotificareSchimbareParola') {
+      selecteazaSectiune('parole');
     }
-  }, [savedKey]);
-
-
-  const [open, setIsOpen] = useState(false);
+  }, [gestioneazaParolaDeModificat]);
   return (
-
     <div className="flex flex-col sm:flex-row sm:h-screen bg-gray-100 h-screen">
       {/* Sectiune de Dashboard */}
       <div className={` ${meniuExtins ? 'w-full sm:w-1/5' : 'w-full sm:w-16'} bg-gray-800 text-white p-4 transition-all duration-400 myElement overflow-hidden`}>
@@ -1016,28 +897,17 @@ const AplicatiePage = () => {
               />
             </div>
 
-
             {/* Contul meu */}
             <div className="ml-auto lg:mr-2 flex items-center gap-4 text-white transition-all duration-300">
-              {/* Clopoțel */}
-              <button
-                onClick={() => setShowNotificari(true)}
-                className="relative p-2 rounded-full transition"
-              >
+              <button onClick={() => setShowNotificari(true)} className="relative p-2 rounded-full transition">
                 <Bell className="w-7 h-7 text-white hover:text-gray-700 transition" />
               </button>
 
-              <button
-                onClick={() => setMeniuContulMeu(!showMeniuLContulmeuCascada)}
-                className="flex flex-col lg:flex-row items-center gap-2 pr-2 hover:bg-green-800 rounded-full text-white transition-all duration-300"
-              >
+              <button onClick={() => setMeniuContulMeu(!showMeniuLContulmeuCascada)} className="flex flex-col lg:flex-row items-center gap-2 pr-2 hover:bg-green-800 rounded-full text-white transition-all duration-300">
                 <div className="w-10 h-10 bg-red-600 text-white-600 rounded-full flex items-center justify-center text-lg font-bold">
                   {initiale}
                 </div>
-                <span className="hidden lg:inline text-sm ml-2 lg:ml-0 lg:text-lg">
-                  {email_user}
-                </span>
-
+                <span className="hidden lg:inline text-sm ml-2 lg:ml-0 lg:text-lg">{email_user}</span>
               </button>
             </div>
           </div>
@@ -1053,21 +923,27 @@ const AplicatiePage = () => {
           )}
 
         {showNotificariCascada && (
-          <div
-            ref={notificariRef}
-            className="absolute right-0 mt-2 mr-4 w-80 bg-gray-700 shadow-xl rounded-lg z-50"
-          >
-            <div className="p-4 border-b font-semibold text-white">Parole de modificat</div>
+          <div ref={notificariRef} className="absolute right-0 mt-2 mr-4 w-80 bg-gray-700 shadow-xl rounded-lg z-50">
+            <div className="p-4 border-b font-semibold text-white text-center">Parole de modificat</div>
             {paroleDeModificat.length === 0 ? (
               <div className="p-4 text-white">Nicio parola de modificat</div>
             ) : (
               <ul>
                 {paroleDeModificat.map((p, i) => (
-                  <li key={i} className="p-4 border-b hover:bg-gray-100">
-                    {p.site} – {dayjs(p.lastUpdated).format("DD MMM YYYY")}
+                  <li
+                    key={i}
+                    className="p-2 border-b text-white hover:bg-blue-300 flex justify-between items-center" onClick={() => { setGestioneazaParolaDeModificat(p); selecteazaSectiune('NotificareSchimbareParola'); }}>
+                    <div className="flex flex-col">
+                      <h2 className="text-lg font-semibold">{p.nume}</h2>
+                      <span className="text-sm text-gray-200">{p.username}</span>
+                    </div>
+                    <span className="text-sm text-gray-100 ml-auto">
+                      {dayjs(p.modified_parola).format("DD MMM YYYY")}
+                    </span>
                   </li>
                 ))}
               </ul>
+
             )}
           </div>
         )}
@@ -1099,6 +975,9 @@ const AplicatiePage = () => {
         {ShowNotitaPopup && (<PopupNotitaItem setShowNotitaPopup={setShowNotitaPopup} derivedKey={savedKey} fetchItems={fetchItems} />)}
         {ShowCardPopup && (<PopupCardItem setShowCardPopup={setShowCardPopup} derivedKey={savedKey} fetchItems={fetchItems} />)}
         {ShowAdresaPopup && (<PopupNewAdrese setShowAddressPopup={setShowAddressPopup} derivedKey={savedKey} fetchItems={fetchItems} />)}
+
+
+        {sectiuneItemi === "NotificareSchimbareParola" && gestioneazaParolaDeModificat && <EditParolaItem item={gestioneazaParolaDeModificat} setGestioneazaParolaItem={setGestioneazaParolaDeModificat} derivedKey={savedKey} />}
       </div>
     </div >
   );
