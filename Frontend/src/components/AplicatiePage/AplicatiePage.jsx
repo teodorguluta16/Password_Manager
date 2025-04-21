@@ -253,12 +253,9 @@ const AplicatiePage = () => {
   const [adreseAll, setAdreseItems] = useState([]);
 
 
-  const thresholdMinutes = 2;
-
+  const thresholdMinutes = 6;
   const paroleDeModificat = useMemo(() => {
-    return paroleItemsAll
-      .filter(p => dayjs().diff(dayjs(p.modified_parola), 'minute') >= thresholdMinutes)
-      .sort((a, b) => new Date(a.modified_parola) - new Date(b.modified_parola));
+    return paroleItemsAll.filter(p => dayjs().diff(dayjs(p.modified_parola), 'month') >= thresholdMinutes).sort((a, b) => new Date(a.modified_parola) - new Date(b.modified_parola));
   }, [paroleItemsAll]);
 
 

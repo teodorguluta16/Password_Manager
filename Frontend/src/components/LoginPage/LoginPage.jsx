@@ -25,9 +25,9 @@ const LoginPage = () => {
   const navigareForgetPassword = () => { navigate('/recoverypassword') };
   const { setKey } = useKeySimetrica();
 
-  const hashPassword = async (password) => {
+  const hashPassword = async (buffer) => {
     const encoder = new TextEncoder();
-    const data = encoder.encode(password);
+    const data = encoder.encode(buffer);
 
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
@@ -44,13 +44,38 @@ const LoginPage = () => {
       return;
     }
 
-    //hash parola
+    //hash parola si email
     const hashedPassword = await hashPassword(Parola);
+    const hashedEmail = await hashPassword(Email);
     console.log("Hashed password: ", hashedPassword);
+    console.log("Hashed email: ", hashedEmail);
 
-    const date = { Email, hashedPassword };
+
 
     try {
+      const keyAuth = CryptoJS.PBKDF2(Parola, salt + "-auth", {
+        keySize: 256 / 32,
+        iterations: 500000,
+      });
+      const keyCrypt = CryptoJS.PBKDF2(Parola, salt + "-crypt", {
+        keySize: 256 / 32,
+        iterations: 500000,
+      });
+
+
+
+      const keyAuthBase64 = keyAuth.toString(CryptoJS.enc.Base64);
+      const keyCryptBase64 = keyCrypt.toString(CryptoJS.enc.Base64);
+
+      const date = { Email, hashedPassword };
+
+
+      //console.log("Cheia pentru autentificare (Base64):", keyAuthBase64);
+      //console.log("Cheia pentru criptare (Base64):", keyCryptBase64);
+
+
+
+
       const response = await fetch('http://localhost:9000/api/auth/login', {
         method: "POST",
         headers: {
@@ -75,15 +100,16 @@ const LoginPage = () => {
           if (response.ok) {
             const data = await response.json();
             console.log("Datele primite saltul de la server: ", data);
-            salt = CryptoJS.enc.Base64.parse(data.salt);;
+            salt = CryptoJS.enc.Base64.parse(data.salt);
+
+            const derivedKey = CryptoJS.PBKDF2(Parola, salt, { keySize: 512 / 64, iterations: 500000 });
+            const derivedKeyBase64 = derivedKey.toString(CryptoJS.enc.Base64);
+            console.log('Cheia derivată în Base64:', derivedKeyBase64);
           }
 
         } catch (error) {
           console.log("Eroare luare salt: ", error);
         }
-        const derivedKey = CryptoJS.PBKDF2(Parola, salt, { keySize: 256 / 32, iterations: 500000 });
-        const derivedKeyBase64 = derivedKey.toString(CryptoJS.enc.Base64);
-        console.log('Cheia derivată în Base64:', derivedKeyBase64);
 
 
         try {
