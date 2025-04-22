@@ -1,6 +1,5 @@
 import express from 'express'
 import bcrypt from 'bcrypt'
-import crypto from 'crypto'
 import { client } from '../postgres/postgres.js';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
@@ -9,9 +8,9 @@ dotenv.config();
 const authRouter = express.Router();
 
 authRouter.post("/addUser", async (req, res) => {
-    const { Nume, Prenume, Email, hashedPassword, SaltB64, PublicKey, EncryptedPrivateKey, EncryptedAesKey } = req.body;
+    const { Nume, Prenume, Email, keyAuthBase64, PublicKey, EncryptedPrivateKey, EncryptedAesKey } = req.body;
 
-    if (!Nume || !Prenume || !Email || !hashedPassword || !PublicKey || !EncryptedPrivateKey || !EncryptedAesKey || !SaltB64) {
+    if (!Nume || !Prenume || !Email || !keyAuthBase64 || !PublicKey || !EncryptedPrivateKey || !EncryptedAesKey) {
         return res.status(400).send('Toate campurile sunt necesare!');
     }
 
@@ -22,9 +21,11 @@ authRouter.post("/addUser", async (req, res) => {
 
     try {
         const publicKeyBytes = Buffer.from(PublicKey, 'base64');
-        await client.query(`INSERT INTO Utilizatori (Nume, Prenume, Email, Parola, Tip_ut, Status,Salt, PublicKey, 
-            EncryptedPrivateKey,Encryptedsimmetrickey) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-            [Nume, Prenume, Email, hashedPassword, 1, 'active', SaltB64, publicKeyBytes, EncryptedPrivateKey, EncryptedAesKey]);
+
+        const parolaHash = await bcrypt.hash(keyAuthBase64, 12);
+        await client.query(`INSERT INTO Utilizatori (Nume, Prenume, Email, Parola, Tip_ut, Status, PublicKey, 
+            EncryptedPrivateKey,Encryptedsimmetrickey) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+            [Nume, Prenume, Email, parolaHash, 1, 'active', publicKeyBytes, EncryptedPrivateKey, EncryptedAesKey]);
 
         console.log("Cont creat cu succes !");
         res.status(200).send('Contul a fost creat cu succes!');
@@ -36,9 +37,9 @@ authRouter.post("/addUser", async (req, res) => {
 
 
 authRouter.post("/login", async (req, res) => {
-    const { Email, hashedPassword } = req.body;
+    const { Email, keyAuthBase64 } = req.body;
 
-    if (!Email || !hashedPassword) { //// sa fac salt la hash si il salvez in abza de date
+    if (!Email || !keyAuthBase64) {
         console.log("Eroare primire date\n");
         return res.status(400).send("Date netrimise\n");
     }
@@ -50,7 +51,7 @@ authRouter.post("/login", async (req, res) => {
         }
 
         const hashStocat = result.rows[0].parola;
-        const potrivire = hashedPassword === hashStocat;
+        const potrivire = await bcrypt.compare(keyAuthBase64, hashStocat);
 
         if (potrivire) {
             let TipUser = result.rows[0].tip_ut === 1 ? "Client" : "Admin";

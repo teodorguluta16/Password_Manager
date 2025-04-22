@@ -47,69 +47,33 @@ const LoginPage = () => {
     //hash parola si email
     const hashedPassword = await hashPassword(Parola);
     const hashedEmail = await hashPassword(Email);
-    console.log("Hashed password: ", hashedPassword);
+    //console.log("Hashed password: ", hashedPassword);
     console.log("Hashed email: ", hashedEmail);
 
 
-
     try {
-      const keyAuth = CryptoJS.PBKDF2(Parola, salt + "-auth", {
+      const keyAuth = CryptoJS.PBKDF2(hashedPassword, hashedEmail + "-auth", {
         keySize: 256 / 32,
         iterations: 500000,
       });
-      const keyCrypt = CryptoJS.PBKDF2(Parola, salt + "-crypt", {
+      const keyCrypt = CryptoJS.PBKDF2(hashedPassword, hashedEmail + "-crypt", {
         keySize: 256 / 32,
         iterations: 500000,
       });
-
 
 
       const keyAuthBase64 = keyAuth.toString(CryptoJS.enc.Base64);
       const keyCryptBase64 = keyCrypt.toString(CryptoJS.enc.Base64);
 
-      const date = { Email, hashedPassword };
-
-
-      //console.log("Cheia pentru autentificare (Base64):", keyAuthBase64);
-      //console.log("Cheia pentru criptare (Base64):", keyCryptBase64);
-
-
-
+      const date = { Email, keyAuthBase64 };
 
       const response = await fetch('http://localhost:9000/api/auth/login', {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: "include",
-        body: JSON.stringify(date),
+        method: "POST", headers: { 'Content-Type': 'application/json', }, credentials: "include", body: JSON.stringify(date),
       });
 
       if (response.ok) {
         console.log("Autentificare reusita !");
-        let salt = null;
-
-        try {
-          const response = await fetch('http://localhost:9000/api/utilizator/getSalt', {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            credentials: "include"
-          });
-          if (response.ok) {
-            const data = await response.json();
-            console.log("Datele primite saltul de la server: ", data);
-            salt = CryptoJS.enc.Base64.parse(data.salt);
-
-            const derivedKey = CryptoJS.PBKDF2(Parola, salt, { keySize: 512 / 64, iterations: 500000 });
-            const derivedKeyBase64 = derivedKey.toString(CryptoJS.enc.Base64);
-            console.log('Cheia derivată în Base64:', derivedKeyBase64);
-          }
-
-        } catch (error) {
-          console.log("Eroare luare salt: ", error);
-        }
+        //const decriptKey = await decodeMainKey(keyCryptBase64);
 
 
         try {
@@ -125,7 +89,7 @@ const LoginPage = () => {
             const aesResponseData = await aesResponse.json();
             console.log("Răspunsul de la server pentru cheia AES:", aesResponseData);
 
-            const decriptKey = await decodeMainKey(derivedKeyBase64);
+            const decriptKey = await decodeMainKey(keyCryptBase64);
             // Decriptarea cheii
 
             const keyfromdata = aesResponseData[0].encryptedsimmetrickey;

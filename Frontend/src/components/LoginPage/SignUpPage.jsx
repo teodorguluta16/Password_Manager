@@ -62,30 +62,38 @@ const SignUpPage = () => {
             return;
         }
 
-        //hash parola
+        //hash parola + email
         const hashedPassword = await hashPassword(Parola);
         console.log("Hashed password: ", hashedPassword);
-        const date = { Nume, Prenume, Email, hashedPassword };
+        const hashedEmail = await hashPassword(Email);
+        //console.log("Hashed password: ", hashedPassword);
+        console.log("Hashed email: ", hashedEmail);
+
+
+        const keyAuth = CryptoJS.PBKDF2(hashedPassword, hashedEmail + "-auth", {
+            keySize: 256 / 32,
+            iterations: 500000,
+        });
+        const keyCrypt = CryptoJS.PBKDF2(hashedPassword, hashedEmail + "-crypt", {
+            keySize: 256 / 32,
+            iterations: 500000,
+        });
+
+        const keyAuthBase64 = keyAuth.toString(CryptoJS.enc.Base64);
+        const keyCryptBase64 = keyCrypt.toString(CryptoJS.enc.Base64);
+
+
+        const date = { Nume, Prenume, Email, keyAuthBase64 };
 
         try {
-
-            // generam salt
-            const salt = new Uint8Array(32); // 32 de octeți pentru un salt de 256 biți
-            window.crypto.getRandomValues(salt);
-            const saltBase64 = btoa(String.fromCharCode.apply(null, salt));
-            const saltWordArray = CryptoJS.enc.Base64.parse(saltBase64);
-
             // Derivarea cheii folosind PBKDF2
-            const derivedKey = CryptoJS.PBKDF2(Parola, saltWordArray, { keySize: 256 / 32, iterations: 500000 });
-            const derivedKeyBase64 = derivedKey.toString(CryptoJS.enc.Base64);
-
 
             // 1. generam cheia aes principala 
             const key_aes = await generateKey();
 
             // 2.criptare cheie aes cu cheia derivata din parola   !! tre sa mai studiez putin aici
 
-            const criptKey = await decodeMainKey(derivedKeyBase64);
+            const criptKey = await decodeMainKey(keyCryptBase64);
             const key_aes_raw = await exportKey(key_aes);
             console.log("Cheia intreaga inainte de criptare este: ", key_aes_raw);
             const enc_key_raw = await criptareDate(key_aes_raw, criptKey);
@@ -110,7 +118,7 @@ const SignUpPage = () => {
             const uint8Array = pemToUint8Array(publicKeyPem);
             const publicKeyBase64 = btoa(String.fromCharCode.apply(null, uint8Array));
             const userData = {
-                ...date, SaltB64: saltBase64, PublicKey: publicKeyBase64,
+                ...date, PublicKey: publicKeyBase64,
                 EncryptedPrivateKey: {
                     encKey: { iv: encryptedPrivateKey.iv, encData: encryptedPrivateKey.encData, tag: encryptedPrivateKey.tag }
                 },
