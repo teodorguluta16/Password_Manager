@@ -143,7 +143,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
         ];
 
         // 1. Verificare dacă parola conține numele/emailul
-        if (password.toLowerCase().includes(userLower)) {
+        if (userLower.length > 2 && password.toLowerCase().includes(userLower)) {
             return {
                 strength: 0,
                 color: "bg-red-600",
@@ -244,6 +244,11 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
 
     const handleAdaugaItem = async () => {
         try {
+            if (!numeItem || !urlItem || !usernameItem || !parolaItem) {
+                alert("Completează câmpurile !");
+                return;
+            }
+
             setShowParolaPopup(false);
             const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
             const semnaturaParola = await semneazaParola(parolaItem, charset, length, hmacKey);
@@ -258,7 +263,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
             const enc_UrlItem = await criptareDate(urlItem, key_aes);
             const enc_UsernameItem = await criptareDate(usernameItem, key_aes);
             const enc_ParolaItem = await criptareDate(parolaItem, key_aes);
-            const enc_ComentariuItem = await criptareDate(comentariuItem, key_aes);
+            const enc_ComentariuItem = await criptareDate(comentariuItem || "N/A", key_aes);
             const enc_Semnatura = await criptareDate(semnaturaParola, key_aes);
 
 
@@ -366,6 +371,8 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
         await fetchItems();
     };
 
+    const [arataParola, setArataParola] = useState(false);
+
     return (
         <>
             <div className="fixed inset-0 bg-opacity-50 bg-gray-400 flex items-center justify-center">
@@ -386,25 +393,25 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
                             </div>
                         </div>
 
-
                         <label className="text-sm md:text-md font-medium">Username</label>
                         <input type="name" value={usernameItem} onChange={(e) => { setUserNamItem(e.target.value) }} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full" placeholder="Username sau E-mail"></input>
 
-
                         <label className="text-sm md:text-md font-medium">Parola</label>
-                        <input type="password" value={parolaItem} onChange={(e) => { setParolaItem(e.target.value) }} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full"></input>
-                        {/* Strength bar */}
+
+                        <div className="relative flex flex-col">
+                            <input type={arataParola ? "text" : "password"} value={parolaItem} onChange={(e) => { setParolaItem(e.target.value) }} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full"></input>
+                            <button type="button" className="mt-3 transform -translate-y-1/2 text-sm text-blue-500 hover:underline" onClick={() => setArataParola(!arataParola)}>
+                                {arataParola ? "Ascunde" : "Afișează"}
+                            </button>
+                        </div>
+
                         {parolaItem.length > 0 && (
                             <>
                                 <div className="w-full h-2 bg-gray-300 rounded mt-2">
-                                    <div
-                                        className={`h-2 rounded transition-all duration-300 ${strengthData.color}`}
-                                        style={{ width: `${(strengthData.strength + 1) * 20}%` }}
-                                    />
+                                    <div className={`h-2 rounded transition-all duration-300 ${strengthData.color}`} style={{ width: `${(strengthData.strength + 1) * 20}%` }} />
                                 </div>
-                                <p className="text-xs mt-1 text-gray-700">{strengthData.label}</p>
 
-                                {/* Sugestii */}
+                                <p className="text-xs mt-1 text-gray-700">{strengthData.label}</p>
                                 {strengthData.suggestions && strengthData.suggestions.length > 0 && (
                                     <ul className="text-xs text-red-500 mt-1 list-disc list-inside">
                                         {strengthData.suggestions.map((sugestie, index) => (
@@ -437,7 +444,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
                         </button>
 
                         <label className="text-sm md:text-md font-medium">Adauga un comentariu</label>
-                        <textarea type="note" value={comentariuItem} onChange={(e) => { setComentariuItem(e.target.value) }} className="border mt-2 py-1 px-2 border-gray-600 rounded-md w-full min-h-32 resize-none"></textarea>
+                        <textarea type="note" value={comentariuItem} onChange={(e) => { setComentariuItem(e.target.value) }} className="border mt-2 py-1 px-2 border-gray-600 rounded-md w-full min-h-32 resize-none" placeholder="Optional"></textarea>
 
                     </form>
                     <div className="flex justify-center items-center">

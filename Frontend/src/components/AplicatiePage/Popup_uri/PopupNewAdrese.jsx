@@ -23,6 +23,10 @@ const PopupNewAdrese = ({ setShowAddressPopup, derivedKey, fetchItems }) => {
 
     const handleAdaugaItem = async () => {
         try {
+            if (!numeDestinatar || !adresa || oras || judet || codPostal) {
+                alert("Completează câmpurile !");
+                return;
+            }
             setShowAddressPopup(false);
 
             const key_aes = await generateKey();
@@ -34,7 +38,7 @@ const PopupNewAdrese = ({ setShowAddressPopup, derivedKey, fetchItems }) => {
             const enc_OrasItem = await criptareDate(oras, key_aes);
             const enc_JudetItem = await criptareDate(judet, key_aes);
             const enc_CodPostalItem = await criptareDate(codPostal, key_aes);
-            const enc_ComentariuItem = await criptareDate(comentariuAdresa, key_aes);
+            const enc_ComentariuItem = await criptareDate(comentariuAdresa || "N/A", key_aes);
 
             // criptare cheie
             const criptKey = await decodeMainKey(key);

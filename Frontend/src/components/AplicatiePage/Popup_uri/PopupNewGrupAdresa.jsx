@@ -37,6 +37,10 @@ const PopupNewGrupAdresa = ({ setShowAdresaPopup, derivedKey, idgrup, fetchItems
 
     const handleAdaugaItem = async () => {
         try {
+            if (!numeDestinatar || !adresa || oras || judet || codPostal) {
+                alert("Completează câmpurile !");
+                return;
+            }
             setShowAdresaPopup(false);
 
             // 1. genere o cheie aes pentru itemul respectiv
@@ -50,7 +54,7 @@ const PopupNewGrupAdresa = ({ setShowAdresaPopup, derivedKey, idgrup, fetchItems
             const enc_OrasItem = await criptareDate(oras, key_aes);
             const enc_JudetItem = await criptareDate(judet, key_aes);
             const enc_CodPostalItem = await criptareDate(codPostal, key_aes);
-            const enc_ComentariuItem = await criptareDate(comentariuAdresa, key_aes);
+            const enc_ComentariuItem = await criptareDate(comentariuAdresa || "N/A", key_aes);
 
 
             // 3. Criptam cheia aes dar nu cu key ci cu simmmetric group key. Deci extragem mai intai enc simmetricgroupkey

@@ -113,7 +113,7 @@ const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems
         ];
 
         // 1. Verificare dacă parola conține numele/emailul
-        if (password.toLowerCase().includes(userLower)) {
+        if (userLower.length > 2 && password.toLowerCase().includes(userLower)) {
             return {
                 strength: 0,
                 color: "bg-red-600",
@@ -176,6 +176,11 @@ const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems
 
     const handleAdaugaItem = async () => {
         try {
+            if (!numeItem || !urlItem || !usernameItem || !parolaItem) {
+                alert("Completează câmpurile !");
+                return;
+            }
+
             setShowParolaPopup(false);
 
             // 1. genere o cheie aes pentru itemul respectiv
@@ -331,6 +336,8 @@ const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems
         }
     };
 
+    const [arataParola, setArataParola] = useState(false);
+
     return (
         <>
             <div className="fixed inset-0 bg-opacity-50 bg-gray-400 flex items-center justify-center">
@@ -354,7 +361,14 @@ const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems
 
 
                         <label className="text-sm md:text-md font-medium">Parola</label>
-                        <input type="password" value={parolaItem} onChange={(e) => { setParolaItem(e.target.value) }} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full"></input>
+
+                        <div className="relative flex flex-col">
+                            <input type={arataParola ? "text" : "password"} value={parolaItem} onChange={(e) => { setParolaItem(e.target.value) }} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full"></input>
+                            <button type="button" className="mt-3 transform -translate-y-1/2 text-sm text-blue-500 hover:underline" onClick={() => setArataParola(!arataParola)}>
+                                {arataParola ? "Ascunde" : "Afișează"}
+                            </button>
+                        </div>
+
                         {/* Strength bar */}
                         {parolaItem.length > 0 && (
                             <>

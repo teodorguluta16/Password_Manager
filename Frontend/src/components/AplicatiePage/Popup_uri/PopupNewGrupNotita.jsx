@@ -34,6 +34,10 @@ const PopupNewGrupNotita = ({ setShowNotitaPopup, derivedKey, idgrup, fetchItems
 
     const handleAdaugaItem = async () => {
         try {
+            if (!numeItem || !date) {
+                alert("Completează câmpurile !");
+                return;
+            }
             setShowNotitaPopup(false);
 
             // 1. genere o cheie aes pentru itemul respectiv
@@ -44,7 +48,7 @@ const PopupNewGrupNotita = ({ setShowNotitaPopup, derivedKey, idgrup, fetchItems
             const enc_Tip = await criptareDate("notita", key_aes);
             const enc_NumeItem = await criptareDate(numeItem, key_aes);
             const enc_datalItem = await criptareDate(date, key_aes);
-            const enc_ComentariuItem = await criptareDate(comentariuItem, key_aes);
+            const enc_ComentariuItem = await criptareDate(comentariuItem || "N/A", key_aes);
 
             // 3. Criptam cheia aes dar nu cu key ci cu simmmetric group key. Deci extragem mai intai enc simmetricgroupkey
 

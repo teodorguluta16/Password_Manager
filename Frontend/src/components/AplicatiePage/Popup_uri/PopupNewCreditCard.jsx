@@ -22,6 +22,10 @@ const PopupNewCreditCard = ({ setShowCardPopup, derivedKey, fetchItems }) => {
 
     const handleAdaugaItem = async () => {
         try {
+            if (!numeBanca || !numarCard || numePosesor || dataExpirare) {
+                alert("Completează câmpurile !");
+                return;
+            }
             setShowCardPopup(false);
 
             const key_aes = await generateKey();
@@ -32,7 +36,7 @@ const PopupNewCreditCard = ({ setShowCardPopup, derivedKey, fetchItems }) => {
             const enc_NumarItem = await criptareDate(numarCard, key_aes);
             const enc_NumePosesorItem = await criptareDate(numePosesor, key_aes);
             const enc_dataExpirareItem = await criptareDate(dataExpirare, key_aes);
-            const enc_ComentariuItem = await criptareDate(comentariuCard, key_aes);
+            const enc_ComentariuItem = await criptareDate(comentariuCard || "N/A", key_aes);
 
 
             // criptare cheie

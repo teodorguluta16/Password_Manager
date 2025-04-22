@@ -18,6 +18,10 @@ const PopupNotitaItem = ({ setShowNotitaPopup, derivedKey, fetchItems }) => {
 
     const handleAdaugaItem = async () => {
         try {
+            if (!numeItem || !date) {
+                alert("Completează câmpurile !");
+                return;
+            }
             setShowNotitaPopup(false);
 
             const key_aes = await generateKey();
@@ -26,7 +30,7 @@ const PopupNotitaItem = ({ setShowNotitaPopup, derivedKey, fetchItems }) => {
             const enc_Tip = await criptareDate("notita", key_aes);
             const enc_NumeItem = await criptareDate(numeItem, key_aes);
             const enc_datalItem = await criptareDate(date, key_aes);
-            const enc_ComentariuItem = await criptareDate(comentariuItem, key_aes);
+            const enc_ComentariuItem = await criptareDate(comentariuItem || "N/A", key_aes);
 
             // criptare cheie
             const criptKey = await decodeMainKey(key);
