@@ -13,10 +13,9 @@ const PopupStergeItemDefinitiv = ({ setShowPopupStergeItem, item, items, fetchIt
             });
 
             if (response.ok) {
-                console.log('Item șters definitiv!');
                 await fetchItems();
             } else {
-                console.error('Eroare la ștergerea item-ului:', response.statusText);
+                console.error('Eroare:', response.statusText);
             }
         } catch (error) {
             console.error('Eroare:', error);

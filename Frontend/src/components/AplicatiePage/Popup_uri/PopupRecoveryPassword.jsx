@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaCheckCircle, FaCopy, FaExclamationTriangle } from "react-icons/fa";
-import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } from "../../FunctiiDate/FunctiiDefinite"
+import { criptareDate, decodeMainKey } from "../../FunctiiDate/FunctiiDefinite"
 import * as bip39 from 'bip39';
 import CryptoJS from 'crypto-js';
 import { Buffer } from 'buffer';
@@ -44,10 +44,6 @@ const PopupRecoveryPassword = ({ setOpenPopupRecovery, derivedkey }) => {
     const handleDownloadPDF = () => {
         console.log("S-a apăsat butonul de PDF");
     };
-    const handleDeschidePopupRecuperare = async () => {
-        setpopupActiveazaRcovery(false);
-        setOpenPopupRecovery(false);
-    };
 
     const cripteazaCopieCheie = async () => {
         console.log("start criptare: ");
@@ -58,11 +54,7 @@ const PopupRecoveryPassword = ({ setOpenPopupRecovery, derivedkey }) => {
             let salt = null;
             try {
                 const response = await fetch('http://localhost:9000/api/utilizator/getSalt', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: "include"
+                    method: 'GET', headers: { 'Content-Type': 'application/json', }, credentials: "include"
                 });
                 if (response.ok) {
                     const data = await response.json();
@@ -95,20 +87,11 @@ const PopupRecoveryPassword = ({ setOpenPopupRecovery, derivedkey }) => {
 
             // trimitere la server
 
-            const jsonItemKey = {
-                data: {
-                    encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag },
-                },
-            };
+            const jsonItemKey = { data: { encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag }, }, };
 
             try {
                 const response = await fetch('http://localhost:9000/api/utilizator/addRecoveryKey', {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(jsonItemKey),
-                    credentials: "include"
+                    method: "POST", headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(jsonItemKey), credentials: "include"
                 });
 
                 if (!response.ok) {

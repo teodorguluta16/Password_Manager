@@ -1,11 +1,7 @@
 import React from "react";
 
-
 const PopupAskRecoveryPasswod = ({ setpopupActiveazaRcovery, setOpenPopupRecovery }) => {
-    const handleDeschidePopupRecuperare = async () => {
-        setOpenPopupRecovery(true);
-
-    };
+    const handleDeschidePopupRecuperare = async () => { setOpenPopupRecovery(true); };
     return (
         <>
             <div className="fixed inset-0 bg-opacity-50 bg-gray-400 flex flex-col items-center justify-center shadow-lg">

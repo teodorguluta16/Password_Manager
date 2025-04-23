@@ -58,20 +58,6 @@ const PopupNewAdrese = ({ setShowAddressPopup, derivedKey, fetchItems }) => {
             const uint8Array = new Uint8Array(octetiArray);
             console.log(uint8Array);
 
-            const importedKey = await window.crypto.subtle.importKey(
-                "raw",               // Importăm cheia în format brut
-                uint8Array,          // Cheia de tip Uint8Array
-                { name: "AES-GCM" },  // Algoritmul de criptare
-                false,               // Nu este necesar să exportăm cheia
-                ["encrypt", "decrypt"]  // Permisiunile cheii
-            );
-
-            const dec_tip = await decriptareDate(enc_Tip.encData, enc_Tip.iv, enc_Tip.tag, importedKey);
-
-            //const decoded_key = await decodeMainKey(dec_key);
-
-            console.log("Elementul decriptat ar trebui sa fie: ", dec_tip);
-
             const jsonItemKey = {
                 data: {
                     encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag },
@@ -79,11 +65,7 @@ const PopupNewAdrese = ({ setShowAddressPopup, derivedKey, fetchItems }) => {
             };
 
             const jsonItem = {
-                metadata: {
-                    created_at: new Date().toISOString(),
-                    modified_at: new Date().toISOString(),
-                    version: 1
-                },
+                metadata: { created_at: new Date().toISOString(), modified_at: new Date().toISOString(), version: 1 },
                 data: {
                     tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag, },
                     nume: { iv: enc_NumeItem.iv, encData: enc_NumeItem.encData, tag: enc_NumeItem.tag },
@@ -96,14 +78,7 @@ const PopupNewAdrese = ({ setShowAddressPopup, derivedKey, fetchItems }) => {
             };
 
             try {
-                const response = await fetch('http://localhost:9000/api/addItem', {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(jsonItem),
-                    credentials: "include"
-                });
+                const response = await fetch('http://localhost:9000/api/addItem', { method: "POST", headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(jsonItem), credentials: "include" });
 
                 if (!response.ok) {
                     const errorText = await response.text();
@@ -115,12 +90,7 @@ const PopupNewAdrese = ({ setShowAddressPopup, derivedKey, fetchItems }) => {
             }
             try {
                 const response = await fetch('http://localhost:9000/api/addKey', {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(jsonItemKey),
-                    credentials: "include"
+                    method: "POST", headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(jsonItemKey), credentials: "include"
                 });
 
                 if (!response.ok) {
@@ -131,8 +101,6 @@ const PopupNewAdrese = ({ setShowAddressPopup, derivedKey, fetchItems }) => {
             } catch (error) {
                 console.error("Eroare la trimitere", error);
             };
-
-
         } catch (error) {
             console.error("Eroare la criptarea datelor:", error);
         }

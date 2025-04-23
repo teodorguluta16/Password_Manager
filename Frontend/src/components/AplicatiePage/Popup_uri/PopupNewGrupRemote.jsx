@@ -1,7 +1,5 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
-
 import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } from "../../FunctiiDate/FunctiiDefinite"
 import forge from 'node-forge';
 
@@ -13,9 +11,7 @@ function hexToString(hex) {
     return str;
 }
 function decryptWithPrivateKey(encryptedMessage, privateKey) {
-    return privateKey.decrypt(encryptedMessage, 'RSA-OAEP', {
-        md: forge.md.sha256.create()
-    });
+    return privateKey.decrypt(encryptedMessage, 'RSA-OAEP', { md: forge.md.sha256.create() });
 }
 
 const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup, fetchItems }) => {
@@ -26,10 +22,8 @@ const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup, fetchItems
     const [cheiePrivata, setCheiePrivata] = useState('');
     const [cheiePublica, setCheiePublica] = useState('');
     const [cheiePPK, setCheiePPK] = useState('');
-    const [ppkFile, setPpkFile] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // ✅ Funcție pentru generarea cheilor SSH
     const generateSSHKeys = () => {
         const keypair = forge.pki.rsa.generateKeyPair({ bits: 4096 });
 
@@ -45,11 +39,8 @@ const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup, fetchItems
         setCheiePrivata(privateKeyPem);
         setCheiePublica(publicKeyOpenSSH);
         setCheiePPK('');
-
-        console.log("✅ Cheie generată!");
     };
 
-    // ✅ Funcție pentru descărcarea fișierelor `.pem`, `.ppk`, și `.pub`
     const downloadKeyFile = (keyContent, fileName) => {
         const blob = new Blob([keyContent], { type: "text/plain" });
         const link = document.createElement("a");
@@ -70,12 +61,10 @@ const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup, fetchItems
 
             if (file.name.endsWith(".ppk")) {
                 setCheiePPK(fileContent);
-                console.log("✅ Cheie PPK încărcată");
             } else {
                 alert("⚠️ Format neacceptat! ");
             }
         };
-
         reader.readAsText(file);
     };
 
@@ -176,17 +165,11 @@ const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup, fetchItems
 
             console.log("Cheia criptata este: ", enc_key_raw);
 
-            const jsonItemKey = {
-                data: {
-                    encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag },
-                },
-            };
+            const jsonItemKey = { data: { encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag }, }, };
 
             const jsonItem = {
                 metadata: {
-                    created_at: new Date().toISOString(),
-                    modified_at: new Date().toISOString(),
-                    version: 1
+                    created_at: new Date().toISOString(), modified_at: new Date().toISOString(), version: 1
                 },
                 data: {
                     tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag },
@@ -198,20 +181,10 @@ const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup, fetchItems
                 },
             };
 
-            const requestBody = {
-                id_grup: idgrup,
-                jsonItem: jsonItem
-            };
-
-
+            const requestBody = { id_grup: idgrup, jsonItem: jsonItem };
             try {
                 const response = await fetch('http://localhost:9000/api/grupuri/addItemGroup', {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestBody),
-                    credentials: "include"
+                    method: "POST", headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(requestBody), credentials: "include"
                 });
 
                 if (!response.ok) {
@@ -224,12 +197,7 @@ const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup, fetchItems
             }
             try {
                 const response = await fetch('http://localhost:9000/api/addKey', {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(jsonItemKey),
-                    credentials: "include"
+                    method: "POST", headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(jsonItemKey), credentials: "include"
                 });
 
                 if (!response.ok) {
@@ -240,47 +208,6 @@ const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup, fetchItems
             } catch (error) {
                 console.error("Eroare la trimitere", error);
             };
-
-            //const decodedString = hexToString(encryptedsimmetricKeyGroup);
-
-            //const dataObject = JSON.parse(decodedString);
-            //console.log(dataObject);
-            //const ivHex = dataObject.encKey.iv;
-            //const encDataHex = dataObject.encKey.encData;
-            //const tagHex = dataObject.encKey.tag;
-
-
-
-            //const criptKey = await decodeMainKey(key);
-
-            //const key_aes_raw = await exportKey(key_aes);
-            //console.log("Cheia intreaga ianinte de criptare este: ", key_aes_raw);
-            //const enc_key_raw = await criptareDate(key_aes_raw, criptKey);
-
-            //console.log("Cheia criptata este: ", enc_key_raw);
-
-            // 3. Decriptarea cheii AES criptate folosind cheia AES decriptată
-            //const dec_key = await decriptareDate(enc_key_raw.encData, enc_key_raw.iv, enc_key_raw.tag, criptKey);  // obții cheia AES decriptată
-
-            //const octetiArray = dec_key.split(',').map(item => parseInt(item.trim(), 10));
-
-            // Creăm un Uint8Array din array-ul de numere
-            //const uint8Array = new Uint8Array(octetiArray);
-            //console.log(uint8Array);
-
-            //const importedKey = await window.crypto.subtle.importKey(
-            //    "raw",               // Importăm cheia în format brut
-            //    uint8Array,          // Cheia de tip Uint8Array
-            //    { name: "AES-GCM" },  // Algoritmul de criptare
-            //    false,               // Nu este necesar să exportăm cheia
-            //    ["encrypt", "decrypt"]  // Permisiunile cheii
-            //);
-
-            //const dec_tip = await decriptareDate(enc_Tip.encData, enc_Tip.iv, enc_Tip.tag, importedKey);
-
-            //const decoded_key = await decodeMainKey(dec_key);
-
-            //console.log("Elementul decriptat ar trebui sa fie: ", dec_tip);
 
         } catch (error) {
             console.error("Eroare la criptarea datelor:", error);
@@ -300,11 +227,9 @@ const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup, fetchItems
                         <label className="text-sm md:text-md font-medium">Nume Platforma</label>
                         <input type="text" value={numeItem} onChange={(e) => setNumeItem(e.target.value)}
                             className="border py-1 px-2 border-gray-600 rounded-md w-full mt-2" />
-
                     </div>
                     <label className="text-sm md:text-md font-medium">Host/IP</label>
-                    <input type="text" value={hostItem} onChange={(e) => setHostItem(e.target.value)}
-                        className="border py-1 px-2 border-gray-600 rounded-md w-full" />
+                    <input type="text" value={hostItem} onChange={(e) => setHostItem(e.target.value)} className="border py-1 px-2 border-gray-600 rounded-md w-full" />
 
                     <div className="flex flex-row gap-2 ">
                         <div>
@@ -314,9 +239,7 @@ const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup, fetchItems
                         </div>
                         <div>
                             <label className="text-sm md:text-md font-medium">Parola</label>
-                            <input type="password" value={parolaItem} onChange={(e) => { setParolaItem(e.target.value) }}
-                                className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full"></input>
-
+                            <input type="password" value={parolaItem} onChange={(e) => { setParolaItem(e.target.value) }} className="mt-2 border py-1 px-2 border-gray-600 rounded-md w-full"></input>
                         </div>
                     </div>
                     <label className="text-sm md:text-md font-medium">Generează cheie SSH</label>
@@ -338,12 +261,7 @@ const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup, fetchItems
                     <label className="text-sm md:text-md font-medium mt-4">
                         Încarcă cheie PPK
                     </label>
-                    <input
-                        type="file"
-                        accept=".ppk"
-                        onChange={handleKeyUpload}
-                        className="border py-1 px-2 border-gray-600 rounded-md w-full"
-                    />
+                    <input type="file" accept=".ppk" onChange={handleKeyUpload} className="border py-1 px-2 border-gray-600 rounded-md w-full" />
 
                     {/* Butoane de descărcare pentru cheile încărcate */}
                     {cheiePPK && (

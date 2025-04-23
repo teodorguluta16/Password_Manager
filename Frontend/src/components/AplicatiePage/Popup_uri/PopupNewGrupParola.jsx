@@ -151,12 +151,7 @@ const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems
         const colors = ["bg-red-500", "bg-yellow-500", "bg-yellow-400", "bg-green-500", "bg-green-600"];
         const labels = ["Foarte slabă", "Slabă", "Ok", "Puternică", "Foarte puternică"];
 
-        return {
-            strength: score,
-            color: colors[score],
-            label: labels[score],
-            suggestions
-        };
+        return { strength: score, color: colors[score], label: labels[score], suggestions };
     };
 
     const [strengthData, setStrengthData] = useState({ strength: 0, color: "", label: "" });
@@ -266,17 +261,11 @@ const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems
 
             console.log("Cheia criptata este: ", enc_key_raw);
 
-            const jsonItemKey = {
-                data: {
-                    encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag },
-                },
-            };
+            const jsonItemKey = { data: { encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag }, }, };
 
             const jsonItem = {
                 metadata: {
-                    created_at: new Date().toISOString(),
-                    modified_at: new Date().toISOString(),
-                    version: 1
+                    created_at: new Date().toISOString(), modified_at: new Date().toISOString(), version: 1
                 },
                 data: {
                     tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag, },
@@ -288,20 +277,11 @@ const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems
                 },
             };
 
-            const requestBody = {
-                id_grup: idgrup,
-                jsonItem: jsonItem
-            };
-
+            const requestBody = { id_grup: idgrup, jsonItem: jsonItem };
 
             try {
                 const response = await fetch('http://localhost:9000/api/grupuri/addItemGroup', {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestBody),
-                    credentials: "include"
+                    method: "POST", headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(requestBody), credentials: "include"
                 });
 
                 if (!response.ok) {
@@ -314,10 +294,7 @@ const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems
             }
             try {
                 const response = await fetch('http://localhost:9000/api/addKey', {
-                    method: "POST",
-                    headers: { 'Content-Type': 'application/json', },
-                    body: JSON.stringify(jsonItemKey),
-                    credentials: "include"
+                    method: "POST", headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(jsonItemKey), credentials: "include"
                 });
 
                 if (!response.ok) {
@@ -392,11 +369,7 @@ const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems
                         )}
                         <div className="mt-2 flex items-center gap-2">
                             <label className="text-sm">Lungime:</label>
-                            <select
-                                value={length}
-                                onChange={(e) => setLength(Number(e.target.value))}
-                                className="border py-1 px-2 border-gray-600 rounded-md"
-                            >
+                            <select value={length} onChange={(e) => setLength(Number(e.target.value))} className="border py-1 px-2 border-gray-600 rounded-md">
                                 <option value="16">16</option>
                                 <option value="24">24</option>
                                 <option value="32">32</option>
@@ -404,11 +377,7 @@ const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems
                             </select>
                         </div>
 
-                        <button
-                            type="button"
-                            onClick={() => generateStrongPassword(length)}
-                            className="mt-2 bg-blue-600 text-white py-1 px-4 rounded-md hover:bg-blue-700 transition"
-                        >
+                        <button type="button" onClick={() => generateStrongPassword(length)} className="mt-2 bg-blue-600 text-white py-1 px-4 rounded-md hover:bg-blue-700 transition">
                             Generează parolă
                         </button>
 

@@ -3,22 +3,16 @@ import React from "react";
 const PopupStergeGrupDefinitiv = ({ setStergeGrupPopup, item, fetchItems }) => {
 
     const handleStergeGrup = async () => {
-        console.log("id-ul Grupului de eliminat este: ", item);
         try {
             const response = await fetch('http://localhost:9000/api/grupuri/stergeGrup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ idGrup: item }),
-                credentials: "include"
+                method: 'POST', headers: { 'Content-Type': 'application/json', }, body: JSON.stringify({ idGrup: item }), credentials: "include"
             });
 
             if (response.ok) {
                 console.log('Item marcat ca șters!');
                 await fetchItems();
             } else {
-                console.error('Eroare la ștergerea item-ului:', response.statusText);
+                console.error('Eroare:', response.statusText);
             }
         } catch (error) {
             console.error('Eroare:', error);

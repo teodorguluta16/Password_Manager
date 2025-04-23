@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 
-import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } from '../../FunctiiDate/FunctiiDefinite'
+import { generateKey, exportKey } from '../../FunctiiDate/FunctiiDefinite'
 import forge from 'node-forge';
 
 function encryptWithPublicKey(message, publicKey) {
@@ -62,38 +62,6 @@ const PopupNewGrup = ({ setPopupGrupNou, derivedKey, fetchGroups }) => {
         //convertesc in PEM
         let publicKeyUtilizatorPem = fixBase64Key(publicKeyUtilizator);
 
-        // extrag cheia privata si o decriptez  !!! asta o fac de test aici
-        //let encryptedPrivateKeyUtilizator = null;
-        //try {
-        //    const response = await fetch('http://localhost:9000/api/getUserEncryptedPrivateKey', {
-        //        method: 'GET', headers: { 'Content-Type': 'application/json',  },credentials:"include"
-        //    });
-
-        //    if (response.ok) {
-        //        const data2 = await response.json();
-        //        encryptedPrivateKeyUtilizator = data2.encryptedprivatekey;
-        //    } else {
-        //        const errorData = await response.json(); console.log('Eroare:', errorData.message);
-        //    }
-        //} catch (error) {
-        //    console.error('Eroare la trimiterea cererii:', error);
-        //}
-
-        // convertesc cheia privata din HEX in string: 
-        //const decodedString2 = hexToString(encryptedPrivateKeyUtilizator);
-        //const dataObject2 = JSON.parse(decodedString2);
-
-        //const ivHex2 = dataObject2.encKey.iv;
-        //const encDataHex2 = dataObject2.encKey.encData;
-        //const tagHex2 = dataObject2.encKey.tag;
-
-        //const decriptKey = await decodeMainKey(key);
-        //const decc_key = await decriptareDate(encDataHex2, ivHex2, tagHex2, decriptKey);
-        //console.log("Cheia decriptata ar trebui sa fie: ", decc_key);
-
-        // !!!!! pana acuma am decriptat cheia privata a utilziatorului
-
-
         // 3.criptez cheia aia aes cu cheia asta publica A OWNERULUI publicKeyPem RSA
 
         const key_aes_raw = await exportKey(key_aes);
@@ -134,31 +102,12 @@ const PopupNewGrup = ({ setPopupGrupNou, derivedKey, fetchGroups }) => {
             console.error("Eroare la criptare:", error.message);
         }
 
-        // aici decriptam ***********
-        // let decryptedMessage;
-        //try {
-        //   decryptedMessage = decryptWithPrivateKey(encryptedMessage, privateKey2);
-        //    console.log("Mesajul decriptat:", decryptedMessage);
-        //} catch (error) {
-        //   console.error("Eroare la decriptare:", error.message);
-        //}
-
-
         // 4. Construirea JSON-ului cu datele de trimis la server
-        const jsonItem = {
-            numeGrup: nameItem,
-            descriere: comentariuItem,
-            encryptedAesKey: encryptedMessageBase64,
-        };
+        const jsonItem = { numeGrup: nameItem, descriere: comentariuItem, encryptedAesKey: encryptedMessageBase64, };
 
         try {
             const response = await fetch('http://localhost:9000/api/addGrup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(jsonItem),
-                credentials: "include"
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(jsonItem), credentials: "include"
             });
 
             if (response.ok) {
@@ -171,7 +120,6 @@ const PopupNewGrup = ({ setPopupGrupNou, derivedKey, fetchGroups }) => {
         } catch (error) {
             console.error('Eroare la trimiterea cererii:', error);
         }
-
         await fetchGroups();
     };
 

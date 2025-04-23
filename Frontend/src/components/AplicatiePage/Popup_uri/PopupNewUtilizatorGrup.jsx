@@ -1,8 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
-
-import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey, importAESKey } from "../../FunctiiDate/FunctiiDefinite"
+import { decodeMainKey, decriptareDate } from "../../FunctiiDate/FunctiiDefinite"
 import forge from 'node-forge';
 
 function hexToString(hex) {
@@ -157,7 +155,6 @@ const PopupNewUtilizatorGrup = ({ setPopupUtilizatorNou, idgrup, derivedKey, han
         // Converstesc cheia din Uint8Array in Base64;
 
         const publicKey2 = forge.pki.publicKeyFromPem(publicKeyUtilizatorPem);
-        //const privateKey2 = forge.pki.privateKeyFromPem(decc_key);
         const message = decryptedMessage;  // mesajul ce urmeaza a fi criptat
         console.log("cheia aes ce urmeaza a fi criptata: ", message);
         let encryptedMessage2; /// aici criptam efectiv
@@ -171,11 +168,7 @@ const PopupNewUtilizatorGrup = ({ setPopupUtilizatorNou, idgrup, derivedKey, han
         }
 
         // inserez cheia criptata in baza de date in legusergrup
-        const jsonItem = {
-            idMembru: newMemberId,
-            grupId: idgrup,
-            encryptedKey: encryptedMessage2Base64,
-        };
+        const jsonItem = { idMembru: newMemberId, grupId: idgrup, encryptedKey: encryptedMessage2Base64, };
 
         try {
             console.log(jsonItem);

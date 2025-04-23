@@ -7,19 +7,13 @@ const PopupStergeItem = ({ setShowPopupStergeItem, item, items, fetchItems }) =>
 
         try {
             const response = await fetch('http://localhost:9000/api/stergeItem', {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ id_item: item.id_item }),
-                credentials: "include"
+                method: 'PATCH', headers: { 'Content-Type': 'application/json', }, body: JSON.stringify({ id_item: item.id_item }), credentials: "include"
             });
 
             if (response.ok) {
-                console.log('Item marcat ca șters!');
                 await fetchItems();
             } else {
-                console.error('Eroare la ștergerea item-ului:', response.statusText);
+                console.error('Eroare:', response.statusText);
             }
         } catch (error) {
             console.error('Eroare:', error);

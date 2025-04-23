@@ -1,9 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
 
 import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } from "../../FunctiiDate/FunctiiDefinite"
-import { useKeySimetrica } from '../../FunctiiDate/ContextKeySimetrice'
 import forge from 'node-forge';
 
 function hexToString(hex) {
@@ -55,7 +53,6 @@ const PopupNewGrupAdresa = ({ setShowAdresaPopup, derivedKey, idgrup, fetchItems
             const enc_JudetItem = await criptareDate(judet, key_aes);
             const enc_CodPostalItem = await criptareDate(codPostal, key_aes);
             const enc_ComentariuItem = await criptareDate(comentariuAdresa || "N/A", key_aes);
-
 
             // 3. Criptam cheia aes dar nu cu key ci cu simmmetric group key. Deci extragem mai intai enc simmetricgroupkey
 
@@ -128,17 +125,11 @@ const PopupNewGrupAdresa = ({ setShowAdresaPopup, derivedKey, idgrup, fetchItems
 
             console.log("Cheia criptata este: ", enc_key_raw);
 
-            const jsonItemKey = {
-                data: {
-                    encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag },
-                },
-            };
+            const jsonItemKey = { data: { encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag }, }, };
 
             const jsonItem = {
                 metadata: {
-                    created_at: new Date().toISOString(),
-                    modified_at: new Date().toISOString(),
-                    version: 1
+                    created_at: new Date().toISOString(), modified_at: new Date().toISOString(), version: 1
                 },
                 data: {
                     tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag, },
@@ -151,20 +142,11 @@ const PopupNewGrupAdresa = ({ setShowAdresaPopup, derivedKey, idgrup, fetchItems
                 },
             };
 
-            const requestBody = {
-                id_grup: idgrup,
-                jsonItem: jsonItem
-            };
-
+            const requestBody = { id_grup: idgrup, jsonItem: jsonItem };
 
             try {
                 const response = await fetch('http://localhost:9000/api/grupuri/addItemGroup', {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestBody),
-                    credentials: "include"
+                    method: "POST", headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(requestBody), credentials: "include"
                 });
 
                 if (!response.ok) {
@@ -177,12 +159,7 @@ const PopupNewGrupAdresa = ({ setShowAdresaPopup, derivedKey, idgrup, fetchItems
             }
             try {
                 const response = await fetch('http://localhost:9000/api/addKey', {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(jsonItemKey),
-                    credentials: "include"
+                    method: "POST", headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(jsonItemKey), credentials: "include"
                 });
 
                 if (!response.ok) {
@@ -193,47 +170,6 @@ const PopupNewGrupAdresa = ({ setShowAdresaPopup, derivedKey, idgrup, fetchItems
             } catch (error) {
                 console.error("Eroare la trimitere", error);
             };
-
-            //const decodedString = hexToString(encryptedsimmetricKeyGroup);
-
-            //const dataObject = JSON.parse(decodedString);
-            //console.log(dataObject);
-            //const ivHex = dataObject.encKey.iv;
-            //const encDataHex = dataObject.encKey.encData;
-            //const tagHex = dataObject.encKey.tag;
-
-
-
-            //const criptKey = await decodeMainKey(key);
-
-            //const key_aes_raw = await exportKey(key_aes);
-            //console.log("Cheia intreaga ianinte de criptare este: ", key_aes_raw);
-            //const enc_key_raw = await criptareDate(key_aes_raw, criptKey);
-
-            //console.log("Cheia criptata este: ", enc_key_raw);
-
-            // 3. Decriptarea cheii AES criptate folosind cheia AES decriptată
-            //const dec_key = await decriptareDate(enc_key_raw.encData, enc_key_raw.iv, enc_key_raw.tag, criptKey);  // obții cheia AES decriptată
-
-            //const octetiArray = dec_key.split(',').map(item => parseInt(item.trim(), 10));
-
-            // Creăm un Uint8Array din array-ul de numere
-            //const uint8Array = new Uint8Array(octetiArray);
-            //console.log(uint8Array);
-
-            //const importedKey = await window.crypto.subtle.importKey(
-            //    "raw",               // Importăm cheia în format brut
-            //    uint8Array,          // Cheia de tip Uint8Array
-            //    { name: "AES-GCM" },  // Algoritmul de criptare
-            //    false,               // Nu este necesar să exportăm cheia
-            //    ["encrypt", "decrypt"]  // Permisiunile cheii
-            //);
-
-            //const dec_tip = await decriptareDate(enc_Tip.encData, enc_Tip.iv, enc_Tip.tag, importedKey);
-
-            //const decoded_key = await decodeMainKey(dec_key);
-
-            //console.log("Elementul decriptat ar trebui sa fie: ", dec_tip);
 
         } catch (error) {
             console.error("Eroare la criptarea datelor:", error);

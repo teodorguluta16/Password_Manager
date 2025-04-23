@@ -6,9 +6,7 @@ const PopupParasesteGrup = ({ setShowPopupParasesteGrup, item, fetchItems }) => 
 
         try {
             const response = await fetch('http://localhost:9000/api/grupuri/parasesteGroup', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ idgrup: item }),
-                credentials: "include"
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idgrup: item }), credentials: "include"
             });
 
             if (response.ok) {

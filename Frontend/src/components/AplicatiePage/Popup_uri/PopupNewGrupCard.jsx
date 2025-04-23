@@ -1,9 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
-
 import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } from "../../FunctiiDate/FunctiiDefinite"
-import { useKeySimetrica } from '../../FunctiiDate/ContextKeySimetrice'
 import forge from 'node-forge';
 
 function hexToString(hex) {
@@ -147,20 +144,10 @@ const PopupNewGrupCard = ({ setShowCardPopup, derivedKey, idgrup, fetchItems }) 
                 },
             };
 
-            const requestBody = {
-                id_grup: idgrup,
-                jsonItem: jsonItem
-            };
-
-
+            const requestBody = { id_grup: idgrup, jsonItem: jsonItem };
             try {
                 const response = await fetch('http://localhost:9000/api/grupuri/addItemGroup', {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestBody),
-                    credentials: "include"
+                    method: "POST", headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(requestBody), credentials: "include"
                 });
 
                 if (!response.ok) {
@@ -173,12 +160,7 @@ const PopupNewGrupCard = ({ setShowCardPopup, derivedKey, idgrup, fetchItems }) 
             }
             try {
                 const response = await fetch('http://localhost:9000/api/addKey', {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(jsonItemKey),
-                    credentials: "include"
+                    method: "POST", headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(jsonItemKey), credentials: "include"
                 });
 
                 if (!response.ok) {

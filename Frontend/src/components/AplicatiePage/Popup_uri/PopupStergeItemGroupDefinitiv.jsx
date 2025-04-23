@@ -4,8 +4,6 @@ const PopupStergeItemGroupDefinitiv = ({ setShowPopupStergeItem, item, items, fe
 
     const handleStergeItem = async () => {
         setShowPopupStergeItem(false);
-        console.log("Id grup este", idgrup);
-        console.log("id item de sters este: ", item.id_item);
         try {
             const response = await fetch('http://localhost:9000/api/grupuri/stergeItemGroupDefinitiv', {
                 method: 'DELETE', headers: { 'Content-Type': 'application/json', },
@@ -16,7 +14,7 @@ const PopupStergeItemGroupDefinitiv = ({ setShowPopupStergeItem, item, items, fe
             if (response.ok) {
                 console.log('Item șters definitiv!');
             } else {
-                console.error('Eroare la ștergerea item-ului:', response.statusText);
+                console.error('Eroare: ', response.statusText);
             }
         } catch (error) {
             console.error('Eroare:', error);

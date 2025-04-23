@@ -1,12 +1,8 @@
 import React from "react";
-import { useState } from "react";
-
-import PeopleLogo from "../../../assets/website/people.png";
 import ParolaLogo from "../../../assets/website/password2.png";
 import CardLogo from "../../../assets/website/credit-card2.png";
 import NoteLogo from "../../../assets/website/note2.png";
 import Address from '../../../assets/website/address.png'
-
 
 const PopupNewItem = ({ setShoMeniuCreeazaItem, setShowParolaPopup, setShowNotitaPopup, setShowCardPopup, setShowAddressPopup }) => {
 
@@ -16,23 +12,10 @@ const PopupNewItem = ({ setShoMeniuCreeazaItem, setShowParolaPopup, setShowNotit
     }
   };
 
-  const handleMeniuParolaItem = () => {
-    setShoMeniuCreeazaItem(false);
-    setShowParolaPopup(true);
-
-  };
-  const handleMeniuNotitaItem = () => {
-    setShoMeniuCreeazaItem(false);
-    setShowNotitaPopup(true);
-  }
-  const handleMeniuCardPopup = () => {
-    setShoMeniuCreeazaItem(false);
-    setShowCardPopup(true);
-  }
-  const handleMeniuAdresePopup = () => {
-    setShoMeniuCreeazaItem(false);
-    setShowAddressPopup(true);
-  }
+  const handleMeniuParolaItem = () => { setShoMeniuCreeazaItem(false); setShowParolaPopup(true); };
+  const handleMeniuNotitaItem = () => { setShoMeniuCreeazaItem(false); setShowNotitaPopup(true); }
+  const handleMeniuCardPopup = () => { setShoMeniuCreeazaItem(false); setShowCardPopup(true); }
+  const handleMeniuAdresePopup = () => { setShoMeniuCreeazaItem(false); setShowAddressPopup(true); }
 
   return (
     <>

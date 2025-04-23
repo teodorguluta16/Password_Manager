@@ -12,34 +12,15 @@ const importRawKeyFromBase64 = async (base64Key) => {
     for (let i = 0; i < binary.length; i++) {
         bytes[i] = binary.charCodeAt(i);
     }
-
-    return await window.crypto.subtle.importKey(
-        "raw",
-        bytes,
-        "HKDF",
-        false,
-        ["deriveKey"]
-    );
+    return await window.crypto.subtle.importKey("raw", bytes, "HKDF", false, ["deriveKey"]);
 };
 
 
 
 const deriveHMACKey = async (derivedKey) => {
     return crypto.subtle.deriveKey(
-        {
-            name: "HKDF",
-            hash: "SHA-256",
-            salt: new TextEncoder().encode("semnatura-parola"),
-            info: new TextEncoder().encode("hmac-signing")
-        },
-        derivedKey,
-        {
-            name: "HMAC",
-            hash: "SHA-256",
-            length: 256
-        },
-        false,
-        ["sign"]
+        { name: "HKDF", hash: "SHA-256", salt: new TextEncoder().encode("semnatura-parola"), info: new TextEncoder().encode("hmac-signing") },
+        derivedKey, { name: "HMAC", hash: "SHA-256", length: 256 }, false, ["sign"]
     );
 };
 
@@ -126,10 +107,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
         }
 
         const finalPassword = secureShuffle(password).join("");
-
         setParolaItem(finalPassword);
-
-        //console.log("Am intrat, este: ", secureShuffle(password).join(""));
         return finalPassword;
     };
 
@@ -145,10 +123,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
         // 1. Verificare dacă parola conține numele/emailul
         if (userLower.length > 2 && password.toLowerCase().includes(userLower)) {
             return {
-                strength: 0,
-                color: "bg-red-600",
-                label: "Parola conține emailul sau numele utilizatorului",
-                suggestions: ["Nu include emailul sau numele în parolă."]
+                strength: 0, color: "bg-red-600", label: "Parola conține emailul sau numele utilizatorului", suggestions: ["Nu include emailul sau numele în parolă."]
             };
         }
 
@@ -166,10 +141,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
         const breachCount = await checkPwnedPassword(password);
         if (breachCount > 0) {
             return {
-                strength: 0,
-                color: "bg-red-700",
-                label: `Parolă compromisă (${breachCount} ori)`,
-                suggestions: ["Această parolă a fost expusă public. Alege alta."]
+                strength: 0, color: "bg-red-700", label: `Parolă compromisă (${breachCount} ori)`, suggestions: ["Această parolă a fost expusă public. Alege alta."]
             };
         }
 
@@ -181,12 +153,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
         const colors = ["bg-red-500", "bg-yellow-500", "bg-yellow-400", "bg-green-500", "bg-green-600"];
         const labels = ["Foarte slabă", "Slabă", "Ok", "Puternică", "Foarte puternică"];
 
-        return {
-            strength: score,
-            color: colors[score],
-            label: labels[score],
-            suggestions
-        };
+        return { strength: score, color: colors[score], label: labels[score], suggestions };
     };
 
     const [strengthData, setStrengthData] = useState({ strength: 0, color: "", label: "" });
@@ -230,15 +197,8 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
         const data = `${parola}|${charset}|${length}`;
         const encoder = new TextEncoder();
 
-        const signature = await crypto.subtle.sign(
-            "HMAC",
-            hmacKey, // 🔐 folosești cheia deja derivată
-            encoder.encode(data)
-        );
-
-        return Array.from(new Uint8Array(signature))
-            .map(b => b.toString(16).padStart(2, "0"))
-            .join("");
+        const signature = await crypto.subtle.sign("HMAC", hmacKey, encoder.encode(data));
+        return Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, "0")).join("");
     };
 
 
@@ -285,25 +245,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
             const uint8Array = new Uint8Array(octetiArray);
             console.log(uint8Array);
 
-            const importedKey = await window.crypto.subtle.importKey(
-                "raw",               // Importăm cheia în format brut
-                uint8Array,          // Cheia de tip Uint8Array
-                { name: "AES-GCM" },  // Algoritmul de criptare
-                false,               // Nu este necesar să exportăm cheia
-                ["encrypt", "decrypt"]  // Permisiunile cheii
-            );
-
-            const dec_tip = await decriptareDate(enc_Tip.encData, enc_Tip.iv, enc_Tip.tag, importedKey);
-
-            //const decoded_key = await decodeMainKey(dec_key);
-
-            console.log("Elementul decriptat ar trebui sa fie: ", dec_tip);
-
-            const jsonItemKey = {
-                data: {
-                    encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag },
-                },
-            };
+            const jsonItemKey = { data: { encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag }, }, };
 
             const jsonItem = {
                 metadata: {
@@ -329,12 +271,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
 
             try {
                 const response = await fetch('http://localhost:9000/api/addItem', {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(jsonItem),
-                    credentials: "include"
+                    method: "POST", headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(jsonItem), credentials: "include"
                 });
 
                 if (!response.ok) {
@@ -347,12 +284,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
             }
             try {
                 const response = await fetch('http://localhost:9000/api/addKey', {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(jsonItemKey),
-                    credentials: "include"
+                    method: "POST", headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(jsonItemKey), credentials: "include"
                 });
 
                 if (!response.ok) {
@@ -363,7 +295,6 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
             } catch (error) {
                 console.error("Eroare la trimitere", error);
             };
-
 
         } catch (error) {
             console.error("Eroare la criptarea datelor:", error);
@@ -423,11 +354,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
                         )}
                         <div className="mt-2 flex items-center gap-2">
                             <label className="text-sm">Lungime:</label>
-                            <select
-                                value={length}
-                                onChange={(e) => setLength(Number(e.target.value))}
-                                className="border py-1 px-2 border-gray-600 rounded-md"
-                            >
+                            <select value={length} onChange={(e) => setLength(Number(e.target.value))} className="border py-1 px-2 border-gray-600 rounded-md">
                                 <option value="16">16</option>
                                 <option value="24">24</option>
                                 <option value="32">32</option>
@@ -435,11 +362,7 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
                             </select>
                         </div>
 
-                        <button
-                            type="button"
-                            onClick={() => generateStrongPassword(length)}
-                            className="mt-2 bg-blue-600 text-white py-1 px-4 rounded-md hover:bg-blue-700 transition"
-                        >
+                        <button type="button" onClick={() => generateStrongPassword(length)} className="mt-2 bg-blue-600 text-white py-1 px-4 rounded-md hover:bg-blue-700 transition">
                             Generează parolă
                         </button>
 

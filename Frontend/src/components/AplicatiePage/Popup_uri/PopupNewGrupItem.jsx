@@ -8,30 +8,11 @@ import RemoteWorking from "../../../assets/website/remote-working.png"
 
 const PopupNewGrupItem = ({ setShowParolaPopup, setShowNotitaPopup, setShowCardPopup, setShowAdresaPopup, setShowRemotePopup, setPopupVisible }) => {
 
-    const handleMeniuParolaItem = () => {
-        setPopupVisible(false);
-        setShowParolaPopup(true);
-
-    };
-    const handleMeniuNotitaItem = () => {
-        setPopupVisible(false);
-        setShowNotitaPopup(true);
-    }
-
-    const handleMeniuCardItem = () => {
-        setPopupVisible(false);
-        setShowCardPopup(true);
-    }
-
-    const handleMeniuAdresaItem = () => {
-        setPopupVisible(false);
-        setShowAdresaPopup(true);
-    }
-
-    const handleMeniuRemoteItem = () => {
-        setPopupVisible(false);
-        setShowRemotePopup(true);
-    }
+    const handleMeniuParolaItem = () => { setPopupVisible(false); setShowParolaPopup(true); };
+    const handleMeniuNotitaItem = () => { setPopupVisible(false); setShowNotitaPopup(true); }
+    const handleMeniuCardItem = () => { setPopupVisible(false); setShowCardPopup(true); }
+    const handleMeniuAdresaItem = () => { setPopupVisible(false); setShowAdresaPopup(true); }
+    const handleMeniuRemoteItem = () => { setPopupVisible(false); setShowRemotePopup(true); }
 
     return (
         <>

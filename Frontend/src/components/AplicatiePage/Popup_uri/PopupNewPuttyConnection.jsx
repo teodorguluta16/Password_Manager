@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
 import forge from "node-forge";
 import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } from "../../FunctiiDate/FunctiiDefinite"
 
@@ -13,10 +11,8 @@ const PopupNewPuttyConnection = ({ setPopupNewRemote, derivedKey, fetchItems }) 
     const [cheiePrivata, setCheiePrivata] = useState('');
     const [cheiePublica, setCheiePublica] = useState('');
     const [cheiePPK, setCheiePPK] = useState('');
-    const [ppkFile, setPpkFile] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    // ✅ Funcție pentru generarea cheilor SSH
     const generateSSHKeys = () => {
         const keypair = forge.pki.rsa.generateKeyPair({ bits: 4096 });
 
@@ -32,11 +28,8 @@ const PopupNewPuttyConnection = ({ setPopupNewRemote, derivedKey, fetchItems }) 
         setCheiePrivata(privateKeyPem);
         setCheiePublica(publicKeyOpenSSH);
         setCheiePPK('');
-
-        console.log("✅ Cheie generată!");
     };
 
-    // ✅ Funcție pentru descărcarea fișierelor `.pem`, `.ppk`, și `.pub`
     const downloadKeyFile = (keyContent, fileName) => {
         const blob = new Blob([keyContent], { type: "text/plain" });
         const link = document.createElement("a");
@@ -57,7 +50,6 @@ const PopupNewPuttyConnection = ({ setPopupNewRemote, derivedKey, fetchItems }) 
 
             if (file.name.endsWith(".ppk")) {
                 setCheiePPK(fileContent);
-                console.log("✅ Cheie PPK încărcată");
             } else {
                 alert("⚠️ Format neacceptat! ");
             }
@@ -101,31 +93,11 @@ const PopupNewPuttyConnection = ({ setPopupNewRemote, derivedKey, fetchItems }) 
             const uint8Array = new Uint8Array(octetiArray);
             console.log(uint8Array);
 
-            const importedKey = await window.crypto.subtle.importKey(
-                "raw",               // Importăm cheia în format brut
-                uint8Array,          // Cheia de tip Uint8Array
-                { name: "AES-GCM" },  // Algoritmul de criptare
-                false,               // Nu este necesar să exportăm cheia
-                ["encrypt", "decrypt"]  // Permisiunile cheii
-            );
-
-            const dec_tip = await decriptareDate(enc_Tip.encData, enc_Tip.iv, enc_Tip.tag, importedKey);
-
-            //const decoded_key = await decodeMainKey(dec_key);
-
-            console.log("Elementul decriptat ar trebui sa fie: ", dec_tip);
-
-            const jsonItemKey = {
-                data: {
-                    encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag },
-                },
-            };
+            const jsonItemKey = { data: { encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag }, }, };
 
             const jsonItem = {
                 metadata: {
-                    created_at: new Date().toISOString(),
-                    modified_at: new Date().toISOString(),
-                    version: 1
+                    created_at: new Date().toISOString(), modified_at: new Date().toISOString(), version: 1
                 },
                 data: {
                     tip: { iv: enc_Tip.iv, encData: enc_Tip.encData, tag: enc_Tip.tag },
@@ -139,12 +111,7 @@ const PopupNewPuttyConnection = ({ setPopupNewRemote, derivedKey, fetchItems }) 
 
             try {
                 const response = await fetch('http://localhost:9000/api/addItem', {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(jsonItem),
-                    credentials: "include"
+                    method: "POST", headers: { 'Content-Type': 'application/json', }, body: JSON.stringify(jsonItem), credentials: "include"
                 });
 
                 if (!response.ok) {
