@@ -1,48 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Logo from "../../assets/website/access-control.png";
 import User from "../../assets/website/user.png";
 import Administrator from "../../assets/website/administrator.png";
 
 const Menu = [
-  {
-    id: 1,
-    name: "Intreaba ceva",
-    link: "/#",
-  },
-  {
-    id: 2,
-    name: "Ajutor",
-    link: "/#services",
-  },
+  { id: 1, name: "Intreaba ceva", link: "/#", },
+  { id: 2, name: "Ajutor", link: "/#services", },
 ];
 
 const DropdownLinks = [
-  {
-    id: 1,
-    name: "My User",
-    link: "/login",
-    icon: User,
-  },
-  {
-    id: 2,
-    name: "Admins",
-    link: "/#",
-    icon: Administrator,
-  },
+  { id: 1, name: "My User", icon: User, },
+  { id: 2, name: "Admins", link: "/#", icon: Administrator, },
 ];
 
 const Navbar = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [showLoginMenu, setShowLoginMenu] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const toggleMenu = () => {
-    setShowMenu(!showMenu);
-  };
 
-  const toggleLoginMenu = () => {
-    setShowLoginMenu(!showLoginMenu);
-  };
+  const toggleMenu = () => { setShowMenu(!showMenu); };
+  const toggleLoginMenu = () => { setShowLoginMenu(!showLoginMenu); };
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('http://localhost:9000/api/auth/validateToken', {
+          method: 'GET',
+          credentials: "include"
+        });
+
+        setIsAuthenticated(response.ok);
+      } catch (error) {
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
   return (
     <>
       <div className="shadow-lg bg-gray-800 fixed top-0 z-50  mx-auto w-screen">
@@ -113,16 +108,20 @@ const Navbar = () => {
         )}
         {/* Meniul de login afișat separat sub bara */}
         {showLoginMenu && (
-          <div className="absolute top-full right-12 sm:right-[10%] md:right-14  lg:right-12 xl:right-16 2xl:right-12 w-[80%] md:w-[20%] lg:w-[18%] xl:w-[10%] bg-gray-300 rounded-lg p-4 shadow-md z-40">
+          <div className="absolute top-full right-12 sm:right-[10%] md:right-14 lg:right-12 xl:right-16 2xl:right-12 w-[80%] md:w-[20%] lg:w-[18%] xl:w-[10%] bg-gray-300 rounded-lg p-4 shadow-md z-40">
             <ul>
-              {DropdownLinks.map((data) => (
-                <li key={data.id} className="flex justify-between items-center gap-2 p-2 hover:bg-primary rounded">
-                  <a href={data.link} className="">
-                    {data.name}
-                  </a>
-                  <img src={data.icon} alt={data.name} className="w-7" />
-                </li>
-              ))}
+              {DropdownLinks.map((data) => {
+                // Decizie dinamică pentru linkul de login
+                const link =
+                  data.name === "My User" ? (isAuthenticated ? "/myapp" : "/login") : data.link;
+
+                return (
+                  <li key={data.id} className="flex justify-between items-center gap-2 p-2 hover:bg-primary rounded">
+                    <a href={link}>{data.name}</a>
+                    <img src={data.icon} alt={data.name} className="w-7" />
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}

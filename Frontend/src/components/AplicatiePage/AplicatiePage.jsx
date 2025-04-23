@@ -129,7 +129,11 @@ const AplicatiePage = () => {
     };
 
     checkAuth();
+
+    const interval = setInterval(checkAuth, 60000);
+    return () => clearInterval(interval);
   }, []);
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -191,6 +195,28 @@ const AplicatiePage = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    const checkSessionOnPageChange = async () => {
+      try {
+        const res = await fetch('http://localhost:9000/api/auth/validateToken', {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        if (!res.ok) {
+          alert("Sesiunea a expirat. Vei fi redirecționat.");
+          await deconectare();
+        }
+      } catch (err) {
+        console.error("Eroare la verificarea sesiunii:", err);
+        await deconectare();
+      }
+    };
+
+    if (sectiuneItemi) checkSessionOnPageChange();
+  }, [sectiuneItemi]);
+
   const [shoMeniuCreeazaItem, setMeniuCreeazaItem] = useState(false);
   const [ShowParolaPopup, setShowParolaPopup] = useState(false);
   const [ShowNotitaPopup, setShowNotitaPopup] = useState(false);
@@ -212,7 +238,6 @@ const AplicatiePage = () => {
           setEmailUser(email2);
 
         } else {
-          console.log("NU E BINEEE AICIIIIII!");
           console.error("Eroare la primire email");
         }
       } catch (error) {
