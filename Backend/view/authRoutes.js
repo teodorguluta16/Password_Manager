@@ -61,19 +61,19 @@ authRouter.post("/login", async (req, res) => {
                 { expiresIn: '1h' }
             );
 
-            const refreshToken = jwt.sign(
-                { username: Email, sub: result.rows[0].id, name: result.rows[0].nume, role: TipUser },
-                process.env.REFRESH_TOKEN_SECRET,
-                { expiresIn: '1d' }
-            );
+            /* const refreshToken = jwt.sign(
+                 { username: Email, sub: result.rows[0].id, name: result.rows[0].nume, role: TipUser },
+                 process.env.REFRESH_TOKEN_SECRET,
+                 { expiresIn: '1d' }
+             );*/
 
-            await client.query("UPDATE Utilizatori SET refresh_token = $1 WHERE Email = $2", [refreshToken, Email]);
-            res.cookie("jwt", refreshToken, {
+            // await client.query("UPDATE Utilizatori SET refresh_token = $1 WHERE Email = $2", [refreshToken, Email]);
+            /*res.cookie("jwt", refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === "production",
                 maxAge: 24 * 60 * 60 * 1000,
                 sameSite: "None"
-            });
+            });*/
 
             res.cookie("accessToken", accessToken, {
                 httpOnly: true,
