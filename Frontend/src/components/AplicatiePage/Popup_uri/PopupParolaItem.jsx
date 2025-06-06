@@ -115,38 +115,40 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
         const parolaLower = password.toLowerCase();
         const userLower = usernameItem.toLowerCase();
 
-        const paroleComune = [
-            "123456", "password", "123456789", "qwerty", "abc123", "111111", "admin",
-            "Academia123", "parola123", "letmein", "iloveyou", "000000", "123123"
-        ];
+        // 1. Normalizarea parolei pentru a verifica variante similare (fără caractere speciale)
+        const normalizePassword = password.replace(/[^a-zA-Z0-9]/g, "").toLowerCase(); // Elimină semnele speciale și face literele mici
 
-        // 1. Verificare dacă parola conține numele/emailul
-        if (userLower.length > 2 && password.toLowerCase().includes(userLower)) {
-            return {
-                strength: 0, color: "bg-red-600", label: "Parola conține emailul sau numele utilizatorului", suggestions: ["Nu include emailul sau numele în parolă."]
-            };
-        }
-
-        // 2. Verificare dacă parola este prea comună
-        if (paroleComune.includes(parolaLower)) {
-            return {
-                strength: 0,
-                color: "bg-red-600",
-                label: "Parolă foarte comună",
-                suggestions: ["Alege o parolă mai puțin previzibilă."]
-            };
-        }
-
-        // 3. Verificare HIBP
-        const breachCount = await checkPwnedPassword(password);
+        // 2. Verificare HIBP pe varianta normalizată a parolei
+        const breachCount = await checkPwnedPassword(normalizePassword);
         if (breachCount > 0) {
             return {
                 strength: 0, color: "bg-red-700", label: `Parolă compromisă (${breachCount} ori)`, suggestions: ["Această parolă a fost expusă public. Alege alta."]
             };
         }
 
-        // 4. Analiză cu zxcvbn
-        const result = zxcvbn(password);
+        // 3. Verificare dacă parola conține numele/emailul
+        if (userLower.length > 2 && password.toLowerCase().includes(userLower)) {
+            return {
+                strength: 0, color: "bg-red-600", label: "Parola conține emailul sau numele utilizatorului", suggestions: ["Nu include emailul sau numele în parolă."]
+            };
+        }
+
+        // 4. Verificare complexitate suplimentară:
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasDigit = /\d/.test(password);
+        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+        const isLongEnough = password.length >= 8; // Poți ajusta acest prag
+
+        // Dacă parola nu respectă aceste cerințe, o evaluăm ca fiind mai slabă
+        if (!(hasUpperCase && hasLowerCase && hasDigit && hasSpecialChar && isLongEnough)) {
+            return {
+                strength: 0, color: "bg-red-600", label: "Parolă prea slabă", suggestions: ["Parola trebuie să conțină cel puțin o literă mare, o literă mică, o cifră și un caracter special, și să fie mai lungă de 8 caractere."]
+            };
+        }
+
+        // 5. Analiză cu zxcvbn
+        const result = zxcvbn(parolaLower);
         const score = Math.min(result.score, 4);
         const suggestions = result.feedback?.suggestions || [];
 
@@ -155,6 +157,9 @@ const PopupParolaItem = ({ setShowParolaPopup, derivedKey, fetchItems }) => {
 
         return { strength: score, color: colors[score], label: labels[score], suggestions };
     };
+
+
+
 
     const [strengthData, setStrengthData] = useState({ strength: 0, color: "", label: "" });
 
