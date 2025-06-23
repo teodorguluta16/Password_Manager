@@ -12,7 +12,7 @@ window.addEventListener("message", function (event) {
                 if (browserAPI.runtime.lastError) {
                     console.error("❌ Eroare la trimiterea către background.js:", browserAPI.runtime.lastError.message);
                 } else {
-                    console.log("✅ Reusit background.js:", response);
+                    //console.log("✅ Reusit background.js:", response);
                 }
             }
         );
@@ -29,7 +29,6 @@ window.addEventListener("message", function (event) {
 
 // Caută câmpurile de login
 function detectareCampuriLogin() {
-    console.log("AICIIIII");
     const inputs = Array.from(document.querySelectorAll("input"));
     let usernameCamp = null;
     let parolaCamp = null;
@@ -162,7 +161,7 @@ function adaugaButonGenerare(parolaInput) {
         const parola = genereazaParolaPuternica(16);
         parolaInput.value = parola;
         parolaInput.dispatchEvent(new Event("input", { bubbles: true }));
-        parolaVizibila.textContent = parola; // afișăm parola generată
+        parolaVizibila.textContent = parola;
     };
 
     container.appendChild(btn);
@@ -286,10 +285,6 @@ function detectFormType(passwordInputs, usernameInputs, target) {
     if (passwordInputs.length >= 1) score += 1;
     if (registerHints.length >= 1) score += 2;
 
-    console.log(registerHints);
-    console.log("Scorul33 este: ", score);
-
-    console.log("all inputs lenght: ", allInputs.length);
     if (usernameInputs.length >= 1) score += 1;
 
     const submitButtons = Array.from(document.querySelectorAll('button, input[type="submit"]'));
@@ -305,7 +300,6 @@ function detectFormType(passwordInputs, usernameInputs, target) {
     });
 
     if (hasRegisterButton) score += 2;
-    console.log("Aici scorul e: ", score);
 
     const tipFormular = form ? tipFormularDupaButon(form) : "necunoscut";
 
@@ -322,7 +316,7 @@ function detectFormType(passwordInputs, usernameInputs, target) {
     if (allInputs.length >= 4)
         score += 2;
 
-    //console.log("Scorul este: ", score);
+
 
     let isRegister = false;
     if (score >= 4)
@@ -349,8 +343,6 @@ document.addEventListener("input", async (e) => {
         const usernameInputs = Array.from(document.querySelectorAll('input[type="text"], input[type="email"]'));
 
         const { isLogin, isRegister, isReset } = detectFormType(passwordInputs, usernameInputs, target);
-
-        //console.log("📌 INPUT detectat — login:", isLogin, "register:", isRegister, "reset:", isReset);
 
         if ((isRegister || isReset) &&
             !target.parentElement.querySelector(".btn-gen-parola") && !isLogin) {

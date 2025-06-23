@@ -24,7 +24,6 @@ export async function initKeyAndPasswords() {
                 console.error("❌ Nu am găsit cheia nici în IndexedDB.");
                 return [];
             }
-            console.log("✅ Cheie fallback luată din IndexedDB:", encodedKey);
         }
 
         await new Promise((resolve, reject) => {
@@ -63,7 +62,6 @@ export async function initKeyAndPasswords() {
 export async function initKeyAndPasswords2(password) {
     try {
         const encodedKey = await genereazaCheiaLocal(password);
-        console.log("Cheia obținută !! este: ", encodedKey);
         await saveKeyInIndexedDB(encodedKey);
 
         const syncResult = await new Promise((resolve) => {

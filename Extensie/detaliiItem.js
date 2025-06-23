@@ -169,7 +169,6 @@ function showItemDetails(parola) {
         if (url !== urlModificat) { modificari.push("URL"); }
         if (comentariu !== comentariuModificat) { modificari.push("Comentariu"); }
 
-        console.log("Modificarile noi:", numeModificat, usernameModificat, parolaModificat, urlModificat, comentariuModificat);
         if (modificari.length === 0) {
             console.log("Nicio modificare detectată.");
             return;
@@ -313,7 +312,6 @@ export function afiseazaParole(parole) {
 
     parole.forEach(parola => {
         const li = document.createElement("li");
-        console.log("Parola: ", parola);
 
         if (parola.tip_item === "password") {
             li.classList.add("item");
@@ -346,7 +344,6 @@ export function afiseazaParole(parole) {
                 if (url) {
                     const { username, url } = parola;
                     const password = parola.parola;
-                    console.log("Date: ", username, password, url);
                     chrome.storage.local.set({ credentiale_temporare: { username, password, url } }, () => {
                         chrome.tabs.create({ url });
                     });

@@ -35,8 +35,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 // 3. Cere parolele din storage
 browserAPI.runtime.sendMessage({ action: "getPasswords" }, (response) => {
     if (response.success) {
-        console.log("Parolele primite în popup.js:", response.passwords);
-        //afiseazaParole(response.passwords);
     } else {
         console.error("Eroare la primirea parolelor:", response.error);
     }

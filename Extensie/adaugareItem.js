@@ -125,7 +125,6 @@ export async function handleCreareItem(formElement) {
         const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
 
         const lungime = parola.length;
-        console.log("Lungimea este :", lungime);
 
         const strength = zxcvbn(parola);
         //if (strength.score < 2) {
@@ -151,7 +150,6 @@ export async function handleCreareItem(formElement) {
 
             const hmacKey = await deriveHMACKey(cryptoKey);
             const semnatura = await semneazaParola(parola, charset, lungime, hmacKey);
-            console.log("Semnatura: ", semnatura);
 
 
             const key_aes = await generateKey();
@@ -168,10 +166,8 @@ export async function handleCreareItem(formElement) {
             const criptKey = await decodeMainKey(key);
 
             const key_aes_raw = await exportKey(key_aes);
-            console.log("Cheia intreaga ianinte de criptare este: ", key_aes_raw);
             const enc_key_raw = await criptareDate(key_aes_raw, criptKey);
 
-            console.log("Cheia criptata este: ", enc_key_raw);
 
             // 3. Decriptarea cheii AES criptate folosind cheia AES decriptata
             const dec_key = await decriptareDate(enc_key_raw.encData, enc_key_raw.iv, enc_key_raw.tag, criptKey);
@@ -180,15 +176,13 @@ export async function handleCreareItem(formElement) {
 
             // Creăm un Uint8Array din array-ul de numere
             const uint8Array = new Uint8Array(octetiArray);
-            console.log(uint8Array);
+
 
             const importedKey = await window.crypto.subtle.importKey("raw", uint8Array, { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
 
             const dec_tip = await decriptareDate(enc_Tip.encData, enc_Tip.iv, enc_Tip.tag, importedKey);
 
-            //const decoded_key = await decodeMainKey(dec_key);
 
-            console.log("Elementul decriptat ar trebui sa fie: ", dec_tip);
 
             const jsonItemKey = {
                 data: {
@@ -196,7 +190,7 @@ export async function handleCreareItem(formElement) {
                 },
             };
 
-            console.log("Lungimea: ", length, "Charset: ", charset);
+
             const jsonItem = {
                 metadata: {
                     created_at: new Date().toISOString(),

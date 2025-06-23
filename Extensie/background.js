@@ -34,7 +34,6 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 }
             })
             .then(data => {
-                console.log("📥 Parole primite în background.js:", data);
                 sendResponse({ success: true, passwords: data });
             })
             .catch(error => {
@@ -45,7 +44,6 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     if (request.action === "syncDecryptionKey") {
         decryptionKey = request.key;
-        console.log("🔑 Cheia este in plugin:", decryptionKey);
         sendResponse({ success: true });
         return true;
     }
@@ -60,7 +58,6 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
     if (request.action === "verificaParola") {
         const parola = request.parola;
-        console.log("SUNT AICI !!!!!");
         sha1(parola).then(hash => {
             const prefix = hash.slice(0, 5);
             const suffix = hash.slice(5).toUpperCase();

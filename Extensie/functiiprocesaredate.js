@@ -36,7 +36,6 @@ export async function genereazaCheiaLocal(parola) {
         // Converim cheia exportată într-un string Base64
         const base64Key = arrayBufferToBase64(exportedKey);
 
-        console.log("Cheia derivată în format Base64:", base64Key);
 
         // 3. Obținem cheia AES criptată de la server
         const aesResponse = await fetch("http://localhost:9000/api/getUserSimmetricKey", {
@@ -92,7 +91,6 @@ export async function decripteazaItemi(data, encodedMainKey) {
 
     for (let item of data) {
         try {
-            console.log("E favorit ", item.isfavorite);
             const isFavorite = item.isfavorite;
             const id_item = item.id_item;
             const isDeleted = item.isdeleted
@@ -115,7 +113,6 @@ export async function decripteazaItemi(data, encodedMainKey) {
                     rez_istoric = await decriptareDate(continutObj.data.istoric.encData, continutObj.data.istoric.iv, continutObj.data.istoric.tag, itemKey);
                 }
 
-                console.log("🔓 Item decriptat:", { nume: rez_nume, username: rez_username, parola: rez_parola, comentariu: rez_comentariu });
                 rezultate.push({
                     itemKey: itemKey,
                     id_item: id_item,
