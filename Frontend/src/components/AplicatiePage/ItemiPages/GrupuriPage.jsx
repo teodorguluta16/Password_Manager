@@ -273,12 +273,12 @@ const GrupuriPage = ({ derivedKey }) => {
                                 </div>
                             ) : (
                                 groups
-                                    .filter(group => group.id_owner !== userId) // Afișează grupurile de care este membru
+                                    .filter(group => group.id_owner !== userId)
                                     .map(group => (
                                         <div
                                             key={group.id_grup}
                                             onClick={() => {
-                                                if (!leaveGrup) { // Previne click-ul pe grup când popup-ul este deschis
+                                                if (!leaveGrup) {
                                                     selecteazaOptiune("itemigrup");
                                                     setGestioneazaGrupItem(group);
                                                 }

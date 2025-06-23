@@ -35,7 +35,7 @@ import PopupNewAdrese from "./Popup_uri/PopupNewAdrese";
 import ItemiStersi from './ItemiPages/ItemiStersi';
 import RemoteWorkingPage from './ItemiPages/RemoteWorkingPage';
 
-import { getKeyFromIndexedDB } from "../FunctiiDate/ContextKeySimetrice";
+import { getKeyFromIndexedDB, deleteKeyFromIndexedDB, deleteDatabase } from "../FunctiiDate/ContextKeySimetrice";
 import { decodeMainKey, decriptareDate } from "../FunctiiDate/FunctiiDefinite"
 import EditParolaItem from './ItemiPages/EditParolaItem';
 
@@ -80,7 +80,6 @@ const AplicatiePage = () => {
     const loadKey = async () => {
       try {
         let key_aux = await getKeyFromIndexedDB();
-        console.log("Saved key este", key_aux);
         setSavedKey(key_aux);
       } catch (error) {
         console.error("Eroare:", error);
@@ -93,7 +92,6 @@ const AplicatiePage = () => {
     try {
       const key = await getKeyFromIndexedDB();
       if (key) {
-        console.log("📤 Trimit cheia prin window.postMessage:", key);
         window.postMessage({ type: "SYNC_DECRYPTION_KEY", key: key }, "*");
       } else {
         console.warn("⚠️ Nu există cheie în IndexedDB.");
@@ -259,6 +257,8 @@ const AplicatiePage = () => {
   const deconectare = async () => {
     try {
       const response = await fetch('http://localhost:9000/api/auth/logout', { method: 'POST', credentials: 'include', });
+
+      await deleteDatabase();
       if (response.ok) {
         window.location.href = '/login';
       } else {
@@ -306,7 +306,6 @@ const AplicatiePage = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Datele primite de la server: ", data);
         const decriptKey = await decodeMainKey(savedKey);
         let fetchedItems = [], favoriteItems = [], paroleItems = [], remoteItems = [], notiteItems = [], carduriItems = [], adreseItems = [];
 
@@ -378,7 +377,6 @@ const AplicatiePage = () => {
               const rez_comentariu = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
 
               let ivHex8 = null, encDataHex8 = null, tagHex8 = null, rez_istoric = null;
-              console.log(dataObject2);
               if (dataObject2.data.istoric) {
                 ivHex8 = dataObject2.data.istoric.iv; encDataHex8 = dataObject2.data.istoric.encData; tagHex8 = dataObject2.data.istoric.tag;
                 rez_istoric = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
@@ -391,12 +389,11 @@ const AplicatiePage = () => {
               const rez_semnatura = await decriptareDate(encDataHex9, ivHex9, tagHex9, importedKey);
 
 
-              console.log("Datele primite de la server aferente parolei:", rez_tip, rez_nume, rez_url, rez_username, rez_parola, rez_comentariu, isDeleted, isFavorite, rez_istoric);
 
               const lungime = dataObject2.metadata?.meta?.lungime;
               const charset = dataObject2.metadata?.meta?.charset;
 
-              console.log("Lungimea: ", lungime, "Charset: ", charset);
+
 
 
               const cryptoKey = typeof savedKey === "string" ? await importRawKeyFromBase64(savedKey) : savedKey;
@@ -471,7 +468,6 @@ const AplicatiePage = () => {
               const rez_ppkKey = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
 
               let ivHex8 = null, encDataHex8 = null, tagHex8 = null, rez_istoric = null;
-              console.log(dataObject2);
               if (dataObject2.data.istoric) {
                 ivHex8 = dataObject2.data.istoric.iv; encDataHex8 = dataObject2.data.istoric.encData; tagHex8 = dataObject2.data.istoric.tag;
                 rez_istoric = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
@@ -524,7 +520,6 @@ const AplicatiePage = () => {
                 rez_istoric = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
               }
 
-              console.log("Datele primite de la server aferente parolei:", rez_tip, rez_nume, rez_data, rez_comentariu, isDeleted, isFavorite, rez_istoric);
               notiteItems.push({
                 importedKey: importedKey, nume: rez_nume, tipitem: rez_tip, data: rez_data, comentariu: rez_comentariu,
                 created_at: created_at, modified_at: modified_at, version: version, id_owner: id_owner, id_item: id_item,
@@ -578,13 +573,11 @@ const AplicatiePage = () => {
               const rez_comentariu = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
 
               let ivHex8 = null, encDataHex8 = null, tagHex8 = null, rez_istoric = null;
-              console.log(dataObject2);
               if (dataObject2.data.istoric) {
                 ivHex8 = dataObject2.data.istoric.iv; encDataHex8 = dataObject2.data.istoric.encData; tagHex8 = dataObject2.data.istoric.tag;
                 rez_istoric = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
               }
 
-              console.log("Datele primite de la server aferente cardului:", rez_tip, rez_nume, rez_numarCard, rez_posesorCard, rez_comentariu, rez_dataExpirare, isDeleted, isFavorite);
               carduriItems.push({
                 importedKey: importedKey, nume: rez_nume, tipitem: rez_tip, numarCard: rez_numarCard, posesorCard: rez_posesorCard,
                 dataExpirare: rez_dataExpirare, comentariu: rez_comentariu, created_at: created_at, modified_at: modified_at,
@@ -643,14 +636,13 @@ const AplicatiePage = () => {
               const rez_comentariu = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
 
               let ivHex9 = null, encDataHex9 = null, tagHex9 = null, rez_istoric = null;
-              console.log(dataObject2);
+
               if (dataObject2.data.istoric) {
                 ivHex9 = dataObject2.data.istoric.iv; encDataHex9 = dataObject2.data.istoric.encData; tagHex9 = dataObject2.data.istoric.tag;
                 rez_istoric = await decriptareDate(encDataHex9, ivHex9, tagHex9, importedKey);
 
               }
 
-              console.log("Datele primite de la server aferente adresei:", rez_tip, rez_nume, rez_adresa, rez_oras, rez_jduet, rez_codPostal, rez_comentariu, isDeleted, isFavorite);
               adreseItems.push({
                 importedKey: importedKey, nume: rez_nume, tipitem: rez_tip, adresa: rez_adresa, oras: rez_oras, judet: rez_jduet,
                 codPostal: rez_codPostal, comentariu: rez_comentariu, created_at: created_at, modified_at: modified_at, version: version,

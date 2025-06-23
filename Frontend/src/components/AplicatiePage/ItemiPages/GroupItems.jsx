@@ -75,8 +75,6 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
         setPopupVisible(true);
     };
 
-    console.log("Cheia simetrica este: ", key);
-
 
     const [ShowParolaPopup, setShowParolaPopup] = useState(false);
     const [ShowNotitaPopup, setShowNotitaPopup] = useState(false);
@@ -108,7 +106,6 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log(data);
 
                 //  mai intai extrag cheia privata si o decriptez pentru a decripta cheia aia AES
 
@@ -131,7 +128,6 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
                 // convertesc cheia privata din HEX in string: 
                 const decodedString2 = hexToString(encryptedPrivateKeyUtilizator);
                 const dataObject2 = JSON.parse(decodedString2);
-                console.log(dataObject2);
 
                 const ivHex2 = dataObject2.encKey.iv;
                 const encDataHex2 = dataObject2.encKey.encData;
@@ -139,8 +135,6 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
 
                 const decriptKey = await decodeMainKey(key);
                 const decc_key = await decriptareDate(encDataHex2, ivHex2, tagHex2, decriptKey);
-                console.log("Cheia decriptata ar trebui sa fie: ", decc_key);
-
 
                 // Extrag cheia aes a grupului criptata si o decriptez cu cheia privata rsa
                 let encryptedgroupAesKey = null;
@@ -158,7 +152,7 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
                 } catch (error) {
                     console.error('Eroare la trimiterea cererii:', error);
                 }
-                console.log("Mesajul criptat (base64):", encryptedgroupAesKey);
+
                 const encryptedMessage = forge.util.decode64(encryptedgroupAesKey);
                 let decryptedMessage;
                 const privateKey2 = forge.pki.privateKeyFromPem(decc_key);
@@ -184,7 +178,6 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
                             const tagHex = dataObject.encKey.tag;
 
                             const dec_key = await decriptareDate(encDataHex, ivHex, tagHex, decriptKey);
-                            //console.log("Cheia decriptata pentru item este: ", dec_key);
 
                             const octetiArray = dec_key.split(',').map(item => parseInt(item.trim(), 10));
                             const uint8Array = new Uint8Array(octetiArray);
@@ -195,13 +188,13 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
 
                             // Decriptare continut
                             const continutfromdata = item.continut_hex;
-                            //console.log("Continutul primit de la server: ", continutfromdata);
+
 
                             const decodedString2 = hexToString(continutfromdata);
                             const dataObject2 = JSON.parse(decodedString2);
 
                             const { created_at, modified_at, version } = dataObject2.metadata;
-                            //console.log("Metadatele obiectului: ", dataObject2);
+
 
                             const ivHex2 = dataObject2.data.tip.iv;
                             const encDataHex2 = dataObject2.data.tip.encData;
@@ -247,8 +240,6 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
                                     rez_istoric = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
 
                                 }
-
-                                console.log("Datele primite de la server aferente parolei:", rez_tip, rez_nume, rez_url, rez_username, rez_parola, rez_comentariu, isDeleted);
 
                                 fetchedItems.push({
                                     importedKey: importedKey,
@@ -350,7 +341,6 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
 
                                 }
 
-                                console.log("Datele primite de la server aferente parolei:", rez_tip, rez_nume, rez_data, rez_comentariu, isDeleted);
                                 fetchedItems.push({
                                     importedKey: importedKey,
                                     nume: rez_nume,
@@ -405,8 +395,6 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
                                     rez_istoric = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
 
                                 }
-
-                                console.log("Datele primite de la server aferente cardului:", rez_tip, rez_nume, rez_numarCard, rez_posesorCard, rez_comentariu, rez_dataExpirare, isDeleted);
 
                                 fetchedItems.push({
                                     importedKey: importedKey,
@@ -471,7 +459,6 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
 
                                 }
 
-                                console.log("Datele primite de la server aferente adresei:", rez_tip, rez_nume, rez_adresa, rez_oras, rez_jduet, rez_codPostal, rez_comentariu, isDeleted);
 
                                 fetchedItems.push({
                                     importedKey: importedKey,

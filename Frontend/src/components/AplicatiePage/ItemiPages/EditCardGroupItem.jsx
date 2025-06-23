@@ -14,12 +14,9 @@ const EditCardGroupItem = ({ item, setGestioneazaCardItem }) => {
         comentariu: item.comentariu,
     });
 
-    console.log(item.istoric);
 
     const [istoric, setIstoric] = useState(item.istoric);
 
-    console.log("Tipul lui istoric:", typeof item.istoric);
-    console.log("Conținutul lui istoric:", istoric);
     let parsedIstoric = [];
 
     try {
@@ -37,7 +34,6 @@ const EditCardGroupItem = ({ item, setGestioneazaCardItem }) => {
     const [numarCard, setNumarCard] = useState(item.numarCard);
     const [posesorCard, setPosesorCard] = useState(item.posesorCard);
 
-    console.log(date);
     const [note, setItemNote] = useState(item.comentariu);
     const [deEditat, setdeEditat] = useState({ nume: false, note: false, numarCard: false, date: false, posesorCard: false });
 
@@ -71,7 +67,6 @@ const EditCardGroupItem = ({ item, setGestioneazaCardItem }) => {
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log("Datele primite de la server: ", data);
                     setOwnerNume(data[0].nume);
                     setOwnerPrenume(data[0].prenume);
                 } else {
@@ -106,9 +101,8 @@ const EditCardGroupItem = ({ item, setGestioneazaCardItem }) => {
             if (note !== initialValues.comentariu) {
                 modificari.push("Comentariu");
             }
-            console.log("Modificarile noi:", itemNume, date, posesorCard, numarCard, note);
+
             if (modificari.length === 0) {
-                console.log("Nicio modificare detectată.");
                 return;
             }
 
@@ -122,12 +116,9 @@ const EditCardGroupItem = ({ item, setGestioneazaCardItem }) => {
                 time: oraCurenta,
             };
 
-            console.log("Nou Istoric:", nouIstoric);
 
-            console.log("istoric vechi", istoric);
 
             const istoricActualizat = [...parsedIstoric, nouIstoric];
-            console.log("Istoricul actualizat: ", istoricActualizat);
 
             setIstoric(istoricActualizat);
 

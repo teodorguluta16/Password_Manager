@@ -4,12 +4,8 @@ import "../../../App.css"
 import { FaArrowLeft, FaCopy } from 'react-icons/fa';
 
 const VizualizareCardGroupItem = ({ item, setGestioneazaCardItem }) => {
-    console.log(item.istoric);
 
     const [istoric, setIstoric] = useState(item.istoric);
-
-    console.log("Tipul lui istoric:", typeof item.istoric);
-    console.log("Conținutul lui istoric:", istoric);
     let parsedIstoric = [];
 
     try {
@@ -27,7 +23,6 @@ const VizualizareCardGroupItem = ({ item, setGestioneazaCardItem }) => {
     const [numarCard, setNumarCard] = useState(item.numarCard);
     const [posesorCard, setPosesorCard] = useState(item.posesorCard);
 
-    console.log(date);
     const [note, setItemNote] = useState(item.comentariu);
 
     const [esteCopiat, setEsteCopiat] = useState(false);
@@ -68,7 +63,6 @@ const VizualizareCardGroupItem = ({ item, setGestioneazaCardItem }) => {
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log("Datele primite de la server: ", data);
                     setOwnerNume(data.nume);
                     setOwnerPrenume(data.prenume);
                 } else {

@@ -14,12 +14,10 @@ const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
         ppkKey: item.ppkKey,
     });
 
-    console.log(item.istoric);
 
     const [istoric, setIstoric] = useState(item.istoric);
 
-    console.log("Tipul lui istoric:", typeof item.istoric);
-    console.log("Conținutul lui istoric:", istoric);
+
     let parsedIstoric = [];
 
     try {
@@ -37,7 +35,6 @@ const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
     const [userName, setItemUsername] = useState(item.username);
     const [parolaName, setItemParola] = useState(item.parola);
     const [hostNume, setItemHost] = useState(item.host);
-    console.log(hostNume);
     const [ppkKey, setPPKkey] = useState(item.ppkKey);
     const [deEditat, setdeEditat] = useState({ nume: false, username: false, parola: false, url: false, ppkKey: false });
 
@@ -79,7 +76,6 @@ const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log("Datele primite de la server: ", data);
                     setOwnerNume(data[0].nume);
                     setOwnerPrenume(data[0].prenume);
                 } else {
@@ -111,9 +107,9 @@ const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
             if (ppkKey !== initialValues.ppkKey) {
                 modificari.push("Cheia PPK");
             }
-            console.log("Modificarile noi:", itemNume, userName, parolaName, hostNume, ppkKey);
+
             if (modificari.length === 0) {
-                console.log("Nicio modificare detectată.");
+
                 return;
             }
 
@@ -127,12 +123,9 @@ const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
                 time: oraCurenta,
             };
 
-            console.log("Nou Istoric:", nouIstoric);
-
-            console.log("istoric vechi", istoric);
 
             const istoricActualizat = [...parsedIstoric, nouIstoric];
-            console.log("Istoricul actualizat: ", istoricActualizat);
+
 
             setIstoric(istoricActualizat);
 
@@ -234,7 +227,6 @@ const EditRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
             });
 
             const data = await response.json();
-            console.log(data.message);
         } catch (error) {
             console.error("Error launching SSH:", error);
         }

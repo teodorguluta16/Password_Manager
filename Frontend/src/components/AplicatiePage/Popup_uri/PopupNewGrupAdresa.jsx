@@ -29,7 +29,6 @@ const PopupNewGrupAdresa = ({ setShowAdresaPopup, derivedKey, idgrup, fetchItems
     useEffect(() => {
         if (derivedKey) {
             setKey(derivedKey);
-            console.log("Cheia setată:", derivedKey);
         }
     }, [derivedKey]);
 
@@ -43,7 +42,6 @@ const PopupNewGrupAdresa = ({ setShowAdresaPopup, derivedKey, idgrup, fetchItems
 
             // 1. genere o cheie aes pentru itemul respectiv
             const key_aes = await generateKey();
-            console.log("Cheia generata pentru item: ", key_aes);
 
             // 2. criptez itemul respectiv cu cheia
             const enc_Tip = await criptareDate("adresa", key_aes);

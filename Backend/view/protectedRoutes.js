@@ -37,13 +37,11 @@ protectedRouter.post('/addKey', async (req, res) => {
     const userId = req.user.sub;
 
     if (!jsonItemKey || !jsonItemKey.data) {
-        console.log("E incomplet");
         return res.status(400).json({ message: "Structura datelor este incompleta" });
     }
 
     try {
         const result = await client.query("SELECT id_item FROM Itemi WHERE id_owner=$1 ORDER BY created_at DESC LIMIT 1;", [userId]);
-        console.log("rezultate:", result.rows);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ message: "Nu exista iteme pentru acest utilizator" });
@@ -73,13 +71,11 @@ protectedRouter.post('/addKeyFavorite', async (req, res) => {
     const userId = req.user.sub;
 
     if (!jsonItemKey || !jsonItemKey.data) {
-        console.log("E incomplet");
         return res.status(400).json({ message: "Structura datelor este incompleta" });
     }
 
     try {
         const result = await client.query("SELECT id_item FROM Itemi WHERE id_owner=$1 ORDER BY created_at DESC LIMIT 1;", [userId]);
-        console.log("rezultate:", result.rows);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ message: "Nu exista iteme pentru acest utilizator" });
@@ -129,11 +125,9 @@ protectedRouter.post('/utilizator/addRecoveryKey', async (req, res) => {
     const userId = req.user.sub;
 
     if (!jsonItemKey || !jsonItemKey.data) {
-        console.log("E incomplet");
         return res.status(400).json({ message: "Structura datelor este incompleta" });
     }
     try {
-        console.log("Cheia ce urmeaza a fi criptata: ", jsonItemKey);
         const result = await client.query(`UPDATE Utilizatori SET copyencryptedsimmetrickey = $1 WHERE id = $2`, [jsonItemKey, userId]);
         if (result.rowCount > 0) {
             res.status(200).json({ success: true, message: 'Cheia de recuperare a fost actualziata.' });
@@ -151,7 +145,6 @@ protectedRouter.post('/addItem', async (req, res) => {
     const userId = req.user.sub;
 
     if (!jsonItem || !jsonItem.metadata || !jsonItem.data) {
-        console.log("E incomplet");
         return res.status(400).json({ message: "Structura datelor este incompletă" });
     }
 
@@ -173,7 +166,6 @@ protectedRouter.put('/updateItem', async (req, res) => {
     const userId = req.user.sub;
 
     if (!id_item || !continut) {
-        console.log("E incomplet");
         return res.status(400).json({ message: "ID-ul item-ului și conținutul trebuie furnizate" });
     }
 
@@ -199,9 +191,6 @@ protectedRouter.patch('/stergeItem', async (req, res) => {
     const { id_item } = req.body;
     const userId = req.user.sub;
 
-    console.log(id_item);
-    console.log(userId);
-
     try {
         const result = await client.query('UPDATE Itemi SET isDeleted = $1 WHERE id_item = $2 AND id_owner = $3', [1, id_item, userId]);
         if (result.rowCount === 0) {
@@ -218,8 +207,6 @@ protectedRouter.post('utilizatori/addFavoriteItem', async (req, res) => {
     const { id_item } = req.body;
     const userId = req.user.sub;
 
-    console.log(id_item);
-    console.log(userId);
 
     try {
         const result = await client.query('UPDATE Leguseritemi SET isfavorite = $1 WHERE id_item = $2 AND id_user = $3', [1, id_item, userId]);
@@ -239,9 +226,6 @@ protectedRouter.post('utilizatori/addFavoriteItem', async (req, res) => {
 protectedRouter.post('utilizatori/addFavoriteItem', async (req, res) => {
     const { id_item } = req.body;
     const userId = req.user.sub;
-
-    console.log(id_item);
-    console.log(userId);
 
     try {
         const result = await client.query('UPDATE Leguseritemi SET isfavorite = $1 WHERE id_item = $2 AND id_user = $3', [1, id_item, userId]);
@@ -297,14 +281,10 @@ protectedRouter.post('/addGrup', async (req, res) => {
     const userId = req.user.sub;
 
     if (!numeGrup || !descriere || !encryptedAesKey) {
-        console.log("E incomplet");
         return res.status(400).json({ message: "Structura datelor este incompletă" });
     }
 
     try {
-        console.log("Cheia AES criptată:", encryptedAesKey);
-
-
         const result = await client.query(`INSERT INTO Grupuri (id_owner, nume, descriere)
             VALUES ($1, $2, $3) RETURNING id_grup`, [userId, numeGrup, descriere]);
 
@@ -330,11 +310,6 @@ protectedRouter.post('/addMembruGrup', async (req, res) => {
 
     const base64Data = req.body.encryptedKey;
     const decryptedData = Buffer.from(base64Data, 'base64'); // Decodificare Base64
-    console.log("Cheia criptata: ", encryptedKey);
-
-
-    console.log("Membru:", idMembru);
-    console.log("Grup:", grupId);
 
     try {
         const result2 = await client.query(
@@ -371,7 +346,7 @@ protectedRouter.post('/getPublicKeyNewMembruGrup', async (req, res) => {
 protectedRouter.post('/getGroupSimmetricEncryptedKey', async (req, res) => {
     const userId = req.user.sub;
     const { idgrup } = req.body;
-    console.log("Id grup este: ", idgrup);
+
     try {
         const result = await client.query(
             `SELECT encryptedsimmetricgroupkey 
@@ -384,13 +359,10 @@ protectedRouter.post('/getGroupSimmetricEncryptedKey', async (req, res) => {
             const encryptedAesKeyBuffer = result.rows[0].encryptedsimmetricgroupkey; // Este deja un Buffer
 
             const encryptedAesKeyHex = encryptedAesKeyBuffer.toString('hex').replace(/\s+/g, '');
-            //console.log(encryptedAesKeyHex);
 
             const encryptedAesKey = Buffer.from(encryptedAesKeyHex, 'hex');
-            //console.log("Varianta from: ", encryptedAesKey);
 
             const encryptedAesKeyBase64 = encryptedAesKey.toString('ascii');
-            //console.log("DAAA:", encryptedAesKeyBase64);
             res.status(200).json({ EncryptedAesKeyBase64: encryptedAesKeyBase64 });
 
         } else {
@@ -430,7 +402,6 @@ protectedRouter.post('/grupuri/parasesteGroup', async (req, res) => {
 
     const userId = req.user.sub;
     const { idgrup } = req.body;
-    console.log(userId);
     try {
         const result = await client.query(`DELETE FROM legusergrup WHERE id_grup = $1 AND id_user = $2 RETURNING *`, [idgrup, userId]
         );
@@ -448,13 +419,11 @@ protectedRouter.post('/grupuri/parasesteGroup', async (req, res) => {
 protectedRouter.post('/grupuri/eliminaUtilizatorGroup', async (req, res) => {
 
     const { idgrup, userId } = req.body;
-    console.log("id este", userId);
     try {
         const result = await client.query(`DELETE FROM legusergrup WHERE id_grup = $1 AND id_user = $2 RETURNING *`, [idgrup, userId]
         );
 
         if (result.rowCount > 0) {
-            console.log("sters");
             res.status(200).json({ success: true, message: 'Utilizator sters cu succes' });
         } else {
             res.status(404).json({ success: true, message: 'Nu s-a gasit userul' });
@@ -493,7 +462,6 @@ protectedRouter.post('/grupuri/addItemGroup', async (req, res) => {
     const userId = req.user.sub;
 
     if (!jsonItem || !jsonItem.metadata || !jsonItem.data) {
-        console.log("E incomplet");
         return res.status(400).json({ message: "Structura datelor este incompletă" });
     }
 
@@ -523,7 +491,6 @@ protectedRouter.post('/grupuri/getGroupItemi', async (req, res) => {
     const userId = req.user.sub;
 
     try {
-        console.log("id-ul grupului cerut este: ", idgrup);
         const result = await client.query(`SELECT encode(i.keys, 'hex') AS keys_hex, encode(i.continut, 'hex') AS continut_hex, 
                             lgi.id_item AS id_item, i.id_owner AS id_owner, i.isdeleted AS isdeleted FROM leggrupuriitemi lgi 
                             JOIN itemi i ON lgi.id_item = i.id_item WHERE lgi.id_grup = $1`, [idgrup]);
@@ -629,7 +596,6 @@ protectedRouter.get('/getEncryptedPrivateKeyGrup', async (req, res) => {
 
 protectedRouter.post('/grupuri/getOwnerItem', async (req, res) => {
     const { uidItem } = req.body;
-    console.log("id-ul item: ", uidItem);
     try {
         // 🔹 Pasul 1: Obține `id_owner` din tabela `Itemi`
         const ownerResult = await client.query("SELECT id_owner FROM Itemi WHERE id_item = $1;", [uidItem]);
@@ -640,7 +606,6 @@ protectedRouter.post('/grupuri/getOwnerItem', async (req, res) => {
 
         const idOwner = ownerResult.rows[0].id_owner;
 
-        console.log("ID-ul proprietarului:", idOwner);
 
         // 🔹 Pasul 2: Obține numele și prenumele utilizatorului
         const userResult = await client.query("SELECT nume, prenume FROM utilizatori WHERE id = $1;", [idOwner]);
@@ -648,9 +613,6 @@ protectedRouter.post('/grupuri/getOwnerItem', async (req, res) => {
         if (userResult.rows.length === 0) {
             return res.status(404).json({ message: "Proprietarul nu a fost găsit." });
         }
-
-        console.log("Proprietarul găsit:", userResult.rows[0]);
-
         res.status(200).json(userResult.rows[0]);
     }
     catch (error) {
@@ -661,8 +623,7 @@ protectedRouter.post('/grupuri/getOwnerItem', async (req, res) => {
 protectedRouter.delete('/grupuri/stergeItemGroupDefinitiv', async (req, res) => {
     const { id_item, id_grup } = req.body;
     try {
-        console.log("id-ul itemului de sters este: ", id_item);
-        console.log("id-ul grupului din care face parte este: ", id_grup);
+
         await client.query(`DELETE FROM leggrupuriitemi WHERE id_item = $1 and id_grup=$2`, [id_item, id_grup]);
         await client.query(`DELETE FROM itemi WHERE id_item = $1`, [id_item]);
         return res.status(200).json({ message: 'Item sters!' });
@@ -677,7 +638,6 @@ protectedRouter.put('/grupuri/updateGroupItem', async (req, res) => {
     const userId = req.user.sub;
 
     if (!id_item || !continut) {
-        console.log("E incomplet");
         return res.status(400).json({ message: "ID-ul item-ului și conținutul trebuie furnizate" });
     }
 
@@ -758,7 +718,6 @@ protectedRouter.get('/utilizator/getMyId', async (req, res) => {
 
 protectedRouter.get('/getUserEncryptedPrivateKey', async (req, res) => {
     const userId = req.user.sub;
-    console.log(userId);
     try {
         const result = await client.query(
             `SELECT encode(encryptedprivatekey, 'hex') AS encryptedprivatekey
@@ -878,9 +837,6 @@ protectedRouter.delete('/utilizator/stergeItemDefinitiv', async (req, res) => {
 protectedRouter.patch('/utilizator/itemiStersi/restore', async (req, res) => {
     const { id_item } = req.body;
     const userId = req.user.sub;
-
-    console.log("Esteeee", id_item);
-    console.log(userId);
 
     try {
         const result = await client.query('UPDATE Itemi SET isDeleted = $1 WHERE id_item = $2 AND id_owner = $3', [0, id_item, userId]);

@@ -4,12 +4,9 @@ import "../../../App.css"
 import { FaEdit, FaSave, FaArrowLeft } from 'react-icons/fa';
 
 const VizualizareNotitaGroupItem = ({ item, setGestioneazaParolaItem }) => {
-    console.log(item.istoric);
 
     const [istoric, setIstoric] = useState(item.istoric);
 
-    console.log("Tipul lui istoric:", typeof item.istoric);
-    console.log("Conținutul lui istoric:", istoric);
     let parsedIstoric = [];
 
     try {
@@ -57,7 +54,7 @@ const VizualizareNotitaGroupItem = ({ item, setGestioneazaParolaItem }) => {
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log("Datele primite de la server: ", data);
+
                     setOwnerNume(data.nume);
                     setOwnerPrenume(data.prenume);
                 } else {

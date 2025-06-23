@@ -115,9 +115,9 @@ body {
 }
 
 .avatar {
-    width: 39px;
+    width: 41px;
     /* Lățimea avatarului */
-    height: 38px;
+    height: 41px;
     /* Înălțimea avatarului */
     border-radius: 50%;
     /* Face avatarul să fie cerc */
@@ -131,7 +131,7 @@ body {
     /* Centrează vertical textul */
     justify-content: center;
     /* Centrează orizontal textul */
-    font-size: 24px;
+    font-size: 21px;
     /* Dimensiunea fontului pentru inițiale */
     font-weight: bold;
     margin-left: 7px;

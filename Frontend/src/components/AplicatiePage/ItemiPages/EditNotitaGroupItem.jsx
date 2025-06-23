@@ -12,12 +12,10 @@ const EditNotitaGroupItem = ({ item, setGestioneazaParolaItem }) => {
         comentariu: item.comentariu,
     });
 
-    console.log(item.istoric);
+
 
     const [istoric, setIstoric] = useState(item.istoric);
 
-    console.log("Tipul lui istoric:", typeof item.istoric);
-    console.log("Conținutul lui istoric:", istoric);
     let parsedIstoric = [];
 
     try {
@@ -63,7 +61,6 @@ const EditNotitaGroupItem = ({ item, setGestioneazaParolaItem }) => {
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log("Datele primite de la server: ", data);
                     setOwnerNume(data[0].nume);
                     setOwnerPrenume(data[0].prenume);
                 } else {
@@ -89,9 +86,8 @@ const EditNotitaGroupItem = ({ item, setGestioneazaParolaItem }) => {
             if (date !== initialValues.date) {
                 modificari.push("Data Calendaristica");
             }
-            console.log("Modificarile noi:", itemNume, date, note);
+
             if (modificari.length === 0) {
-                console.log("Nicio modificare detectată.");
                 return;
             }
 
@@ -105,12 +101,10 @@ const EditNotitaGroupItem = ({ item, setGestioneazaParolaItem }) => {
                 time: oraCurenta,
             };
 
-            console.log("Nou Istoric:", nouIstoric);
 
-            console.log("istoric vechi", istoric);
 
             const istoricActualizat = [...parsedIstoric, nouIstoric];
-            console.log("Istoricul actualizat: ", istoricActualizat);
+
 
             setIstoric(istoricActualizat);
 

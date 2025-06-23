@@ -28,7 +28,6 @@ const PopupNewGrup = ({ setPopupGrupNou, derivedKey, fetchGroups }) => {
         }
     }, [derivedKey]);
 
-    console.log("Cheia simetrică este: ", key);
 
     const [nameItem, setNameItem] = useState('');
     const [comentariuItem, setComentariuItem] = useState('');
@@ -41,7 +40,6 @@ const PopupNewGrup = ({ setPopupGrupNou, derivedKey, fetchGroups }) => {
         }
         // 1.generez o cheie noua AES si criptez cheia privata a  grupului
         const key_aes = await generateKey();
-        console.log("Chiea simetrica a grupului este: ", key_aes);
         // 2.extrag CHEIA PUBLICA A OWNERULUI si o convertesc in PEM pentru a cripta cheia aes generata
         let publicKeyUtilizator = null;
         // extrag cheia publica
@@ -69,7 +67,7 @@ const PopupNewGrup = ({ setPopupGrupNou, derivedKey, fetchGroups }) => {
         if (!(key_aes_raw instanceof Uint8Array)) {
             console.error("Cheia AES nu este într-un format corect (Uint8Array).");
         } else {
-            console.log("Cheia AES este într-un format valid (Uint8Array).");
+
         }
 
         const aesKeyLength = key_aes_raw.length;
@@ -77,18 +75,17 @@ const PopupNewGrup = ({ setPopupGrupNou, derivedKey, fetchGroups }) => {
         if (aesKeyLength !== 16 && aesKeyLength !== 24 && aesKeyLength !== 32) {
             console.error("Lungimea cheii AES nu este validă. Permise sunt doar 16, 24 sau 32 de octeți.");
         } else {
-            console.log(`Lungimea cheii AES este corectă: ${aesKeyLength} octeți.`);
+
         }
 
         if (!isValidPem(publicKeyUtilizatorPem)) {
             console.error("Cheia publică nu este într-un format PEM valid.");
         } else {
-            console.log("Cheia publică este într-un format PEM valid.");
+
         }
 
         // Converstesc cheia din Uint8Array in Base64;
         const base64String = forge.util.encode64(String.fromCharCode.apply(null, key_aes_raw));
-        console.log("Cheia aes ce urmeaza a fi criptata in format base64:", base64String);
         const publicKey2 = forge.pki.publicKeyFromPem(publicKeyUtilizatorPem);
         //const privateKey2 = forge.pki.privateKeyFromPem(decc_key);
         const message = base64String;  // mesajul ce urmeaza a fi criptat
@@ -97,7 +94,6 @@ const PopupNewGrup = ({ setPopupGrupNou, derivedKey, fetchGroups }) => {
         try {
             encryptedMessage = encryptWithPublicKey(message, publicKey2);
             encryptedMessageBase64 = forge.util.encode64(encryptedMessage);
-            console.log("Cheia AES a grupului criptata (base64):", encryptedMessageBase64);
         } catch (error) {
             console.error("Eroare la criptare:", error.message);
         }
@@ -111,7 +107,6 @@ const PopupNewGrup = ({ setPopupGrupNou, derivedKey, fetchGroups }) => {
             });
 
             if (response.ok) {
-                console.log('Grup adăugat cu succes!');
                 setPopupGrupNou(false);
             } else {
                 const errorData = await response.json();

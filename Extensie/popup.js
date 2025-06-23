@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
     if (paroleDecriptate) {
-        console.log("Utilizator deja logat.");
         afiseazaParole(paroleDecriptate);
         document.getElementById("login-container").style.display = "none";
         document.getElementById("containertitlu").style.display = "none";
@@ -29,8 +28,6 @@ document.addEventListener("DOMContentLoaded", async function () {
         const paroleGasite = cautaParola(cautare, paroleDecriptate);
         afiseazaParole(paroleGasite);
     });
-
-
 
     document.body.style.visibility = "visible";
 });

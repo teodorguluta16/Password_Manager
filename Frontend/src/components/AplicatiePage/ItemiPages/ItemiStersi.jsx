@@ -30,7 +30,6 @@ const ItemiStersi = ({ derivedKey }) => {
         }
     }, [derivedKey]);
 
-    console.log("Cheia simetrică este: ", key);
     const [loading, setLoading] = useState(true);
     const [items, setItems] = useState([]);
     const [itemId, setitemId] = useState("");
@@ -48,7 +47,6 @@ const ItemiStersi = ({ derivedKey }) => {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log("Datele primite de la server: ", data);
 
                 const decriptKey = await decodeMainKey(key);
                 let fetchedItems = [];
@@ -68,7 +66,6 @@ const ItemiStersi = ({ derivedKey }) => {
                         const tagHex = dataObject.encKey.tag;
 
                         const dec_key = await decriptareDate(encDataHex, ivHex, tagHex, decriptKey);
-                        //console.log("Cheia decriptata pentru item este: ", dec_key);
 
                         const octetiArray = dec_key.split(',').map(item => parseInt(item.trim(), 10));
                         const uint8Array = new Uint8Array(octetiArray);
@@ -120,7 +117,6 @@ const ItemiStersi = ({ derivedKey }) => {
                             const tagHex7 = dataObject2.data.comentariu.tag;
                             const rez_comentariu = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
 
-                            console.log("Datele primite de la server aferente parolei:", rez_tip, rez_nume, rez_url, rez_username, rez_parola, rez_comentariu, isDeleted);
                             fetchedItems.push({
                                 nume: rez_nume,
                                 tipitem: rez_tip,
@@ -200,8 +196,6 @@ const ItemiStersi = ({ derivedKey }) => {
                             const tagHex7 = dataObject2.data.comentariu.tag;
                             const rez_comentariu = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
 
-                            console.log("Datele primite de la server aferente parolei:", rez_tip, rez_nume, rez_data, rez_comentariu, isDeleted);
-
                             fetchedItems.push({
                                 nume: rez_nume,
                                 tipitem: rez_tip,
@@ -246,7 +240,6 @@ const ItemiStersi = ({ derivedKey }) => {
                             const tagHex7 = dataObject2.data.comentariu.tag;
                             const rez_comentariu = await decriptareDate(encDataHex7, ivHex7, tagHex7, importedKey);
 
-                            console.log("Datele primite de la server aferente cardului:", rez_tip, rez_nume, rez_numarCard, rez_posesorCard, rez_comentariu, rez_dataExpirare, isDeleted);
                             fetchedItems.push({
                                 nume: rez_nume,
                                 tipitem: rez_tip,
@@ -298,8 +291,6 @@ const ItemiStersi = ({ derivedKey }) => {
                             const tagHex8 = dataObject2.data.comentariu.tag;
                             const rez_comentariu = await decriptareDate(encDataHex8, ivHex8, tagHex8, importedKey);
 
-                            console.log("Datele primite de la server aferente cardului:", rez_tip, rez_nume, rez_adresa, rez_oras, rez_jduet, rez_codPostal, rez_comentariu, isDeleted);
-
                             fetchedItems.push({
                                 nume: rez_nume,
                                 tipitem: rez_tip,
@@ -344,7 +335,6 @@ const ItemiStersi = ({ derivedKey }) => {
 
     const restoreItem = async (iditem) => {
         try {
-            console.log("Id Item este:", iditem);
             const response = await fetch('http://localhost:9000/api/utilizator/itemiStersi/restore', {
                 method: 'PATCH', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id_item: iditem }),

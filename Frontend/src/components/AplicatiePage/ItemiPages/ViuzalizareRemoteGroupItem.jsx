@@ -4,12 +4,8 @@ import "../../../App.css"
 import { FaEye, FaEyeSlash, FaCopy, FaArrowLeft } from 'react-icons/fa';
 
 const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
-    console.log(item.istoric);
-
     const [istoric, setIstoric] = useState(item.istoric);
 
-    console.log("Tipul lui istoric:", typeof item.istoric);
-    console.log("Conținutul lui istoric:", istoric);
     let parsedIstoric = [];
 
     try {
@@ -59,7 +55,6 @@ const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log("Datele primite de la server: ", data);
                     setOwnerNume(data.nume);
                     setOwnerPrenume(data.prenume);
                 } else {
@@ -103,7 +98,6 @@ const VizualizareRemoteGroupItem = ({ item, setGestioneazaRemoteItem }) => {
             });
 
             const data = await response.json();
-            console.log(data.message);
         } catch (error) {
             console.error("Error launching SSH:", error);
         }

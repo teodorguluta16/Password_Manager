@@ -64,7 +64,6 @@ const RecoveryPasswordPage = () => {
             setErrorMessage('Te rugăm să completezi câmpul cu cheia de recuperare.');
             return;
         }
-        console.log('Cheia de recuperare este:', cheiaRecuperare);
         setErrorMessage('');
 
         try {
@@ -78,20 +77,16 @@ const RecoveryPasswordPage = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log('Cheia simetrică criptată:', data.copyencryptedsimmetrickey);
 
                 // Decriptarea cheii
                 const keyfromdata = data.copyencryptedsimmetrickey;
                 const decodedString = hexToString(keyfromdata);
-                console.log(decodedString);
 
                 const dataObject = JSON.parse(decodedString);
                 const ivHex = dataObject.data.encKey.iv;
                 const encDataHex = dataObject.data.encKey.encData;
                 const tagHex = dataObject.data.encKey.tag;
-                console.log("Iv-ul este: ", ivHex);
-                console.log("EncHex este: ", encDataHex);
-                console.log("Tag-ul este: ", tagHex);
+
 
                 // extragem saltul acuma:
                 let salt = null;
@@ -112,18 +107,15 @@ const RecoveryPasswordPage = () => {
                     console.log("Eroare luare salt: ", error);
                 }
                 if (salt === null) {
-                    console.erro("Saltul e null");
+                    console.error("Saltul e null");
                 }
                 const derivedKey = CryptoJS.PBKDF2(cheiaRecuperare, salt, { keySize: 256 / 32, iterations: 500000 });// tre sa ajustez nr de iteratii
                 const derivedKeyBase64 = derivedKey.toString(CryptoJS.enc.Base64);
-                console.log("Cheia de decriptare este: ", derivedKeyBase64);
 
                 // decriptare cheie
                 const decriptKey = await decodeMainKey(derivedKeyBase64);
                 const dec_key = await decriptareDate(encDataHex, ivHex, tagHex, decriptKey);
 
-
-                console.log("Cheia decriptata ar trebui sa fie: ", dec_key);
                 setImportantKey(dec_key);
             } else {
                 const errorData = await response.text();
@@ -162,7 +154,6 @@ const RecoveryPasswordPage = () => {
 
             //hash parola
             const hashedPassword = await hashPassword(parolaNoua);
-            console.log("Hashed password: ", hashedPassword);
 
             // Derivarea cheii folosind PBKDF2
             const derivedKey = CryptoJS.PBKDF2(parolaNoua, saltWordArray, { keySize: 256 / 32, iterations: 500000 });
@@ -176,13 +167,11 @@ const RecoveryPasswordPage = () => {
 
             const key_aes_cryptobject = await decodeMainKey(key_aes);
             const key_aes_raw = await exportKey(key_aes_cryptobject);
-            console.log("Cheia intreaga inainte de criptare este: ", key_aes_raw);
             const enc_key_raw = await criptareDate(key_aes_raw, criptKey);
 
             // trnsforamm cheia in b64
             // const exportedKey = await window.crypto.subtle.exportKey("raw", key_aes);
             //const base64Key = btoa(String.fromCharCode(...new Uint8Array(exportedKey)));
-            //console.log("Cheia în format Base64 la recuperarea contului:", base64Key);
 
             const userData = {
                 Email: email,

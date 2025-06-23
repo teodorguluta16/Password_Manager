@@ -73,7 +73,6 @@ const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup, fetchItems
     useEffect(() => {
         if (derivedKey) {
             setKey(derivedKey);
-            console.log("Cheia setată:", derivedKey);
         }
     }, [derivedKey]);
 
@@ -83,7 +82,6 @@ const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup, fetchItems
 
             // 1. genere o cheie aes pentru itemul respectiv
             const key_aes = await generateKey();
-            console.log("Cheia generata pentru item: ", key_aes);
 
             // 2. criptez itemul respectiv cu cheia
             const enc_Tip = await criptareDate("remoteConnexion", key_aes);
@@ -117,7 +115,6 @@ const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup, fetchItems
             // convertesc cheia privata din HEX in string: 
             const decodedString2 = hexToString(encryptedPrivateKeyUtilizator);
             const dataObject2 = JSON.parse(decodedString2);
-            console.log(dataObject2);
 
             const ivHex2 = dataObject2.encKey.iv;
             const encDataHex2 = dataObject2.encKey.encData;
@@ -125,7 +122,6 @@ const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup, fetchItems
 
             const decriptKey = await decodeMainKey(key);
             const decc_key = await decriptareDate(encDataHex2, ivHex2, tagHex2, decriptKey);
-            console.log("Cheia decriptata ar trebui sa fie: ", decc_key);
 
 
             // Extrag cheia aes a grupului criptata si o decriptez cu cheia privata rsa
@@ -145,13 +141,11 @@ const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup, fetchItems
             } catch (error) {
                 console.error('Eroare la trimiterea cererii:', error);
             }
-            console.log("Cheia criptata a grupului (base64):", encryptedgroupAesKey);
             const encryptedMessage = forge.util.decode64(encryptedgroupAesKey);
             let decryptedMessage;
             const privateKey2 = forge.pki.privateKeyFromPem(decc_key);
             try {
                 decryptedMessage = decryptWithPrivateKey(encryptedMessage, privateKey2);
-                console.log("Cheia simetrica a grupului decriptata:", decryptedMessage);
             } catch (error) {
                 console.error("Eroare la decriptare:", error.message);
             }
@@ -160,10 +154,8 @@ const PopupNewGrupRemote = ({ setShowRemotePopup, derivedKey, idgrup, fetchItems
             const criptKey = await decodeMainKey(decryptedMessage);
 
             const key_aes_raw = await exportKey(key_aes);
-            console.log("Cheia intreaga ianinte de criptare este: ", key_aes_raw);
             const enc_key_raw = await criptareDate(key_aes_raw, criptKey);
 
-            console.log("Cheia criptata este: ", enc_key_raw);
 
             const jsonItemKey = { data: { encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag }, }, };
 

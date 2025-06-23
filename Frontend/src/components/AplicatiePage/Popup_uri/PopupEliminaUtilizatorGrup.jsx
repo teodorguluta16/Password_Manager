@@ -12,7 +12,6 @@ const PopupEliminaUtilizatorGrup = ({ setPopupEliminaUtilizatorGrup, idgrup, idU
             });
 
             if (response.ok) {
-                console.log(response.json);
                 await handleVizualizareMembriiGrup();
             }
         } catch (error) {

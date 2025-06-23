@@ -16,12 +16,8 @@ const EditAdreseGroupItem = ({ item, setGestioneazaAdresaItem }) => {
         comentariu: item.comentariu,
     });
 
-    console.log(item.istoric);
 
     const [istoric, setIstoric] = useState(item.istoric);
-
-    console.log("Tipul lui istoric:", typeof item.istoric);
-    console.log("Conținutul lui istoric:", istoric);
     let parsedIstoric = [];
 
     try {
@@ -35,7 +31,6 @@ const EditAdreseGroupItem = ({ item, setGestioneazaAdresaItem }) => {
     }
     const importedKey = item.importedKey;
 
-    console.log(item.nume);
     const [itemNume, setItemNume] = useState(item.nume);
     const [adresaItem, setAdresa] = useState(item.adresa);
     const [orasItem, setOras] = useState(item.oras);
@@ -74,7 +69,7 @@ const EditAdreseGroupItem = ({ item, setGestioneazaAdresaItem }) => {
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log("Datele primite de la server: ", data);
+
                     setOwnerNume(data[0].nume);
                     setOwnerPrenume(data[0].prenume);
                 } else {
@@ -110,9 +105,7 @@ const EditAdreseGroupItem = ({ item, setGestioneazaAdresaItem }) => {
             if (note !== initialValues.comentariu) {
                 modificari.push("Comentariu");
             }
-            console.log("Modificarile noi:", itemNume, adresaItem, orasItem, judetItem, codPostal, note);
             if (modificari.length === 0) {
-                console.log("Nicio modificare detectată.");
                 return;
             }
 
@@ -126,12 +119,7 @@ const EditAdreseGroupItem = ({ item, setGestioneazaAdresaItem }) => {
                 time: oraCurenta,
             };
 
-            console.log("Nou Istoric:", nouIstoric);
-
-            console.log("istoric vechi", istoric);
-
             const istoricActualizat = [...parsedIstoric, nouIstoric];
-            console.log("Istoricul actualizat: ", istoricActualizat);
 
             setIstoric(istoricActualizat);
 

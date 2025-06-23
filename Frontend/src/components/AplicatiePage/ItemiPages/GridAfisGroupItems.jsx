@@ -25,7 +25,6 @@ const GridAfisGroupItems = ({ items, setGestioneazaItem, setStergeItem, setItemi
 
     const handleRemoteConnexion = async (e, item) => {
         e.stopPropagation();
-        console.log(item.nume);
 
         const requestBody = {
             host: item.host,
@@ -42,7 +41,6 @@ const GridAfisGroupItems = ({ items, setGestioneazaItem, setStergeItem, setItemi
             });
 
             const data = await response.json();
-            console.log(data.message);
         } catch (error) {
             console.error("Error launching SSH:", error);
         }

@@ -9,7 +9,6 @@ const PopupStergeGrupDefinitiv = ({ setStergeGrupPopup, item, fetchItems }) => {
             });
 
             if (response.ok) {
-                console.log('Item marcat ca șters!');
                 await fetchItems();
             } else {
                 console.error('Eroare:', response.statusText);

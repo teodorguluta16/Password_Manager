@@ -198,13 +198,11 @@ const observer = new MutationObserver(() => {
 
     const { isLogin, isRegister, isReset } = detectFormType(passwordInputs, usernameInputs, input);
 
-    console.log("📌 Observer detect — login:", isLogin, "register:", isRegister, "reset:", isReset);
 
     const alreadyAdded = input.parentElement.querySelector(".btn-gen-parola");
 
     if ((isRegister || isReset) && !alreadyAdded && !isLogin) {
         adaugaButonGenerare(input);
-        console.log("🔁 Observer a adăugat buton pe:", input);
     }
 });
 
@@ -245,15 +243,12 @@ function tipFormularDupaButon(form) {
 }
 
 function detectFormType(passwordInputs, usernameInputs, target) {
-
-    // Încearcă să folosești formularul în care se află `target`
     const form = target.closest("form");
     const allInputs = form
         ? Array.from(form.querySelectorAll('input')).filter(i => esteVizibil(i) && esteInputDeAutentificare(i))
         : Array.from(document.querySelectorAll('input')).filter(i => esteVizibil(i) && esteInputDeAutentificare(i));
 
     if (passwordInputs.length === 0) {
-        console.log("⏳ Nu există încă formular de parolă. Probabil suntem în pasul de email.");
         return { isLogin: false, isRegister: false, isReset: false };
     }
 
@@ -268,7 +263,6 @@ function detectFormType(passwordInputs, usernameInputs, target) {
     const isLikelyOldPassword = text.includes("old");
     const isLikelyConfirmPassword = text.includes("confirm") || text.includes("confirmare");
 
-    console.log("Toate intrarile: ", allInputs);
     const registerHints = allInputs.filter(input => {
         const n = input.name?.toLowerCase() || "";
         const p = input.placeholder?.toLowerCase() || "";
@@ -299,9 +293,8 @@ function detectFormType(passwordInputs, usernameInputs, target) {
     if (usernameInputs.length >= 1) score += 1;
 
     const submitButtons = Array.from(document.querySelectorAll('button, input[type="submit"]'));
-    console.log("Butonul de submit este: ", submitButtons);
 
-    // penalizare dacă e doar login clasic
+
     if (isLogin && allInputs.length <= 4) score -= 2;
     if (allInputs.length === 2) {
         score = 2;
@@ -329,7 +322,7 @@ function detectFormType(passwordInputs, usernameInputs, target) {
     if (allInputs.length >= 4)
         score += 2;
 
-    console.log("Scorul este: ", score);
+    //console.log("Scorul este: ", score);
 
     let isRegister = false;
     if (score >= 4)
@@ -357,7 +350,7 @@ document.addEventListener("input", async (e) => {
 
         const { isLogin, isRegister, isReset } = detectFormType(passwordInputs, usernameInputs, target);
 
-        console.log("📌 INPUT detectat — login:", isLogin, "register:", isRegister, "reset:", isReset);
+        //console.log("📌 INPUT detectat — login:", isLogin, "register:", isRegister, "reset:", isReset);
 
         if ((isRegister || isReset) &&
             !target.parentElement.querySelector(".btn-gen-parola") && !isLogin) {
@@ -404,12 +397,9 @@ if (window.location.protocol === "https:") {
 
 
 browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log("AM AJUNS AICIIIIIIIIII")
     if (request.type === "FILL_CREDENTIALS") {
-        console.log("⚡ FILL_CREDENTIALS primit")
         const campuri = detectareCampuriLogin();
         if (campuri) {
-            console.log("📩 Completez cu:", request.username, request.password);
             simulateTyping(campuri.usernameCamp, request.username);
             simulateTyping(campuri.parolaCamp, request.password);
         }

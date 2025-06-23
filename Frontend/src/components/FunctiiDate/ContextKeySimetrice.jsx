@@ -37,17 +37,16 @@ const getKeyFromIndexedDB = async () => {
 };
 
 // Șterge baza de date 'myDatabase'
-const deleteDatabase = () => {
-    const request = indexedDB.deleteDatabase('myDatabase');
-
-    request.onsuccess = function () {
-        console.log("Baza de date a fost ștearsă cu succes.");
-    };
-
-    request.onerror = function () {
-        console.error("A apărut o eroare la ștergerea bazei de date.");
-    };
+// Doar asta păstrezi pentru ștergerea completă:
+const deleteDatabase = async () => {
+    try {
+        await Dexie.delete("myDatabase");
+        console.log("✅ Baza de date a fost ștearsă complet la delogare.");
+    } catch (error) {
+        console.error("❌ Eroare la ștergerea bazei de date:", error);
+    }
 };
+
 
 const deleteKeyFromIndexedDB = () => {
     const request = indexedDB.open('myDatabase', 1); // Deschidem baza de date
@@ -78,4 +77,4 @@ export const ProviderSimetricKey = ({ children }) => {
 
 
 
-export { saveKeyInIndexedDB, getKeyFromIndexedDB };
+export { saveKeyInIndexedDB, getKeyFromIndexedDB, deleteKeyFromIndexedDB, deleteDatabase };

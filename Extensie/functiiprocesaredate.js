@@ -29,7 +29,6 @@ export async function genereazaCheiaLocal(parola) {
         // Derivăm cheia AES
         const key = await crypto.subtle.deriveKey({ name: "PBKDF2", salt: salt, iterations: 500000, hash: "SHA-256" }, derivedKey, { name: "AES-GCM", length: 256 }, true, ["encrypt", "decrypt"]);
 
-        console.log("Cheia derivată în format AES:", key);
 
         // Exportăm cheia într-un format raw (binary)
         const exportedKey = await crypto.subtle.exportKey("raw", key);
@@ -141,7 +140,6 @@ export async function decripteazaItemi(data, encodedMainKey) {
                 const rez_dataExpirare = await decriptareDate(continutObj.data.dataExpirare.encData, continutObj.data.dataExpirare.iv, continutObj.data.dataExpirare.tag, itemKey);
                 const rez_comentariu = await decriptareDate(continutObj.data.comentariu.encData, continutObj.data.comentariu.iv, continutObj.data.comentariu.tag, itemKey);
 
-                console.log("🔓 Item decriptat:", { nume: rez_nume, numarCard: rez_numarCard, posesorCard: rez_posesorCard, dataExpirare: rez_dataExpirare, comentariu: rez_comentariu, });
 
                 rezultate.push({
                     itemKey: itemKey,

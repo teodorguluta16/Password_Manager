@@ -51,14 +51,13 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem, derivedKey }) => {
     useEffect(() => {
         if (derivedKey) {
             setKey(derivedKey);
-            console.log("Cheia setată:", derivedKey);
+
         }
         else {
             console.log("Cheia este goala !!");
         }
     }, [derivedKey]);
 
-    console.log("cheia are trebui sa fie: ", key);
     const [initialValues, setInitialValues] = useState({
         nume: item.nume,
         username: item.username,
@@ -67,12 +66,8 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem, derivedKey }) => {
         comentariu: item.comentariu,
     });
 
-    console.log(item.istoric);
-
     const [istoric, setIstoric] = useState(item.istoric);
 
-    console.log("Tipul lui istoric:", typeof item.istoric);
-    console.log("Conținutul lui istoric:", istoric);
     let parsedIstoric = [];
 
     try {
@@ -133,7 +128,6 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem, derivedKey }) => {
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log("Datele primite de la server: ", data);
                     setOwnerNume(data[0].nume);
                     setOwnerPrenume(data[0].prenume);
                 } else {
@@ -170,7 +164,6 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem, derivedKey }) => {
 
     const semneazaParola = async (parola, charset, length, hmacKey) => {
         if (hmacKey === null) {
-            console.log("E GOL NU E BINE");
         }
         const data = `${parola}|${charset}|${length}`;
         const encoder = new TextEncoder();
@@ -206,9 +199,8 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem, derivedKey }) => {
             if (note !== initialValues.comentariu) {
                 modificari.push("Comentariu");
             }
-            console.log("Modificarile noi:", itemNume, userName, parolaName, urlNume, note);
+
             if (modificari.length === 0) {
-                console.log("Nicio modificare detectată.");
                 return;
             }
 
@@ -222,19 +214,13 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem, derivedKey }) => {
                 time: oraCurenta,
             };
 
-            console.log("Nou Istoric:", nouIstoric);
-
-            console.log("istoric vechi", istoric);
-
             const istoricActualizat = [...parsedIstoric, nouIstoric];
-            console.log("Istoricul actualizat: ", istoricActualizat);
 
             setIstoric(istoricActualizat);
 
             const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
             let cryptoKey;
 
-            //console.log("Cheia derivata este: ", key);
             if (typeof derivedKey === "string") {
                 cryptoKey = await importRawKeyFromBase64(derivedKey);
             } else {
@@ -303,7 +289,6 @@ const EditParolaItem = ({ item, setGestioneazaParolaItem, derivedKey }) => {
             if (!response.ok) {
                 throw new Error("Eroare la actualizare");
             }
-            console.log("Item actualizat cu succes!");
         } catch (error) {
             console.error('Error during the request:', error);
         }

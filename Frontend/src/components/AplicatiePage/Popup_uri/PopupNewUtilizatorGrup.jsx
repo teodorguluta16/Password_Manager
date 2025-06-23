@@ -41,8 +41,6 @@ const PopupNewUtilizatorGrup = ({ setPopupUtilizatorNou, idgrup, derivedKey, han
         }
     }, [derivedKey]);
 
-    console.log("Cheia simetrică este: ", key);
-
     const [nameItem, setNameItem] = useState('');
 
     const handleAdaugaMembru = async () => {
@@ -72,7 +70,6 @@ const PopupNewUtilizatorGrup = ({ setPopupUtilizatorNou, idgrup, derivedKey, han
         // convertesc cheia privata din HEX in string: 
         const decodedString2 = hexToString(encryptedPrivateKeyUtilizator);
         const dataObject2 = JSON.parse(decodedString2);
-        console.log(dataObject2);
 
         const ivHex2 = dataObject2.encKey.iv;
         const encDataHex2 = dataObject2.encKey.encData;
@@ -80,7 +77,6 @@ const PopupNewUtilizatorGrup = ({ setPopupUtilizatorNou, idgrup, derivedKey, han
 
         const decriptKey = await decodeMainKey(key);
         const decc_key = await decriptareDate(encDataHex2, ivHex2, tagHex2, decriptKey);
-        console.log("Cheia decriptata ar trebui sa fie: ", decc_key);
 
         // 2. Extrag cheia aes a grupului criptata si o decriptez cu cheia privata rsa
         let encryptedgroupAesKey = null;
@@ -98,13 +94,13 @@ const PopupNewUtilizatorGrup = ({ setPopupUtilizatorNou, idgrup, derivedKey, han
         } catch (error) {
             console.error('Eroare la trimiterea cererii:', error);
         }
-        console.log("Mesajul criptat (base64):", encryptedgroupAesKey);
+
         const encryptedMessage = forge.util.decode64(encryptedgroupAesKey);
         let decryptedMessage;
         const privateKey2 = forge.pki.privateKeyFromPem(decc_key);
         try {
             decryptedMessage = decryptWithPrivateKey(encryptedMessage, privateKey2);
-            console.log("Cheia simetrica a grupului decriptata:", decryptedMessage);
+
         } catch (error) {
             console.error("Eroare la decriptare:", error.message);
         }
@@ -143,26 +139,22 @@ const PopupNewUtilizatorGrup = ({ setPopupUtilizatorNou, idgrup, derivedKey, han
             console.error('Eroare la trimiterea cererii:', error);
         }
         let publicKeyUtilizatorPem = fixBase64Key(publicKeyUtilizator);
-        console.log("Cheia publica a userului este cu id-ul ", newMemberId, "si emailul ", nameItem, " este: ", publicKeyUtilizatorPem);
 
         //4 criptez cheia aia aes cu cheia lui publica
         if (!isValidPem(publicKeyUtilizatorPem)) {
             console.error("Cheia publică nu este într-un format PEM valid.");
         } else {
-            console.log("Cheia publică este într-un format PEM valid.");
         }
 
         // Converstesc cheia din Uint8Array in Base64;
 
         const publicKey2 = forge.pki.publicKeyFromPem(publicKeyUtilizatorPem);
         const message = decryptedMessage;  // mesajul ce urmeaza a fi criptat
-        console.log("cheia aes ce urmeaza a fi criptata: ", message);
         let encryptedMessage2; /// aici criptam efectiv
         let encryptedMessage2Base64; /// aici criptam efectiv
         try {
             encryptedMessage2 = encryptWithPublicKey(message, publicKey2);
             encryptedMessage2Base64 = forge.util.encode64(encryptedMessage2);
-            console.log("Cheia simetrica criptata sharuita pentru noul ut este (base64):", encryptedMessage2Base64);
         } catch (error) {
             console.error("Eroare la criptare:", error.message);
         }
@@ -171,7 +163,6 @@ const PopupNewUtilizatorGrup = ({ setPopupUtilizatorNou, idgrup, derivedKey, han
         const jsonItem = { idMembru: newMemberId, grupId: idgrup, encryptedKey: encryptedMessage2Base64, };
 
         try {
-            console.log(jsonItem);
             const response = await fetch('http://localhost:9000/api/addMembruGrup', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: "include",
                 body: JSON.stringify(jsonItem)
@@ -179,7 +170,6 @@ const PopupNewUtilizatorGrup = ({ setPopupUtilizatorNou, idgrup, derivedKey, han
 
             if (response.ok) {
                 const data2 = await response.json();
-                console.log(data2);
                 setPopupUtilizatorNou(false);
             } else {
                 const errorData = await response.json(); console.log('Eroare:', errorData.message);

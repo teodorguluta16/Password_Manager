@@ -62,8 +62,6 @@ const decodeMainKey = async (encodedKeyBase64) => {
     const keyBuffer = new Uint8Array(wordArray.sigBytes);
     for (let i = 0; i < wordArray.sigBytes; i++)
         keyBuffer[i] = wordArray.words[i >>> 2] >>> ((3 - (i % 4)) * 8) & 0xff;
-    console.log("Cheia AES înainte de import:", keyBuffer);
-
 
     const key = await window.crypto.subtle.importKey("raw", keyBuffer, { name: "AES-GCM" }, true, ["encrypt", "decrypt"]);
     return key;

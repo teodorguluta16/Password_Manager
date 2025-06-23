@@ -185,11 +185,10 @@ function showItemDetails(parola) {
             time: oraCurenta,
         };
 
-        console.log("Nou Istoric:", nouIstoric);
 
 
         const istoricActualizat = [...parsedIstoric, nouIstoric];
-        console.log("Istoricul actualizat: ", istoricActualizat);
+
 
         const key_aes = parola.itemKey;
 
@@ -201,7 +200,6 @@ function showItemDetails(parola) {
         const enc_ComentariuItem = await criptareDate(comentariuModificat, key_aes);
         const enc_IstoricItem = await criptareDate(JSON.stringify(istoricActualizat), key_aes);
 
-        console.log("Nume vechi:", nume, "nume nou: ", numeModificat);
 
         const jsonItem = {
             metadata: {

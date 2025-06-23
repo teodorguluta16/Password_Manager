@@ -21,8 +21,6 @@ const ItemsAllPage = ({ derivedKey, items, fetchItems }) => {
             setKey(derivedKey);
         }
     }, [derivedKey]);
-    console.log("Am ajuns Aici !");
-    console.log("Cheia simetrică este: ", key);
 
     const [isDeschisMeniuSortare, setIsDropdownOpen] = useState(false);
     const [OptiuneSelectata, setSelectedOption] = useState("Sortează după: Nume");

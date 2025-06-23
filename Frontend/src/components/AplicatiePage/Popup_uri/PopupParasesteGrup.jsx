@@ -10,7 +10,6 @@ const PopupParasesteGrup = ({ setShowPopupParasesteGrup, item, fetchItems }) => 
             });
 
             if (response.ok) {
-                console.log(response);
                 await fetchItems();
             }
         } catch (error) {

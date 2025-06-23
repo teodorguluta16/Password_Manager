@@ -15,8 +15,7 @@ export async function verificaAutentificare() {
             if (data.name) {
                 const [firstName, lastName] = data.name.split(" ");
                 const initiale = `${firstName[0]}${lastName[0]}`.toUpperCase();
-                //console.log("Intialelle sunt", initiale);
-                setAvatarInitials(firstName, lastName); // ⚠️ funcție din popup.js
+                setAvatarInitials(firstName, lastName);
             }
 
             const paroleDecriptate = await initKeyAndPasswords();
@@ -57,7 +56,6 @@ export function setupFormularAutentificare() {
             });
 
             if (response.ok) {
-                console.log("Autentificare reușită!");
 
                 const paroleDecriptate = await initKeyAndPasswords2(password);
                 loginContainer.style.display = "none";

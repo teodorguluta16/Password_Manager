@@ -47,9 +47,6 @@ const LoginPage = () => {
     //hash parola si email
     const hashedPassword = await hashPassword(Parola);
     const hashedEmail = await hashPassword(Email);
-    //console.log("Hashed password: ", hashedPassword);
-    console.log("Hashed email: ", hashedEmail);
-
 
     try {
       const keyAuth = CryptoJS.PBKDF2(hashedPassword, hashedEmail + "-auth", {
@@ -72,7 +69,6 @@ const LoginPage = () => {
       });
 
       if (response.ok) {
-        console.log("Autentificare reusita !");
         //const decriptKey = await decodeMainKey(keyCryptBase64);
 
 
@@ -87,14 +83,12 @@ const LoginPage = () => {
 
           if (aesResponse.ok) {
             const aesResponseData = await aesResponse.json();
-            console.log("Răspunsul de la server pentru cheia AES:", aesResponseData);
 
             const decriptKey = await decodeMainKey(keyCryptBase64);
             // Decriptarea cheii
 
             const keyfromdata = aesResponseData[0].encryptedsimmetrickey;
             const decodedString = hexToString(keyfromdata);
-            console.log(decodedString);
             const dataObject = JSON.parse(decodedString);
 
             const ivHex = dataObject.encKey.iv;
@@ -105,10 +99,8 @@ const LoginPage = () => {
 
             const octetiArray = dec_key.split(',').map(item => parseInt(item.trim(), 10));
             const uint8Array = new Uint8Array(octetiArray);
-            console.log("Am obtinut:", uint8Array);
             const wordArray = CryptoJS.lib.WordArray.create(uint8Array);
             const base64Key = wordArray.toString(CryptoJS.enc.Base64);
-            console.log("Cheia în format Base64:", base64Key);
             await saveKeyInIndexedDB(base64Key);
             setKey(base64Key);
 

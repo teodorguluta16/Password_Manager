@@ -14,13 +14,10 @@ const EditNotitaItem = ({ item, setGestioneazaParolaItem }) => {
         comentariu: item.comentariu,
     });
 
-    console.log(item.istoric);
     const importedKey = item.importedKey;
 
     const [istoric, setIstoric] = useState(item.istoric);
 
-    console.log("Tipul lui istoric:", typeof item.istoric);
-    console.log("Conținutul lui istoric:", istoric);
     let parsedIstoric = [];
 
     try {
@@ -94,9 +91,8 @@ const EditNotitaItem = ({ item, setGestioneazaParolaItem }) => {
             if (date !== initialValues.data) {
                 modificari.push("Data Calendaristica");
             }
-            console.log("Modificarile noi:", itemNume, date, note);
+
             if (modificari.length === 0) {
-                console.log("Nicio modificare detectată.");
                 return;
             }
 
@@ -110,12 +106,7 @@ const EditNotitaItem = ({ item, setGestioneazaParolaItem }) => {
                 time: oraCurenta,
             };
 
-            console.log("Nou Istoric:", nouIstoric);
-
-            console.log("istoric vechi", istoric);
-
             const istoricActualizat = [...parsedIstoric, nouIstoric];
-            console.log("Istoricul actualizat: ", istoricActualizat);
 
             setIstoric(istoricActualizat);
 
@@ -158,8 +149,6 @@ const EditNotitaItem = ({ item, setGestioneazaParolaItem }) => {
             if (!response.ok) {
                 throw new Error("Eroare la actualizare");
             }
-
-            console.log("Item actualizat cu succes!");
 
 
         } catch (error) {

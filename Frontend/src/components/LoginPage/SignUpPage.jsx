@@ -64,11 +64,7 @@ const SignUpPage = () => {
 
         //hash parola + email
         const hashedPassword = await hashPassword(Parola);
-        console.log("Hashed password: ", hashedPassword);
         const hashedEmail = await hashPassword(Email);
-        //console.log("Hashed password: ", hashedPassword);
-        console.log("Hashed email: ", hashedEmail);
-
 
         const keyAuth = CryptoJS.PBKDF2(hashedPassword, hashedEmail + "-auth", {
             keySize: 256 / 32,
@@ -95,13 +91,11 @@ const SignUpPage = () => {
 
             const criptKey = await decodeMainKey(keyCryptBase64);
             const key_aes_raw = await exportKey(key_aes);
-            console.log("Cheia intreaga inainte de criptare este: ", key_aes_raw);
             const enc_key_raw = await criptareDate(key_aes_raw, criptKey);
 
             // trnsforamm cheia in b64
             const exportedKey = await window.crypto.subtle.exportKey("raw", key_aes);
             const base64Key = btoa(String.fromCharCode(...new Uint8Array(exportedKey)));
-            console.log("Cheia în format Base64 la crearea contului:", base64Key);
 
             // 3. generam perechea de chei rsa
 

@@ -30,7 +30,6 @@ const PopupRecoveryPassword = ({ setOpenPopupRecovery, derivedkey }) => {
     const [hasRun, setHasRun] = useState(false);
     const [recoveryKey, setRecoveryKey] = useState(null);
     const [key, setKey] = useState(derivedkey);
-    console.log("cheia derivata ce urmeaza a fi criptata este: ", key);
     const handleCopy = () => {
         navigator.clipboard.writeText(recoveryKey)
             .then(() => {
@@ -46,7 +45,6 @@ const PopupRecoveryPassword = ({ setOpenPopupRecovery, derivedkey }) => {
     };
 
     const cripteazaCopieCheie = async () => {
-        console.log("start criptare: ");
         let recKey = generateRecoveryKey();
         setRecoveryKey(recKey);
 
@@ -68,22 +66,20 @@ const PopupRecoveryPassword = ({ setOpenPopupRecovery, derivedkey }) => {
                 console.error("Saltul e null");
             }
 
-            console.log("saltul este: ", salt);
             if (!recKey) {
                 console.error("Recovery Key e null");
                 return;
             }
 
-            console.log("cuvantul de recovery este: ", recKey);
             const derivedKey = CryptoJS.PBKDF2(recKey, salt, { keySize: 256 / 32, iterations: 500000 });// tre sa ajustez nr de iteratii
             const derivedKeyBase64 = derivedKey.toString(CryptoJS.enc.Base64);
-            console.log("Cheia folosita la criptare este: ", derivedKeyBase64);
+
 
             // criptare cheie
             const criptKey = await decodeMainKey(derivedKeyBase64);
-            console.log("cheia derivata ce urmeaza a fi criptata este: ", key);
+
             const enc_key_raw = await criptareDate(key, criptKey);
-            console.log("Cheia criptata este: ", enc_key_raw);
+
 
             // trimitere la server
 
@@ -106,7 +102,7 @@ const PopupRecoveryPassword = ({ setOpenPopupRecovery, derivedkey }) => {
         } catch (error) {
             console.error("Eroare la criptarea datelor:", error);
         }
-        console.log("finalizare criptare: ");
+
     };
 
     useEffect(() => {

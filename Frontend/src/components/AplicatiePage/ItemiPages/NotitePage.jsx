@@ -17,7 +17,6 @@ const NotitePage = ({ derivedKey, items, fetchItems }) => {
         }
     }, [derivedKey]);
 
-    console.log("Cheia simetrică este: ", key);
     const [isDeschisMeniuSortare, setIsDropdownOpen] = useState(false);
     const [OptiuneSelectata, setSelectedOption] = useState("Sortează după: Nume");
 

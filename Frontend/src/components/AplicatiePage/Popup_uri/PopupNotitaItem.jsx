@@ -8,7 +8,6 @@ const PopupNotitaItem = ({ setShowNotitaPopup, derivedKey, fetchItems }) => {
     useEffect(() => {
         if (derivedKey) {
             setKey(derivedKey);
-            console.log("Cheia setată:", derivedKey);
         }
     }, [derivedKey]);
 
@@ -36,10 +35,9 @@ const PopupNotitaItem = ({ setShowNotitaPopup, derivedKey, fetchItems }) => {
             const criptKey = await decodeMainKey(key);
 
             const key_aes_raw = await exportKey(key_aes);
-            console.log("Cheia intreaga ianinte de criptare este: ", key_aes_raw);
+
             const enc_key_raw = await criptareDate(key_aes_raw, criptKey);
 
-            console.log("Cheia criptata este: ", enc_key_raw);
 
             // 3. Decriptarea cheii AES criptate folosind cheia AES decriptată
             const dec_key = await decriptareDate(enc_key_raw.encData, enc_key_raw.iv, enc_key_raw.tag, criptKey);  // obții cheia AES decriptată
@@ -48,7 +46,6 @@ const PopupNotitaItem = ({ setShowNotitaPopup, derivedKey, fetchItems }) => {
 
             // Creăm un Uint8Array din array-ul de numere
             const uint8Array = new Uint8Array(octetiArray);
-            console.log(uint8Array);
 
             const jsonItemKey = { data: { encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag }, }, };
 

@@ -127,7 +127,6 @@ browserAPI.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
                 if (browserAPI.runtime.lastError) {
                     console.warn("⚠️ Nu am putut trimite către content script:", browserAPI.runtime.lastError.message);
                 } else {
-                    console.log("✅ Autocomplete trimis în tab:", tab.url);
                     browserAPI.storage.local.remove("credentiale_temporare");
                 }
             });
