@@ -24,12 +24,31 @@ const saveKeyInIndexedDB = async (key) => {
         console.error("Eroare la salvarea cheii în IndexedDB", error);
     }
 };
+// Funcție pentru a salva cheia
+const saveKeyInIndexedDB2 = async (key, salt) => {
+    try {
+        await db.keys.put({ id: 2, key: key, salt: salt });  // Salvăm cheia în obiectul de stocare 'keys'
+        console.log("Cheia criptata cu saltul a fost salvată cu succes!");
+    } catch (error) {
+        console.error("Eroare la salvarea cheii în IndexedDB", error);
+    }
+};
 
 // Funcție pentru a citi cheia
 const getKeyFromIndexedDB = async () => {
     try {
         const key = await db.keys.get(1);  // Obținem cheia cu id-ul 1
         return key ? key.key : null;
+    } catch (error) {
+        console.error("Eroare la citirea cheii din IndexedDB", error);
+        return null;
+    }
+};
+
+const getKeyFromIndexedDB2 = async () => {
+    try {
+        const rezultat = await db.keys.get(2); // presupune că db este deja definit aici
+        return rezultat;
     } catch (error) {
         console.error("Eroare la citirea cheii din IndexedDB", error);
         return null;
@@ -77,4 +96,4 @@ export const ProviderSimetricKey = ({ children }) => {
 
 
 
-export { saveKeyInIndexedDB, getKeyFromIndexedDB, deleteKeyFromIndexedDB, deleteDatabase };
+export { saveKeyInIndexedDB, getKeyFromIndexedDB, deleteKeyFromIndexedDB, deleteDatabase, saveKeyInIndexedDB2, getKeyFromIndexedDB2 };

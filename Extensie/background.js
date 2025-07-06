@@ -43,16 +43,40 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true;  // important pentru a păstra canalul deschis până când se trimite răspunsul
     }
     if (request.action === "syncDecryptionKey") {
-        decryptionKey = request.key;
-        sendResponse({ success: true });
-        return true;
+        const key = request.key;
+        console.log("📥 Cheie primită în background.js:", key);
+
+        chrome.storage.session.set({ decryptionKey: key })
+            .then(() => {
+                console.log("✅ Cheia salvată în chrome.storage.session");
+                sendResponse({ success: true });
+            })
+            .catch((err) => {
+                console.error("❌ Eroare la salvare în storage.session:", err);
+                sendResponse({ success: false, error: err.message });
+            });
+
+        return true; // ✅ IMPORTANT: pentru a permite `sendResponse` asincron
     }
-    if (request.action === "getDecryptionKey") {
+
+    /*if (request.action === "getDecryptionKey") {
         if (decryptionKey) {
             sendResponse({ success: true, key: decryptionKey });
         } else {
             sendResponse({ success: false, error: "Cheia nu este in background.js" });
         }
+        return true;
+    }*/
+
+    if (request.action === "getDecryptionKey") {
+        chrome.storage.session.get("decryptionKey", (result) => {
+            const key = result.decryptionKey;
+            if (key) {
+                sendResponse({ success: true, key });
+            } else {
+                sendResponse({ success: false, error: "Cheia nu este stocată" });
+            }
+        });
         return true;
     }
 
@@ -116,6 +140,14 @@ browserAPI.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
             if (!tab.url.includes(targetDomain)) return;
 
+            // 🔐 Timeout de siguranță: șterge datele după 15 secunde, chiar dacă ceva nu merge
+            const fallbackTimer = setTimeout(() => {
+                browserAPI.storage.local.remove("credentiale_temporare", () => {
+                    console.log("⏱️ Timeout: credențialele au fost șterse automat după 15s.");
+                });
+            }, 15000);
+
+            // 📨 Trimite mesaj către content script
             browserAPI.tabs.sendMessage(tabId, {
                 type: "FILL_CREDENTIALS",
                 username,
@@ -123,8 +155,13 @@ browserAPI.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             }, (res) => {
                 if (browserAPI.runtime.lastError) {
                     console.warn("⚠️ Nu am putut trimite către content script:", browserAPI.runtime.lastError.message);
+                } else if (res?.success) {
+                    clearTimeout(fallbackTimer); // ✅ dacă merge, anulăm timeout-ul
+                    browserAPI.storage.local.remove("credentiale_temporare", () => {
+                        console.log("✅ Credențialele temporare au fost șterse după completare.");
+                    });
                 } else {
-                    browserAPI.storage.local.remove("credentiale_temporare");
+                    console.warn("⚠️ Autocompletarea a eșuat. Credențialele NU au fost șterse imediat.");
                 }
             });
         });

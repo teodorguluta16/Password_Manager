@@ -27,6 +27,7 @@ import FavoritePage from './ItemiPages/FavoritePage';
 import GrupuriPage from './ItemiPages/GrupuriPage';
 import AdresePage from './ItemiPages/AdresePage';
 
+import PopupIntroduPIN from './Popup_uri/PopupIntroduPIN';
 import PopupNewItem from './Popup_uri/PopupNewItem';
 import PopupParolaItem from "./Popup_uri/PopupParolaItem";
 import PopupNotitaItem from "./Popup_uri/PopupNotitaItem";
@@ -35,7 +36,7 @@ import PopupNewAdrese from "./Popup_uri/PopupNewAdrese";
 import ItemiStersi from './ItemiPages/ItemiStersi';
 import RemoteWorkingPage from './ItemiPages/RemoteWorkingPage';
 
-import { getKeyFromIndexedDB, deleteKeyFromIndexedDB, deleteDatabase } from "../FunctiiDate/ContextKeySimetrice";
+import { getKeyFromIndexedDB, deleteKeyFromIndexedDB, deleteDatabase, useKeySimetrica, getKeyFromIndexedDB2 } from "../FunctiiDate/ContextKeySimetrice";
 import { decodeMainKey, decriptareDate } from "../FunctiiDate/FunctiiDefinite"
 import EditParolaItem from './ItemiPages/EditParolaItem';
 
@@ -75,8 +76,9 @@ const AplicatiePage = () => {
 
   const navigate = useNavigate();
 
-  const [savedKey, setSavedKey] = useState(null);
-  useEffect(() => {
+  //const [savedKey, setSavedKey] = useState(null);
+
+  /*useEffect(() => {
     const loadKey = async () => {
       try {
         let key_aux = await getKeyFromIndexedDB();
@@ -86,24 +88,50 @@ const AplicatiePage = () => {
       }
     };
     loadKey();
-  }, []);
+  }, []);*/
 
-  const syncKeyWithExtension = async () => {
-    try {
-      const key = await getKeyFromIndexedDB();
-      if (key) {
-        window.postMessage({ type: "SYNC_DECRYPTION_KEY", key: key }, "*");
-      } else {
-        console.warn("⚠️ Nu există cheie în IndexedDB.");
-      }
-    } catch (error) {
-      console.error("❌ Eroare la trimiterea cheii:", error);
-    }
-  };
+  const { key: savedKey } = useKeySimetrica();
+
+  const [showPinPopup, setShowPinPopup] = useState(false);
 
   useEffect(() => {
+    const checkKey = async () => {
+      if (!savedKey) {  // Verificăm dacă cheia NU este încă setată în context
+        const encrypted = await getKeyFromIndexedDB2();  // Verificăm dacă există cheia criptată
+        if (encrypted) {
+          console.log("CHEIA E GOALA");
+          setShowPinPopup(true);  // Afișăm popupul de introducere PIN
+        }
+      }
+    };
+    checkKey();
+  }, [savedKey]);
+
+  useEffect(() => {
+    const syncKeyWithExtension = async () => {
+      try {
+        if (savedKey) {
+          console.log("MAIN Key este: ", savedKey);
+          const key = savedKey;
+          window.postMessage({ type: "SYNC_DECRYPTION_KEY", key }, "http://localhost:5173");
+          console.log("✅ Cheia a fost sincronizată cu extensia");
+        } else {
+          console.warn("⚠️ Cheia e null sau undefined");
+        }
+      } catch (error) {
+        console.error("❌ Eroare la sincronizare:", error);
+      }
+    };
+
     syncKeyWithExtension();
-  }, []);
+
+    // Trimite cheia la fiecare 30 secunde
+    //const intervalId = setInterval(syncKeyWithExtension, 30000); // 30000 ms = 30 sec
+
+    //return () => {
+    //  clearInterval(intervalId); // ✅ cleanup la demontarea componentei
+    //};
+  }, [savedKey]); // 🔁 se reapelează dacă se modifică cheia
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -404,14 +432,11 @@ const AplicatiePage = () => {
 
               const semnaturaCalculata = await semneazaParola(rez_parola, charset, lungime, hmacKey);
 
-              console.log("semnatura calculata: ", semnaturaCalculata);
-              console.log("semnatura item: ", rez_semnatura);
-
               if (semnaturaCalculata !== rez_semnatura) {
                 console.warn("⚠️ Semnătura nu se potrivește! Parola ar putea fi alterată.");
               }
               else {
-                console.log("Semnatura verificata !!!");
+                //console.log("Semnatura verificata !!!");
               }
 
               paroleItems.push({
@@ -984,13 +1009,14 @@ const AplicatiePage = () => {
 
         {/*Popup-ul de la creeaza item Nou */}
         {shoMeniuCreeazaItem && (<PopupNewItem setShoMeniuCreeazaItem={setMeniuCreeazaItem} setShowParolaPopup={setShowParolaPopup} setShowNotitaPopup={setShowNotitaPopup} setShowCardPopup={setShowCardPopup} setShowAddressPopup={setShowAddressPopup} />)}
+
         {/*Popup-ul de la Parola */}
         {ShowParolaPopup && (<PopupParolaItem setShowParolaPopup={setShowParolaPopup} derivedKey={savedKey} fetchItems={fetchItems} />)}
         {ShowNotitaPopup && (<PopupNotitaItem setShowNotitaPopup={setShowNotitaPopup} derivedKey={savedKey} fetchItems={fetchItems} />)}
         {ShowCardPopup && (<PopupCardItem setShowCardPopup={setShowCardPopup} derivedKey={savedKey} fetchItems={fetchItems} />)}
         {ShowAdresaPopup && (<PopupNewAdrese setShowAddressPopup={setShowAddressPopup} derivedKey={savedKey} fetchItems={fetchItems} />)}
 
-
+        {showPinPopup && <PopupIntroduPIN onClose={() => setShowPinPopup(false)} />}
         {sectiuneItemi === "NotificareSchimbareParola" && gestioneazaParolaDeModificat && <EditParolaItem item={gestioneazaParolaDeModificat} setGestioneazaParolaItem={setGestioneazaParolaDeModificat} derivedKey={savedKey} />}
       </div>
     </div >

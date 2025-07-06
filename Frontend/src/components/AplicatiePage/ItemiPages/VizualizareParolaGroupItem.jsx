@@ -7,8 +7,6 @@ const VizualizareParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
 
     const [istoric, setIstoric] = useState(item.istoric);
 
-    console.log("Tipul lui istoric:", typeof item.istoric);
-    console.log("Conținutul lui istoric:", istoric);
     let parsedIstoric = [];
 
     try {

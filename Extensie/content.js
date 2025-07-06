@@ -3,19 +3,27 @@ if (typeof browserAPI === 'undefined') {
     var browserAPI = typeof browser !== "undefined" ? browser : chrome;
 }
 
-window.addEventListener("message", function (event) {
+window.addEventListener("message", async function (event) {
     if (event.source !== window) return;
+    if (event.origin !== "http://localhost:5173") return;
+
+
+    console.log("📩 Mesaj primit în extensie:", event.data);  // ✅ log general
     if (event.data.type === "SYNC_DECRYPTION_KEY") {
         const key = event.data.key;
-        browserAPI.runtime.sendMessage({ action: "syncDecryptionKey", key: key },
+        console.log("🔑 Cheie primită de la aplicație:", key);
+
+        chrome.runtime.sendMessage(
+            { action: "syncDecryptionKey", key },
             (response) => {
-                if (browserAPI.runtime.lastError) {
-                    console.error("❌ Eroare la trimiterea către background.js:", browserAPI.runtime.lastError.message);
+                if (chrome.runtime.lastError) {
+                    console.error("❌ Eroare la trimiterea către background.js:", chrome.runtime.lastError.message);
                 } else {
-                    //console.log("✅ Reusit background.js:", response);
+                    console.log("✅ Cheia trimisă cu succes către background.js");
                 }
             }
         );
+
     }
     if (event.data.type === "LAUNCH_WITH_CREDENTIALS") {
         const creds = event.data.credentials;
@@ -392,8 +400,14 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type === "FILL_CREDENTIALS") {
         const campuri = detectareCampuriLogin();
         if (campuri) {
-            simulateTyping(campuri.usernameCamp, request.username);
-            simulateTyping(campuri.parolaCamp, request.password);
+            simulateTyping(campuri.usernameCamp, request.username)
+                .then(() => simulateTyping(campuri.parolaCamp, request.password))
+                .then(() => {
+                    sendResponse({ success: true });
+                });
+            return true; // ⚠️ IMPORTANT: permite `sendResponse` asincron
+        } else {
+            sendResponse({ success: false });
         }
     }
 });
