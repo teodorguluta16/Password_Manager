@@ -46,7 +46,7 @@ export async function genereazaCheiaLocal(parola) {
 
         if (aesResponse.ok) {
             const aesResponseData = await aesResponse.json();
-            console.log("Răspunsul de la server pentru cheia AES:", aesResponseData);
+
 
             // 4. Decriptăm cheia AES folosind cheia derivată
             const keyfromdata = aesResponseData[0].encryptedsimmetrickey;

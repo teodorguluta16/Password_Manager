@@ -8,10 +8,8 @@ window.addEventListener("message", async function (event) {
     if (event.origin !== "http://localhost:5173") return;
 
 
-    console.log("📩 Mesaj primit în extensie:", event.data);  // ✅ log general
     if (event.data.type === "SYNC_DECRYPTION_KEY") {
         const key = event.data.key;
-        console.log("🔑 Cheie primită de la aplicație:", key);
 
         chrome.runtime.sendMessage(
             { action: "syncDecryptionKey", key },

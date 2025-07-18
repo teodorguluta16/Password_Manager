@@ -114,7 +114,7 @@ export async function handleCreareItem(formElement) {
     formElement.addEventListener('submit', async (e) => {
         e.preventDefault();
         const key = await getKeyFromIndexedDB();
-        console.log("Cheia pentru criptare este: ", key);
+
 
         const nume = document.getElementById('numeItem').value;
         const username = document.getElementById('usernameItem').value;

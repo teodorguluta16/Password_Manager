@@ -205,7 +205,6 @@ const LoginPage = () => {
             const uint8Array = new Uint8Array(octetiArray);
             const wordArray = CryptoJS.lib.WordArray.create(uint8Array);
             const base64Key = wordArray.toString(CryptoJS.enc.Base64);
-            await saveKeyInIndexedDB(base64Key);
             await criptareCheiePrincipala(base64Key, sessionKey, salt);
             setKey(base64Key);
 

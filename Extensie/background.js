@@ -44,7 +44,6 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     if (request.action === "syncDecryptionKey") {
         const key = request.key;
-        console.log("📥 Cheie primită în background.js:", key);
 
         chrome.storage.session.set({ decryptionKey: key })
             .then(() => {
