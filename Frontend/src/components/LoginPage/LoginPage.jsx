@@ -55,7 +55,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (pinGenerat && pinCopiat && navigarePermisa && !incorectCredentiale && !hasNavigated.current) {
-      console.log("este corect !!!!");
+
       hasNavigated.current = true; // marchează că s-a navigat
       navigate('/myapp', { replace: true });
     }
@@ -115,7 +115,6 @@ const LoginPage = () => {
     );
 
     setSessionKeyRAM(sessionKey);
-    console.log("🔐 sessionKey (RAM):", sessionKey);
     return { sessionKey, salt };
   };
 
@@ -123,11 +122,8 @@ const LoginPage = () => {
     const { iv, encData, tag } = await criptareDate(base64Key, sessionKey);
 
     salt = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('');
-    console.log("SessionKey-ul generat2 : ", sessionKey);
     // Afișare sessionKey în Base64
     const sessionKeyBase64 = await exportKeyToBase64(sessionKey);
-    console.log("🔐 SessionKey (Base64) LOGIN:", sessionKeyBase64);
-    console.log("Saltul salvat: ", salt);
     const payload = { iv, encData, tag };
 
     await saveKeyInIndexedDB2(JSON.stringify(payload), salt);
@@ -172,9 +168,7 @@ const LoginPage = () => {
         console.log("\ud83d\udd22 PIN generat:", generatedPIN);
         setPinGenerat(generatedPIN);
         const { sessionKey, salt } = await deriveSessionKeyFromPIN(generatedPIN);
-        console.log("PINUL folosit la derivare: ", generatedPIN);
-        console.log("SessionKey-ul generat la LOGIN : ", sessionKey);
-        console.log("Saltul-ul generat la LOGIN : ", salt);
+
 
         try {
           const aesResponse = await fetch('http://localhost:9000/api/getUserSimmetricKey', {

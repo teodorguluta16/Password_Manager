@@ -3,7 +3,6 @@ import "../../../App.css"
 import { FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
 
 const VizualizareParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
-    console.log(item.istoric);
 
     const [istoric, setIstoric] = useState(item.istoric);
 
@@ -61,7 +60,6 @@ const VizualizareParolaGroupItem = ({ item, setGestioneazaParolaItem }) => {
 
                 if (response.ok) {
                     const data = await response.json();
-                    console.log(data);
                     setOwnerNume(data.nume);
                     setOwnerPrenume(data.prenume);
                 } else {

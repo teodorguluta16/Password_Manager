@@ -99,7 +99,6 @@ const AplicatiePage = () => {
       if (!savedKey) {  // Verificăm dacă cheia NU este încă setată în context
         const encrypted = await getKeyFromIndexedDB2();  // Verificăm dacă există cheia criptată
         if (encrypted) {
-          console.log("CHEIA E GOALA");
           setShowPinPopup(true);  // Afișăm popupul de introducere PIN
         }
       }
@@ -107,11 +106,41 @@ const AplicatiePage = () => {
     checkKey();
   }, [savedKey]);
 
+
+  useEffect(() => {
+    const cereCheia = async () => {
+      try {
+        window.postMessage(
+          { type: "REQUEST_KEY", mesaj: "Vreau cheia" },
+          "http://localhost:5173"
+        );
+      } catch (error) {
+        console.error("❌ Eroare la trimiterea mesajului către extensie:", error);
+      }
+    };
+
+    // 🔁 Apelăm funcția async
+    cereCheia();
+
+    const handleMessage = (event) => {
+      if (event.data?.type === "EXTENSION_SALT") {
+        setSavedKey(event.data.key);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
+
+
   useEffect(() => {
     const syncKeyWithExtension = async () => {
+      if (!savedKey) return;
       try {
         if (savedKey) {
-          console.log("MAIN Key este: ", savedKey);
           const key = savedKey;
           window.postMessage({ type: "SYNC_DECRYPTION_KEY", key }, "http://localhost:5173");
           console.log("✅ Cheia a fost sincronizată cu extensia");
@@ -124,14 +153,8 @@ const AplicatiePage = () => {
     };
 
     syncKeyWithExtension();
+  }, [savedKey]);
 
-    // Trimite cheia la fiecare 30 secunde
-    //const intervalId = setInterval(syncKeyWithExtension, 30000); // 30000 ms = 30 sec
-
-    //return () => {
-    //  clearInterval(intervalId); // ✅ cleanup la demontarea componentei
-    //};
-  }, [savedKey]); // 🔁 se reapelează dacă se modifică cheia
 
   useEffect(() => {
     const checkAuth = async () => {

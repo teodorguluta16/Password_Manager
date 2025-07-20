@@ -19,7 +19,8 @@ export async function initKeyAndPasswords() {
 
         let encodedKey = response;
         if (!encodedKey) {
-            encodedKey = await getKeyFromIndexedDB();
+            //encodedKey = await getKeyFromIndexedDB();
+            const encodedKey = await chrome.storage.session.get("decryptionKey");
             if (!encodedKey) {
                 console.error("❌ Nu am găsit cheia nici în IndexedDB.");
                 return [];
@@ -62,7 +63,17 @@ export async function initKeyAndPasswords() {
 export async function initKeyAndPasswords2(password) {
     try {
         const encodedKey = await genereazaCheiaLocal(password);
-        await saveKeyInIndexedDB(encodedKey);
+
+        if (!encodedKey || encodedKey === "null" || encodedKey === "undefined") {
+            console.warn("⚠️ Cheia generată este invalidă. Nu continuăm.");
+            return [];
+        }
+        else {
+            await chrome.storage.session.set({ decryptionKey: encodedKey });
+        }
+
+        //await saveKeyInIndexedDB(encodedKey);
+
 
         const syncResult = await new Promise((resolve) => {
             browserAPI.runtime.sendMessage({ action: "syncDecryptionKey", key: encodedKey }, resolve);

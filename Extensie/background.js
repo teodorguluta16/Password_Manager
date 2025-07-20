@@ -44,6 +44,12 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     if (request.action === "syncDecryptionKey") {
         const key = request.key;
+        console.log("Cheia este: ", key);
+        if (!key) {
+            console.warn("⚠️ Cheia este null sau undefined — ignorăm sincronizarea");
+            sendResponse({ success: false, error: "Cheia este null. Nu salvăm." });
+            return true;
+        }
 
         chrome.storage.session.set({ decryptionKey: key })
             .then(() => {
@@ -57,6 +63,52 @@ browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
         return true; // ✅ IMPORTANT: pentru a permite `sendResponse` asincron
     }
+    if (request.action === "syncDecryptionKey2") {
+        const key = request.key;
+        console.log("Cheia este: ", key);
+
+        chrome.storage.session.set({ decryptionKey2: key })
+            .then(() => {
+                console.log("✅ Cheia salvată în chrome.storage.session");
+                sendResponse({ success: true });
+            })
+            .catch((err) => {
+                console.error("❌ Eroare la salvare în storage.session:", err);
+                sendResponse({ success: false, error: err.message });
+            });
+
+        return true; // ✅ IMPORTANT: pentru a permite `sendResponse` asincron
+    }
+
+    if (request.action === "getKeyForClient") {
+        const { decryptionKey } = chrome.storage.session.get("decryptionKey");
+
+        console.log("Chiea recuperata");
+
+        if (!decryptionKey) {
+            console.warn("⚠️ Nicio cheie salvată în sesiune");
+            return;
+        }
+
+        // Găsește tabul activ (unde e aplicația ta web)
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const tab = tabs[0];
+            if (tab && tab.id) {
+                chrome.scripting.executeScript({
+                    target: { tabId: tab.id },
+                    func: (key) => {
+                        window.postMessage({
+                            type: "EXTENSION_SALT",
+                            key: key
+                        }, "*");
+                        console.log("📤 Cheia a fost injectată în pagină din background.js");
+                    },
+                    args: [decryptionKey]
+                });
+            }
+        });
+    }
+
 
     /*if (request.action === "getDecryptionKey") {
         if (decryptionKey) {

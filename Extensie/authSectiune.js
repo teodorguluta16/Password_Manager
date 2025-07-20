@@ -1,4 +1,4 @@
-import { hashPassword } from "./functiiprocesaredate.js";
+import { hashPassword, deriveSessionKeyFromPIN, generatePIN, deriveKeyWebCrypto, decodeMainKey, decriptareDate, hexToString, criptareDate } from "./functiiprocesaredate.js";
 import { afiseazaParole } from "./detaliiItem.js";
 import { initKeyAndPasswords, initKeyAndPasswords2 } from "./initiereItemisiKeys.js"
 import { setAvatarInitials } from "./contulmeu.js"
@@ -9,7 +9,6 @@ export async function verificaAutentificare() {
         if (response.ok) {
 
             const data = await response.json();
-            console.log("Utilizator autentificat:", data);
 
             // extragem inițialele
             if (data.name) {
@@ -44,8 +43,13 @@ export function setupFormularAutentificare() {
             return;
         }
 
+        const hashedEmail = await hashPassword(email);
         const hashedPassword = await hashPassword(password);
-        const credentials = { Email: email, hashedPassword };
+
+        const keyAuthBase64 = await deriveKeyWebCrypto(hashedPassword, hashedEmail, "-auth");
+        const keyCryptBase64 = await deriveKeyWebCrypto(hashedPassword, hashedEmail, "-crypt");
+
+        const credentials = { Email: email, keyAuthBase64 };
 
         try {
             const response = await fetch("http://localhost:9000/api/auth/login", {
@@ -56,6 +60,58 @@ export function setupFormularAutentificare() {
             });
 
             if (response.ok) {
+
+                // 1. Generează PIN + derive session key
+                const generatedPIN = generatePIN();
+                alert(`🔐 Acesta este codul PIN pentru persistenta cheii:\n\n${generatedPIN}\n\nPăstrează-l în siguranță!`);
+
+                const { sessionKey, saltRaw, saltBase64 } = await deriveSessionKeyFromPIN(generatedPIN);
+
+
+
+                // 3. Ia cheia AES criptată de la server
+                const aesResponse = await fetch("http://localhost:9000/api/getUserSimmetricKey", {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include"
+                });
+
+                if (!aesResponse.ok) {
+                    alert("Eroare la obținerea cheii AES de la server.");
+                    return;
+                }
+
+                const aesData = await aesResponse.json();
+                const encObj = JSON.parse(hexToString(aesData[0].encryptedsimmetrickey));
+                const { iv, encData, tag } = encObj.encKey;
+
+                // 4. Decriptează cheia principală
+                const decryptionKey = await decodeMainKey(keyCryptBase64);
+                const dec_key = await decriptareDate(encData, iv, tag, decryptionKey);
+
+                const octetiArray = dec_key.split(',').map(item => parseInt(item.trim(), 10));
+                const uint8Array = new Uint8Array(octetiArray);
+                const base64Key = btoa(String.fromCharCode(...uint8Array));
+
+
+                chrome.runtime.sendMessage({
+                    action: "syncDecryptionKey",
+                    key: base64Key
+                }, (response) => {
+                    if (response?.success) {
+                        console.log("✅ Cheia a fost salvată prin background.js");
+                    } else {
+                        console.error("❌ Eroare la salvare:", response?.error);
+                    }
+                });
+
+
+                const uint8Array2 = Uint8Array.from(atob(base64Key), c => c.charCodeAt(0));
+                const continutCaString = Array.from(uint8Array2).map(b => String.fromCharCode(b)).join("");
+
+                const encryptedKey = await criptareDate(continutCaString, sessionKey);
+
+
 
                 const paroleDecriptate = await initKeyAndPasswords2(password);
                 loginContainer.style.display = "none";

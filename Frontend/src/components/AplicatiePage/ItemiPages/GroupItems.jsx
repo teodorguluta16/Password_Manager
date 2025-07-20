@@ -106,6 +106,9 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
 
             if (response.ok) {
                 const data = await response.json();
+                if (!Array.isArray(data)) {
+                    return;
+                }
 
                 //  mai intai extrag cheia privata si o decriptez pentru a decripta cheia aia AES
 
@@ -158,7 +161,6 @@ const GroupItmes = ({ item, setGestioneazaGrupItem, derivedKey }) => {
                 const privateKey2 = forge.pki.privateKeyFromPem(decc_key);
                 try {
                     decryptedMessage = decryptWithPrivateKey(encryptedMessage, privateKey2);
-                    console.log("Cheia simetrica a grupului decriptata:", decryptedMessage);
                     const decriptKey = await decodeMainKey(decryptedMessage);
                     let fetchedItems = [];
 

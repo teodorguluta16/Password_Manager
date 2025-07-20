@@ -113,7 +113,9 @@ async function checkPwnedPassword(password) {
 export async function handleCreareItem(formElement) {
     formElement.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const key = await getKeyFromIndexedDB();
+        //const key = await getKeyFromIndexedDB();
+
+        const key = await chrome.storage.session.get("decryptionKey");
 
 
         const nume = document.getElementById('numeItem').value;

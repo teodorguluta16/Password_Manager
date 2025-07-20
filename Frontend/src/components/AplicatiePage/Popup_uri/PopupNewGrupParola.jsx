@@ -185,7 +185,7 @@ const PopupNewGrupParola = ({ setShowParolaPopup, derivedKey, idgrup, fetchItems
             const enc_UrlItem = await criptareDate(urlItem, key_aes);
             const enc_UsernameItem = await criptareDate(usernameItem, key_aes);
             const enc_ParolaItem = await criptareDate(parolaItem, key_aes);
-            const enc_ComentariuItem = await criptareDate(comentariuItem, key_aes);
+            const enc_ComentariuItem = await criptareDate(comentariuItem?.trim() || " ", key_aes);
 
             // 3. Criptam cheia aes dar nu cu key ci cu simmmetric group key. Deci extragem mai intai enc simmetricgroupkey
 

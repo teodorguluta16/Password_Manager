@@ -8,6 +8,30 @@ window.addEventListener("message", async function (event) {
     if (event.origin !== "http://localhost:5173") return;
 
 
+    if (event.data.type === "REQUEST_KEY") {
+        const mesaj = event.data.mesaj;
+        console.log("📩 Mesaj primit de la aplicație:", mesaj);
+
+        chrome.storage.session.get("decryptionKey", (result) => {
+            const decryptionKey = result.decryptionKey;
+
+            if (!decryptionKey) {
+                console.warn("⚠️ Cheia lipsește din chrome.storage.session");
+                sendResponse({ success: false, error: "Key missing" });
+                return;
+            }
+
+            window.postMessage({
+                type: "EXTENSION_SALT",
+                key: decryptionKey,
+            }, "*");
+
+            console.log("📤 Cheia a fost trimisă înapoi aplicației!");
+            sendResponse({ success: true });
+        });
+
+        return true; // 🔁 Semnalezi că va exista un răspuns asincron
+    }
     if (event.data.type === "SYNC_DECRYPTION_KEY") {
         const key = event.data.key;
 
@@ -31,6 +55,8 @@ window.addEventListener("message", async function (event) {
             credentials: creds
         });
     }
+
+
 });
 
 // Caută câmpurile de login
@@ -281,9 +307,8 @@ function detectFormType(passwordInputs, usernameInputs, target) {
     });
 
     // detectează dacă e login simplu (ex: doar user + parola)
-    console.log(isLikelyConfirmPassword);
+    console.log("Contine ceva de schimbare parola: ", isLikelyConfirmPassword);
     let isLogin = passwordInputs.length >= 1 && usernameInputs.length >= 1 && !isLikelyConfirmPassword;
-    console.log("Deci login: ", isLogin);
 
     // scor pentru înregistrare
     let score = 0;

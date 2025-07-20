@@ -249,3 +249,84 @@ export async function exportKey(key) {
     const exportedKey = await window.crypto.subtle.exportKey('raw', key);
     return new Uint8Array(exportedKey);
 };
+
+
+export async function deriveSessionKeyFromPIN(pin) {
+    const salt = window.crypto.getRandomValues(new Uint8Array(16));
+    const encoder = new TextEncoder();
+    const pinBuffer = encoder.encode(pin);
+
+    const baseKey = await window.crypto.subtle.importKey(
+        "raw",
+        pinBuffer,
+        { name: "PBKDF2" },
+        false,
+        ["deriveKey"]
+    );
+
+    const sessionKey = await window.crypto.subtle.deriveKey(
+        {
+            name: "PBKDF2",
+            salt: salt,
+            iterations: 20000,
+            hash: "SHA-256"
+        },
+        baseKey,
+        { name: "AES-GCM", length: 256 },
+        true,
+        ["encrypt", "decrypt"]
+    );
+
+    const saltBase64 = btoa(String.fromCharCode(...salt));
+
+    return {
+        sessionKey,
+        saltRaw: salt,         // trimis prin postMessage
+        saltBase64             // folosit local
+    };
+}
+
+export function generatePIN(length = 6) {
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let pin = '';
+    const array = new Uint32Array(length);
+    window.crypto.getRandomValues(array); // pentru entropie criptografică
+
+    for (let i = 0; i < length; i++) {
+        const randIndex = array[i] % charset.length;
+        pin += charset[randIndex];
+    }
+
+    return pin;
+}
+
+export async function deriveKeyWebCrypto(hashedPassword, hashedEmail, purpose = "-auth") {
+    const encoder = new TextEncoder();
+    const salt = encoder.encode(hashedEmail + purpose); // păstrăm compatibilitatea cu aplicația
+
+    const passwordBuffer = encoder.encode(hashedPassword); // deja este hash, dar îl tratăm ca string
+
+    const baseKey = await crypto.subtle.importKey(
+        "raw",
+        passwordBuffer,
+        { name: "PBKDF2" },
+        false,
+        ["deriveKey"]
+    );
+
+    const derivedKey = await crypto.subtle.deriveKey(
+        {
+            name: "PBKDF2",
+            salt: salt,
+            iterations: 500000,
+            hash: "SHA-256"
+        },
+        baseKey,
+        { name: "AES-GCM", length: 256 },
+        true,
+        ["encrypt", "decrypt"]
+    );
+
+    const exportedKey = await crypto.subtle.exportKey("raw", derivedKey);
+    return btoa(String.fromCharCode(...new Uint8Array(exportedKey))); // base64
+}
