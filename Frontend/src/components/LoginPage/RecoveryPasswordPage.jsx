@@ -3,6 +3,7 @@ import { criptareDate, generateKey, decodeMainKey, decriptareDate, exportKey } f
 import { useNavigate } from 'react-router-dom';
 import CryptoJS from 'crypto-js';
 
+
 function hexToString(hex) {
     let str = '';
     for (let i = 0; i < hex.length; i += 2) {
@@ -89,7 +90,7 @@ const RecoveryPasswordPage = () => {
 
 
                 // extragem saltul acuma:
-                let salt = null;
+                //let salt = null;
                 try {
                     const response = await fetch('http://localhost:9000/api/auth/getSalt', {
                         method: 'POST',
@@ -109,12 +110,17 @@ const RecoveryPasswordPage = () => {
                 if (salt === null) {
                     console.error("Saltul e null");
                 }
+                console.log("saltul este: ", salt);
+
+
+
                 const derivedKey = CryptoJS.PBKDF2(cheiaRecuperare, salt, { keySize: 256 / 32, iterations: 500000 });// tre sa ajustez nr de iteratii
                 const derivedKeyBase64 = derivedKey.toString(CryptoJS.enc.Base64);
 
                 // decriptare cheie
                 const decriptKey = await decodeMainKey(derivedKeyBase64);
                 const dec_key = await decriptareDate(encDataHex, ivHex, tagHex, decriptKey);
+                console.log("Dec key este: ", dec_key);
 
                 setImportantKey(dec_key);
             } else {
@@ -147,7 +153,7 @@ const RecoveryPasswordPage = () => {
         try {
 
             // generam salt
-            const salt = new Uint8Array(32); // 32 de octeți pentru un salt de 256 biți
+            /*const salt = new Uint8Array(32); // 32 de octeți pentru un salt de 256 biți
             window.crypto.getRandomValues(salt);
             const saltBase64 = btoa(String.fromCharCode.apply(null, salt));
             const saltWordArray = CryptoJS.enc.Base64.parse(saltBase64);
@@ -160,10 +166,29 @@ const RecoveryPasswordPage = () => {
             const derivedKeyBase64 = derivedKey.toString(CryptoJS.enc.Base64);
 
             // 1. generam cheia aes principala 
+            const key_aes = importantKey;*/
+
             const key_aes = importantKey;
+            console.log("Cheia aes: ", key_aes);
+
+            //hash parola + email
+            const hashedPassword = await hashPassword(parolaNoua);
+            const hashedEmail = await hashPassword(email);
+
+            const keyAuth = CryptoJS.PBKDF2(hashedPassword, hashedEmail + "-auth", {
+                keySize: 256 / 32,
+                iterations: 500000,
+            });
+            const keyCrypt = CryptoJS.PBKDF2(hashedPassword, hashedEmail + "-crypt", {
+                keySize: 256 / 32,
+                iterations: 500000,
+            });
+
+            const keyAuthBase64 = keyAuth.toString(CryptoJS.enc.Base64);
+            const keyCryptBase64 = keyCrypt.toString(CryptoJS.enc.Base64);
 
             // 2.criptare cheie aes cu cheia derivata din parola
-            const criptKey = await decodeMainKey(derivedKeyBase64);
+            const criptKey = await decodeMainKey(keyCryptBase64);
 
             const key_aes_cryptobject = await decodeMainKey(key_aes);
             const key_aes_raw = await exportKey(key_aes_cryptobject);
@@ -175,11 +200,10 @@ const RecoveryPasswordPage = () => {
 
             const userData = {
                 Email: email,
-                SaltB64: saltBase64,
                 EncryptedAesKey: {
                     encKey: { iv: enc_key_raw.iv, encData: enc_key_raw.encData, tag: enc_key_raw.tag },
                 },
-                HashParola: hashedPassword,
+                HashParola: keyAuthBase64,
             };
 
             const response = await fetch('http://localhost:9000/api/auth/changePassword', {

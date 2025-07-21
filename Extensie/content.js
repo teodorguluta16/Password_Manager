@@ -10,7 +10,6 @@ window.addEventListener("message", async function (event) {
 
     if (event.data.type === "REQUEST_KEY") {
         const mesaj = event.data.mesaj;
-        console.log("📩 Mesaj primit de la aplicație:", mesaj);
 
         chrome.storage.session.get("decryptionKey", (result) => {
             const decryptionKey = result.decryptionKey;

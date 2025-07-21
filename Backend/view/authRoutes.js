@@ -151,14 +151,15 @@ authRouter.post('/getSalt', async (req, res) => {
 });
 
 authRouter.post("/changePassword", async (req, res) => {
-    const { Email, SaltB64, HashParola, EncryptedAesKey } = req.body;
+    const { Email, HashParola, EncryptedAesKey } = req.body;
 
-    if (!Email || !SaltB64 || !HashParola || !EncryptedAesKey) {
+    if (!Email || !HashParola || !EncryptedAesKey) {
         return res.status(400).send('Toate campurile sunt necesare!');
     }
 
     try {
-        await client.query(`UPDATE Utilizatori SET parola=$1, salt=$2,encryptedsimmetrickey=$3 WHERE Email=$4`, [HashParola, SaltB64, EncryptedAesKey, Email]);
+        const parolaHash = await bcrypt.hash(keyAuthBase64, 12);
+        await client.query(`UPDATE Utilizatori SET parola=$1, salt=$2,encryptedsimmetrickey=$3 WHERE Email=$4`, [parolaHash, EncryptedAesKey, Email]);
 
         console.log("Parola Actualizata cu succes !");
         return res.status(200).send({ message: 'Parola Actualizata cu succes' });
